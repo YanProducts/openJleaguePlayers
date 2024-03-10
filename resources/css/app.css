@@ -1,3 +1,15 @@
+
+/*# sourceMappingURL=app.css.map */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* カスタム定義 */
+@layer components {
+  .base_frame {
+    @apply w-4/5 min-w-[300px] max-w-[1000px] mx-auto;
+  }
+  .base_h1{
+    @apply text-center font-bold text-3xl mb-10
+  }
+}

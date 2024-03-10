@@ -10,4 +10,14 @@ export default defineConfig({
         }),
         react(),
     ],
+    optimizeDeps: {
+        exclude: ['fsevents']
+    },
+    css: {
+        preprocessorOptions: {
+          sass: {
+            additionalData: `$primary-color: #ff0000;`
+          }
+        }
+    }
 });

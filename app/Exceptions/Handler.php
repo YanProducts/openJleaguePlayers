@@ -5,6 +5,11 @@ namespace App\Exceptions;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Throwable;
 
+use App\Http\Controllers\ProfileController;
+use Illuminate\Foundation\Application;
+use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
+
 class Handler extends ExceptionHandler
 {
     /**
@@ -27,4 +32,16 @@ class Handler extends ExceptionHandler
             //
         });
     }
+
+    // エラーがあった時のビュー
+    public function render($request,Throwable $exception){
+        if($exception instanceof CustomException){
+            // // ビューの表示
+            return Inertia::render('Error/Custom',[
+                "message"=>$exception->getMessage()
+            ],500);
+        }
+        return parent::render($request,$exception);
+    }
+
 }
