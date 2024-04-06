@@ -12,4 +12,8 @@
   .base_h1{
     @apply text-center font-bold text-3xl mb-10
   }
+  .base_btn{
+    @apply block bg-gray-200 p-1 rounded-sm mx-auto text-center hover:cursor-pointer
+    active:translate-y-1
+  }
 }

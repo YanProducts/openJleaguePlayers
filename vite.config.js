@@ -19,5 +19,11 @@ export default defineConfig({
             additionalData: `$primary-color: #ff0000;`
           }
         }
-    }
+    },
+    server: {
+        port: 5173, // 通常のViteサーバーのポートを指定
+        proxy: {
+          '/api': 'http://localhost:8000', // Laravelバックエンドへのプロキシ設定
+        },
+    },
 });
