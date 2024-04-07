@@ -3,17 +3,38 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+
+// バリデーションエラーのカスタマイズ
+use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Http\Exceptions\HttpResponseException;
+
 use App\Rules\CategoryRule;
+use App\Rules\ExcludeNoChoiceRule;
 use App\Rules\NameTypeRule;
 use App\Rules\QuizTypeRule;
+
+
 
 // ゲームの種類設定のリクエスト
 class GamePatternRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
-    public function authorize(): bool
+
+    // エラーが生じた際にjsonで返す様にする
+    // 元のFormRequestの初期設定のfailedValidatonを書き換える
+    protected function failedValidation(Validator $validator)
+    {
+        $response = response()->json([
+            'message' => 'バリデーションエラーが発生しました。',
+            'errors' => $validator->errors()
+        ], 422);
+
+        throw new HttpResponseException($response);
+    }
+
+
+
+
+     public function authorize(): bool
     {
         return true;
     }
@@ -29,17 +50,17 @@ class GamePatternRequest extends FormRequest
             //カテゴリー
             "cate"=>[
                 "required",
-                new CategoryRule
+                new ExcludeNoChoiceRule(new CategoryRule)
             ],
             // クイズ形式
-            "quiz_type"=>[
+            "quizType"=>[
                 "required",
-                new QuizTypeRule
+                new ExcludeNoChoiceRule(new QuizTypeRule)
             ],
             // 回答形式
-            "name_type"=>[
+            "nameType"=>[
                 "required",
-                new NameTypeRule
+                new ExcludeNoChoiceRule(new NameTypeRule)
             ]
         ];
     }
@@ -47,8 +68,8 @@ class GamePatternRequest extends FormRequest
         // カスタムルールはルールクラスに設定
         return[
             "cate.required"=>"選択されていません",
-            "quiz.required"=>"選択されていません",
-            "name.required"=>"選択されていません",
+            "quiz_type.required"=>"選択されていません",
+            "name_type.required"=>"選択されていません",
         ];
     }
 }

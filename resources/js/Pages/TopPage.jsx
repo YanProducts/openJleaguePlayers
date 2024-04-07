@@ -48,30 +48,33 @@ export default function TopPage({ auth,csrf_token,post_route,year,play_game_rout
             }
             ).then((response)=>{
                 if(!response.ok){
-                    // もしバリデーションだった場合
+                    // レスポンスにバリデーションエラーが入っていたとき、そのエラーをjsonで変換し、その後に処理を行う
                     if(response.status===422){
-                        return response.json().then(returnedError=>{
+                        return response.json().then((returnedError)=>{
                             setError(returnedError.errors);
+                            // catchへ出す
+                            // return後の処理は行われないので、throwは別々に出す必要がある
+                            throw new Error("何らかのエラーです");
                         })
-                    }else{
-                    // そうでない場合のエラー処理
-                        return response.json().then(returnedError=>{
-                            setError({
-                                "unCategorizedError":"不明な処理です"
-                            })
-                            // catchに行く
-                            throw new Error(returnedError.message)
+                   }else{
+                    // バリデーションでない場合のエラー処理。jsonとは限らない
+                        setError({
+                            "unCategorizedError":"不明な処理です"
                         })
+                        // catchへ出す
+                        throw new Error("何らかのエラーです");
                     }
+                }else{
+                    // 正常な場合、responseをjsonに変換
+                    return response.json();
                 }
-                return response.json();
         }).then((json)=>{
-            console.log(json)
+            console.log("a")
             // ページ遷移
             // Inertia.visit(`${play_game_route}?option=${encodeURLComponent(JSON.stringify(pattern))}`)
-        }).catch((error)=>{
-            // エラーの場合の処理
-            console.log(error.message)
+        }).catch((ReturnedError)=>{
+            // ページ遷移させないために必要なcatch
+            console.log(ReturnedError);
         })
 
     }
@@ -85,6 +88,7 @@ export default function TopPage({ auth,csrf_token,post_route,year,play_game_rout
             <div className="h-full pt-30" style={{ backgroundImage: `url(${backgroundImage})`,
             backgroundSize:"contain"
             }}>
+
                 <div className="h-200">　</div>
                 <h1 className="bg-white bg-opacity-80 base_h1 base_frame"  id="toph1">{year}年Jリーグ<br/>選手何人言えるかな？</h1>
 
@@ -110,11 +114,9 @@ export default function TopPage({ auth,csrf_token,post_route,year,play_game_rout
                         <option value="all" className="cate_option">全て</option>
                     </select>
                     {/* バリデーションエラー時 */}
-                    {error.errors?.cate &&(
-                    <p>{error.errors.cate.join("\n")}</p>
+                    {error.cate &&(
+                    <p className='base_error animate-whenerror'>{error.cate.join("\n")}</p>
                     )}
-
-
                 </div>
 
                 <div className="base-frame bg-white bg-opacity-80  text-center mb-10">
@@ -132,11 +134,11 @@ export default function TopPage({ auth,csrf_token,post_route,year,play_game_rout
                         <option value="rand100" className="quizType_option">ランダム100人</option>
                         <option value="rand200" className="quizType_option">ランダム200人</option>
                     </select>
-                </div>
                 {/* バリデーションエラー時 */}
-                {error.errors?.quizType &&(
-                    <p>{error.errors.quizType.join("\n")}</p>
+                {error.quizType &&(
+                    <p className='base_error animate-whenerror'>{error.quizType.join("\n")}</p>
                 )}
+                </div>
 
                 <div className="base-frame bg-white bg-opacity-80  text-center mb-10">
                     <label htmlFor="nameType_select">　回答形式：</label>
@@ -145,11 +147,11 @@ export default function TopPage({ auth,csrf_token,post_route,year,play_game_rout
                         <option value="part" className="nameType_option">登録名の一部</option>
                         <option value="full" className="nameType_option">登録名</option>
                     </select>
-                </div>
                 {/* バリデーションエラー時 */}
-                {error.errors?.nameType &&(
-                    <p>{error.errors.nameType.join("\n")}</p>
+                {error.nameType &&(
+                    <p className='base_error animate-whenerror'>{error.nameType.join("\n")}</p>
                 )}
+                </div>
 
 
                 <div className='base_frame my-0'>

@@ -49,11 +49,12 @@ Route::get('/topPage', function () {
         //ゲームスタートのルール
         "play_game_route"=>route("play_game")
     ]);
-})->middleware(['auth', 'verified'])->name('topPage');
+})
+->middleware(['auth', 'verified'])
+->name('topPage');
 
 // ゲーム種類決定
-Route::post("/game.decide_patterm",[ReadController::class,"decide_game_pattern"])
-->middleware(['auth', 'verified'])
+Route::post("/game.decide_pattern",[ReadController::class,"decide_game_pattern"])
 ->name("decideGamePattern");
 
 // ゲーム開始

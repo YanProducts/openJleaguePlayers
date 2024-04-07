@@ -15,6 +15,9 @@ class CategoryRule implements ValidationRule
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
         //カテゴリー種類のルール
+
+        //選択なしの場合
+
         if(!preg_match("/^(J1|J2|J3|all)$/",$value)){
             $fail("カテゴリー名の異常です");
         }

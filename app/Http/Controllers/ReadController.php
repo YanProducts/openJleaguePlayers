@@ -10,18 +10,23 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 
+use Illuminate\Support\Facades\Log;
+
 class ReadController extends Controller
 {
-    // トップページの表示
+
 
 
     // ゲームパターンが決定後、そのパターンを返す
     public function decide_game_pattern(GamePatternRequest $request){
+    // public function decide_game_pattern(Request $request){
+        Log::info("a");
 
         // 実験のため、即座にjsonで返す
         return response()->json([
             "error" => "a"
         ]);
+
 
 
         // ゲームパターン

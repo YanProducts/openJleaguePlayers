@@ -16,4 +16,7 @@
     @apply block bg-gray-200 p-1 rounded-sm mx-auto text-center hover:cursor-pointer
     active:translate-y-1
   }
+  .base_error{
+    @apply  bg-pink-50 text-red-600 font-bold text-center border-y-2 border-black my-0 overflow-hidden
+  }
 }
