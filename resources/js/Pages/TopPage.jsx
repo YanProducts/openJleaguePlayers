@@ -3,8 +3,9 @@ import { Head } from '@inertiajs/react';
 import backgroundImage from '../../img/back.jpg';
 import { Inertia } from '@inertiajs/inertia';
 import React, {useState} from "react";
+import TopPage_fetch from "./fetchAPI/TopPage_fetch"
 
-export default function TopPage({ auth,csrf_token,post_route,year,play_game_route}) {
+export default function TopPage({ auth,csrf_token,post_route,year,cateSets,quizSets,NameSets,play_game_route}) {
 
     // クイズのパターン一覧
     const [pattern,setPattern]=useState({
@@ -31,53 +32,26 @@ export default function TopPage({ auth,csrf_token,post_route,year,play_game_rout
         setPattern({...pattern,nameType:e.target.value});
     }
 
-    const onDecideButtonClick=(e)=>{
+    // 決定ボタンが押されたとき
+    const onDecideButtonClick=async (e)=>{
         e.preventDefault();
-        const headers=new Headers({
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'X-CSRF-TOKEN': csrf_token
-        });
+
+        //１度リセットする（アニメーションをトリガーさせるため）
+        setError({});
+
         // ここでバリデーションエラーにfetch送信
         // post_routeはweb.phpで変数設定済みのルーティング
-        fetch(
-            post_route,
-            {
-                method:"post",
-                headers:headers,
-                body:new URLSearchParams(pattern)
-            }
-            ).then((response)=>{
-                if(!response.ok){
-                    // レスポンスにバリデーションエラーが入っていたとき、そのエラーをjsonで変換し、その後に処理を行う
-                    if(response.status===422){
-                        return response.json().then((returnedError)=>{
-                            setError(returnedError.errors);
-                            // catchへ出す
-                            // return後の処理は行われないので、throwは別々に出す必要がある
-                            throw new Error("何らかのエラーです");
-                        })
-                   }else{
-                    // バリデーションでない場合のエラー処理。jsonとは限らない
-                        setError({
-                            "unCategorizedError":"不明な処理です"
-                        })
-                        // catchへ出す
-                        throw new Error("何らかのエラーです");
-                    }
-                }else{
-                    // 正常な場合、responseをjsonに変換
-                    return response.json();
-                }
-        }).then((json)=>{
-            console.log("a")
+        const fetch_return=await TopPage_fetch(csrf_token,post_route,pattern);
+        if(!fetch_return.success){
+            setError(fetch_return.errorMessage)
+        }else{
             // ページ遷移
-            // Inertia.visit(`${play_game_route}?option=${encodeURLComponent(JSON.stringify(pattern))}`)
-        }).catch((ReturnedError)=>{
-            // ページ遷移させないために必要なcatch
-            console.log(ReturnedError);
-        })
-
+            // Inertia.visit(`${play_game_route}`)
+            Inertia.visit(play_game_route)
+            return;
+        }
     }
+
 
     return (
         <AuthenticatedLayout
@@ -94,8 +68,9 @@ export default function TopPage({ auth,csrf_token,post_route,year,play_game_rout
 
                 {/* validation以外の全般のエラー時に */}
                 {error.unCategorizedError &&
-                <p>不明なエラーです</p>
+                <p className='base_error animate-whenerror mb-5'>不明なエラーです</p>
                 }
+
 
                 <form method="post" action={post_route} className='base_frame font-bold'>
 
@@ -108,15 +83,19 @@ export default function TopPage({ auth,csrf_token,post_route,year,play_game_rout
                     <select className="ml-3" id="cate_select" name="cate"
                     onChange={onCateChange}>
                         <option hidden value="no_choice" className="cate_option">選択してください</option>
-                        <option value="J1" className="cate_option">J1</option>
-                        <option value="J2" className="cate_option">J2</option>
-                        <option value="J3" className="cate_option">J3</option>
-                        <option value="all" className="cate_option">全て</option>
+                        {
+                            Object.entries(JSON.parse(cateSets)).map(([cate_key,value])=>{
+                                return(<option value={cate_key}
+                                key={cate_key}>{value}</option>)
+                            })
+                        }
                     </select>
                     {/* バリデーションエラー時 */}
-                    {error.cate &&(
-                    <p className='base_error animate-whenerror'>{error.cate.join("\n")}</p>
-                    )}
+                    {error.cate &&
+                    (
+                        <p id="error_cate" className='base_error animate-whenerror'>{error.cate.join("\n")}</p>
+                    )
+                    }
                 </div>
 
                 <div className="base-frame bg-white bg-opacity-80  text-center mb-10">
@@ -124,15 +103,13 @@ export default function TopPage({ auth,csrf_token,post_route,year,play_game_rout
                     <select className="ml-3" id="quizType_select" name="quizType"
                     onChange={onQuizTypeChange}>
                         <option hidden value="no_choice" className="quizType_option">選択してください</option>
-                        <option value="team1" className="quizType_option">チーム1人ずつ</option>
-                        <option value="team3" className="quizType_option">チーム3人ずつ</option>
-                        <option value="team5" className="quizType_option">チーム5人ずつ</option>
-                        <option value="team11" className="quizType_option">チーム11人ずつ</option>
-                        <option value="team20" className="quizType_option">チーム20人ずつ</option>
-                        <option value="rand20" className="quizType_option">ランダム20人</option>
-                        <option value="rand50" className="quizType_option">ランダム50人</option>
-                        <option value="rand100" className="quizType_option">ランダム100人</option>
-                        <option value="rand200" className="quizType_option">ランダム200人</option>
+                        {
+                            Object.entries(JSON.parse(quizSets)).map(([quiz_key,value])=>{
+                                return(
+                                <option value={quiz_key}
+                                key={quiz_key}>{value}</option>)
+                            })
+                        }
                     </select>
                 {/* バリデーションエラー時 */}
                 {error.quizType &&(
@@ -144,8 +121,13 @@ export default function TopPage({ auth,csrf_token,post_route,year,play_game_rout
                     <label htmlFor="nameType_select">　回答形式：</label>
                     <select className="ml-3" id="nameType_select" name="nameType" onChange={onNameTypeChange}>
                         <option hidden value="no_choice" className="nameType_option">選択してください</option>
-                        <option value="part" className="nameType_option">登録名の一部</option>
-                        <option value="full" className="nameType_option">登録名</option>
+                       {
+                       Object.entries(JSON.parse(NameSets)).map  (([answer_key,value])=>{
+                                return(
+                                <option value={answer_key}
+                                key={answer_key}>{value}</option>)
+                       })
+                     }
                     </select>
                 {/* バリデーションエラー時 */}
                 {error.nameType &&(

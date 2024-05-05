@@ -6,7 +6,8 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\ConfigController;
 use App\Http\Controllers\GameController;
-use App\Http\Controllers\ReadController;
+use App\Http\Controllers\BeforeGameController;
+use App\Http\Controllers\StaticValueController;
 use App\Http\Controllers\TestController;
 
 /*
@@ -38,41 +39,25 @@ Route::middleware('auth')->group(function () {
 });
 
 // トップページ
-Route::get('/topPage', function () {
-    return Inertia::render('TopPage',[
-        "csrf_token"=>csrf_token(),
-        "post_route"=>route("decideGamePattern"),
-
-        // 設定し直す!!
-        "year"=>empty(session("year")) ? date("y",time()) : session("year"),
-
-        //ゲームスタートのルール
-        "play_game_route"=>route("play_game")
-    ]);
-})
+Route::get('/topPage', [BeforeGameController::class,"show_top_page"])
 ->middleware(['auth', 'verified'])
 ->name('topPage');
 
 // ゲーム種類決定
-Route::post("/game.decide_pattern",[ReadController::class,"decide_game_pattern"])
+Route::post("/game.decide_pattern",[BeforeGameController::class,"decide_game_pattern"])
 ->name("decideGamePattern");
 
 // ゲーム開始
-Route::get("/game.play",function () {
-    return Inertia::render('Game/Play',[
-        "csrf_token"=>csrf_token(),
-        // 非同期通信？
-        "post_route"=>route("answerCheck"),
-        "players_data"=>session("players_data"),
-        "name_type"=>session("name_type"),
-        "quiz_type"=>session("quiz_type"),
-        "cate"=>session("cate")
-    ]);
-})
+Route::get("/game.play",[BeforeGameController::class,"to_game_page_view"])
 ->middleware(['auth', 'verified'])
 ->name("play_game");
 
+
 // 回答があっているか？
+Route::post("/game/answerCheck",[GameController::class,"answer_check"])
+->middleware(['auth', 'verified'])
+->name("answerCheck");
+
 
 
 

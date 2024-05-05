@@ -19,6 +19,7 @@ class QuizTypeRule implements ValidationRule
             "team1",
             "team3",
             "team4",
+            "team5",
             "team11",
             "team20",
             "rand20",

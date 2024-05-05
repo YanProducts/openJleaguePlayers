@@ -55,12 +55,12 @@ class GamePatternRequest extends FormRequest
             // クイズ形式
             "quizType"=>[
                 "required",
-                new ExcludeNoChoiceRule(new QuizTypeRule)
+                new ExcludeNoChoiceRule(new QuizTypeRule),
             ],
             // 回答形式
             "nameType"=>[
                 "required",
-                new ExcludeNoChoiceRule(new NameTypeRule)
+                new ExcludeNoChoiceRule(new NameTypeRule),
             ]
         ];
     }
