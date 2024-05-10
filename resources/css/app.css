@@ -9,8 +9,17 @@
   .base_frame {
     @apply w-4/5 min-w-[300px] max-w-[1000px] mx-auto;
   }
+  .base_h{
+    @apply text-center font-bold bg-white bg-opacity-80 base_frame
+  }
   .base_h1{
-    @apply text-center font-bold text-3xl mb-10
+    @apply text-3xl mb-10
+  }
+  .base_table{
+    @apply base_frame bg-gray-200 w-3/5 mt-2 border-black border-2
+  }
+  .base_input_div{
+    @apply base_frame text-center
   }
   .base_btn{
     @apply block bg-gray-200 p-1 rounded-sm mx-auto text-center hover:cursor-pointer
@@ -18,5 +27,11 @@
   }
   .base_error{
     @apply  bg-pink-50 text-red-600 font-bold text-center border-y-2 border-black my-0 overflow-hidden
+  }
+  .base_link_p{
+    @apply text-center my-2   bg-white bg-opacity-80 base_frame w-1/5  p-0.5
+  }
+  .base_link{
+    @apply  font-semibold  cursor-pointer text-blue-600 border-b-2 border-blue-600  inline-block active:translate-y-1
   }
 }

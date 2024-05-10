@@ -5,7 +5,7 @@ import { Inertia } from '@inertiajs/inertia';
 import React, {useState} from "react";
 import TopPage_fetch from "./fetchAPI/TopPage_fetch"
 
-export default function TopPage({ auth,csrf_token,post_route,year,cateSets,quizSets,NameSets,play_game_route}) {
+export default function TopPage(props) {
 
     // クイズのパターン一覧
     const [pattern,setPattern]=useState({
@@ -41,13 +41,12 @@ export default function TopPage({ auth,csrf_token,post_route,year,cateSets,quizS
 
         // ここでバリデーションエラーにfetch送信
         // post_routeはweb.phpで変数設定済みのルーティング
-        const fetch_return=await TopPage_fetch(csrf_token,post_route,pattern);
+        const fetch_return=await TopPage_fetch(props.csrf_token,props.post_route,pattern);
         if(!fetch_return.success){
             setError(fetch_return.errorMessage)
         }else{
             // ページ遷移
-            // Inertia.visit(`${play_game_route}`)
-            Inertia.visit(play_game_route)
+            Inertia.visit(props.play_game_route)
             return;
         }
     }
@@ -55,16 +54,15 @@ export default function TopPage({ auth,csrf_token,post_route,year,cateSets,quizS
 
     return (
         <AuthenticatedLayout
-            user={auth.user}
+            user={props.auth.user}
             header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">トップページ</h2>}
         >
-            <Head title="トップページ" />
-            <div className="h-full pt-30" style={{ backgroundImage: `url(${backgroundImage})`,
-            backgroundSize:"contain"
-            }}>
+        <Head title="トップページ" />
+        <div className="h-full pt-30" style={{ backgroundImage: `url(${backgroundImage})`,
+         backgroundSize:"contain"}}>
 
                 <div className="h-200">　</div>
-                <h1 className="bg-white bg-opacity-80 base_h1 base_frame"  id="toph1">{year}年Jリーグ<br/>選手何人言えるかな？</h1>
+                <h1 className="base_h base_h1"  id="toph1">{props.year}年Jリーグ<br/>選手何人言えるかな？</h1>
 
                 {/* validation以外の全般のエラー時に */}
                 {error.unCategorizedError &&
@@ -72,9 +70,9 @@ export default function TopPage({ auth,csrf_token,post_route,year,cateSets,quizS
                 }
 
 
-                <form method="post" action={post_route} className='base_frame font-bold'>
+                <form method="post" action={props.post_route} className='base_frame font-bold'>
 
-                <input type="hidden" name="token" value={csrf_token}/>
+                <input type="hidden" name="token" value={props.csrf_token}/>
 
 
                 <div className="base-frame bg-white bg-opacity-80  text-center mb-10">
@@ -84,7 +82,7 @@ export default function TopPage({ auth,csrf_token,post_route,year,cateSets,quizS
                     onChange={onCateChange}>
                         <option hidden value="no_choice" className="cate_option">選択してください</option>
                         {
-                            Object.entries(JSON.parse(cateSets)).map(([cate_key,value])=>{
+                            Object.entries(JSON.parse(props.cateSets)).map(([cate_key,value])=>{
                                 return(<option value={cate_key}
                                 key={cate_key}>{value}</option>)
                             })
@@ -104,7 +102,7 @@ export default function TopPage({ auth,csrf_token,post_route,year,cateSets,quizS
                     onChange={onQuizTypeChange}>
                         <option hidden value="no_choice" className="quizType_option">選択してください</option>
                         {
-                            Object.entries(JSON.parse(quizSets)).map(([quiz_key,value])=>{
+                            Object.entries(JSON.parse(props.quizSets)).map(([quiz_key,value])=>{
                                 return(
                                 <option value={quiz_key}
                                 key={quiz_key}>{value}</option>)
@@ -122,7 +120,7 @@ export default function TopPage({ auth,csrf_token,post_route,year,cateSets,quizS
                     <select className="ml-3" id="nameType_select" name="nameType" onChange={onNameTypeChange}>
                         <option hidden value="no_choice" className="nameType_option">選択してください</option>
                        {
-                       Object.entries(JSON.parse(NameSets)).map  (([answer_key,value])=>{
+                       Object.entries(JSON.parse(props.nameSets)).map  (([answer_key,value])=>{
                                 return(
                                 <option value={answer_key}
                                 key={answer_key}>{value}</option>)

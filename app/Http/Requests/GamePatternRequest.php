@@ -10,6 +10,7 @@ use Illuminate\Http\Exceptions\HttpResponseException;
 
 use App\Rules\CategoryRule;
 use App\Rules\ExcludeNoChoiceRule;
+use App\Rules\isTeamExists;
 use App\Rules\NameTypeRule;
 use App\Rules\QuizTypeRule;
 
@@ -46,7 +47,7 @@ class GamePatternRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
+        $rule_sets=[
             //カテゴリー
             "cate"=>[
                 "required",
@@ -62,7 +63,16 @@ class GamePatternRequest extends FormRequest
                 "required",
                 new ExcludeNoChoiceRule(new NameTypeRule),
             ]
-        ];
+            ];
+
+            // 回答時のみ：回答にチームが含まれるか？
+            if($this->route->getName()==="answerCheck" && strpos($this->input("quizType"),"rand")!==false){
+                    $rule_sets["answerTeam"]=[
+                            "required",
+                            new ExcludeNoChoiceRule(new isTeamExists($this->input("cate")))
+                    ];
+            }
+        return $rule_sets;
     }
     public function messages(){
         // カスタムルールはルールクラスに設定

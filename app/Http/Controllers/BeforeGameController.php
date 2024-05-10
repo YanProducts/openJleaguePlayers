@@ -18,7 +18,7 @@ class BeforeGameController extends Controller
 
         // session削除
         SessionController::delete_sessions(([
-            "cate","quiz_type","name_type","player_lists"
+            "cate","quiz_type","name_type","player_lists","selected_teams"
         ]));
 
         // ページ表示
@@ -26,15 +26,15 @@ class BeforeGameController extends Controller
             "csrf_token"=>csrf_token(),
             "post_route"=>route("decideGamePattern"),
 
-
-            // 設定し直す!!!!!!!!
+            // 年度の設定
             "year"=>empty(session("year")) ? date("y",time()) : session("year"),
 
             // 各オプション
             "cateSets"=>json_encode(StaticValueController::$CateSets),
             "quizSets"=>json_encode(StaticValueController::$QuizSets),
-            "NameSets"=>json_encode(StaticValueController::$NameSets),
-            //ゲームスタートのルール
+            "nameSets"=>json_encode(StaticValueController::$NameSets),
+
+            //ゲームスタートのルート
             "play_game_route"=>route("play_game")
         ]);
     }
@@ -45,7 +45,7 @@ class BeforeGameController extends Controller
     public function decide_game_pattern(GamePatternRequest $request){
 
         // 前段階のsession削除
-        SessionController::delete_sessions(["cate","quiz_type","name_type","player_lists"]);
+        SessionController::delete_sessions(["cate","quiz_type","name_type","player_lists","selected_teams"]);
 
         // ゲームパターン
         $cate=$request->cate;
@@ -55,8 +55,11 @@ class BeforeGameController extends Controller
         // 該当選手リスト(コレクションで定義)
         $player_lists=collect();
 
+        // 後でも使うため宣言
+        $selected_teams=collect();
+
         try{
-            DB::transaction(function()use($cate,&$player_lists){
+            DB::transaction(function()use($cate,&$player_lists, &$selected_teams){
                 // チーム一覧の取得
                 $cate==="all" ? $selected_teams=Team::all():$selected_teams=Team::where("cate","=",$cate)->get();
 
@@ -74,7 +77,7 @@ class BeforeGameController extends Controller
 
         // session作成
         SessionController::create_sessions(([
-            "cate"=>$cate,"quiz_type"=>$quiz_type,"name_type"=>$name_type === "part" ? "名前の一部" : "名前","player_lists"=>$player_lists
+            "cate"=>$cate,"quiz_type"=>$quiz_type,"name_type"=>$name_type,"player_lists"=>$player_lists, "selected_teams"=>$selected_teams
         ]));
 
         // fetchAPIからの投稿をjsonで返す
@@ -90,18 +93,24 @@ class BeforeGameController extends Controller
     public function to_game_page_view(){
 
         // sessionがあるか？
-        if(!SessionController::confirm_sessions(["cate","quiz_type","name_type","player_lists"])){
+        if(!SessionController::confirm_session_value(["cate","quiz_type","name_type","player_lists","selected_teams"])){
             throw new CustomException("設定上のエラーです");
         }
 
         return Inertia::render('Game/Play',[
             "csrf_token"=>csrf_token(),
+
+            // 年度の設定!?????
+            "year"=>empty(session("year")) ? date("y",time()) : session("year"),
+
+
             "answer_check_route"=>route("answerCheck"),
             "top_page_route"=>route("topPage"),
-            "players_data"=>json_encode(session("players_data")),
-            "name_type"=>session("name_type"),
+            "player_lists"=>json_encode(session("player_lists")),
+            "name_type"=>session("name_type")=== "part" ? "名前の一部" : "名前",
             "quiz_type"=>session("quiz_type"),
-            "cate"=>session("cate")
+            "cate"=>session("cate"),
+            "teams"=>session("selected_teams")
         ]);
     }
 
