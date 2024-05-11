@@ -1,3 +1,5 @@
+import React from "react";
+
 // 回答を全部合わせて答える場合
 export default function AnswerRandom(props){
 
@@ -10,15 +12,22 @@ export default function AnswerRandom(props){
             )
 
         }else{
-            props.answered.map((m)=>{
-                return(
-                <tr className="border-black">
-                    <td className="w-1/6 text-center border-black">{m.number}</td>
-                    <td className="w-2/3 text-center border-black">{m.player}</td>
-                    <td className="w-1/6 text-center border-black">{m.team}</td>
-                </tr>
-                )
-            });
+            return(
+                props.answered.map((m)=>{
+                    const fontColor=0.299*m.red + 0.587 *m.green + 0.114*m.blue > 128 ? "black" : "white";
+                    return(
+                        <tr key={m.number} className="border-black font-bold"
+                        style={{ backgroundColor:`rgb(${m.red},${m.green},${m.blue})`,
+                        color:fontColor
+                        }}
+                        >
+                            <td className="w-1/6 text-center border-2 border-black">{m.number}</td>
+                            <td className="w-2/3 text-center border-2 border-black">{m.player}</td>
+                            <td className="w-1/6 text-center border-2 border-black">{m.team}</td>
+                        </tr>
+                    )
+                })
+            )
         }
     }
 

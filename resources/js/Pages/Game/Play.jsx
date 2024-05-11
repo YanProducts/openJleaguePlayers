@@ -21,7 +21,7 @@ export default function Play(props) {
     // 回答後か否か
     const [isAfter,setIsAfter]=React.useState(false);
 
-    // 正解か不正解か未回答か(jsonと区別するためにStateを変数名で使用)
+    // 正解か不正解か未回答か回答済か(jsonと区別するためにStateを変数名で使用)
     const [isRightState,setIsRightState]=React.useState("yet");
 
     // inputのcursor
@@ -101,18 +101,37 @@ export default function Play(props) {
             // 成功の場合
             setIsAfter(true);
             // 正否の表示
-            setIsRightState(fetch_return.isRight);
-                    // input要素を空にしてfocus(成功でもエラーでも同じ処理)
-        setInputVal("")
-        inputRef.current.focus();
+            setIsRightState(fetch_return.returnSets.isRight);
+
+            // 正解の場合：選手リストに追加
+            if(fetch_return.returnSets.isRight==="right"){
+                let newAnswered=[...answered];
+                fetch_return.returnSets.playerLists.forEach((eachPlayer)=>{
+                    newAnswered.push(
+                        {
+                            "number":answered.length+1,
+                            "player":eachPlayer,
+                            "team":fetch_return.returnSets.team,
+                            "red":fetch_return.returnSets.red,
+                            "green":fetch_return.returnSets.green,
+                            "blue":fetch_return.returnSets.blue,
+                        });
+                });
+                // 挿入は１度に行う必要がある
+                setAnswered(newAnswered);
+            }
+            // input要素を空にしてfocus(成功でもエラーでも同じ処理)
+            setInputVal("")
+            inputRef.current.focus();
         }else{
             // 失敗の場合
             setError(fetch_return.errorMessage)
         }
+
     }
 
     // 表示する回答された選手リスト
-    const quize_route_choise=()=>{
+    const quiz_route_choise=()=>{
         if(props.quiz_type.indexOf("team")!==-1){
             return(
                 <AnswerByTeam answered={answered} />
@@ -151,6 +170,10 @@ export default function Play(props) {
                 return(
                     <div className='wrong_div'>X</div>
                 )
+            }else if(isRightState==="already"){
+                return(
+                    <div className='already_div'>回答済</div>
+                    )
             }
         }
     }
@@ -165,7 +188,7 @@ export default function Play(props) {
             <div className="h-full pt-30" style={{ backgroundImage: `url(${backgroundImage})`,
          backgroundSize:"contain"}}>
 
-            <h1 className="base_h base_h1"  id="toph1">{props.year}年Jリーグ<br/>選手何人言えるかな？</h1>
+            <h1 className="base_h base_h1"  id="toph1">{props.year}年{props.cate==="all" ? "J" : props.cate}リーグ<br/>選手何人言えるかな？</h1>
 
              {/* validation以外の全般のエラー時に */}
              {error.unCategorizedError &&
@@ -183,7 +206,7 @@ export default function Play(props) {
             {error.validationError &&(<p id="error_cate" className='base_error animate-whenerror'>{error.validationError}</p>)}
 
             {/* quiz_typeがチーム別かrondomかで分割 */}
-            {quize_route_choise()}
+            {quiz_route_choise()}
 
 
             <p className='base_link_p'><Link href={props.top_page_route} className='base_link'>トップへ</Link></p>

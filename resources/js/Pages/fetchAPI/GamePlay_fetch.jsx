@@ -18,12 +18,12 @@ export default async function gameplay_fetch(props){
                     quizType:props.quiz_type,
                     nameType:props.name_type==="名前の一部" ? "part" : (name_type==="登録名" ? "full":""),
                     team:props.answerTeam,
-                    cate:props.cate
+                    cate:props.cate,
+                    answered:JSON.stringify(props.answered)
                 })
             });
 
         if(!response.ok){
-
             if(response.status===422){
                 // バリデーションエラー
                 throw new Error(JSON.stringify({"validationError":"予期せぬエラーが発生しました"}));
@@ -32,10 +32,10 @@ export default async function gameplay_fetch(props){
                 throw new Error(JSON.stringify({"unCategorizedError":"不明な処理です"}));
             }
         }
-        const isRightJson=await response.json();
+        const returnJson=await response.json();
         return {
             "success":true,
-            "isRight":isRightJson.is_right ? "right" : "wrong"
+            "returnSets":returnJson
         }
     }catch(e){
         const messageObject=JSON.parse(e.message)

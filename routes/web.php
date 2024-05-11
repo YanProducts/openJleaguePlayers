@@ -59,8 +59,6 @@ Route::post("/game/answerCheck",[GameController::class,"answer_check"])
 ->name("answerCheck");
 
 
-
-
 //お知らせ
 Route::get('/sign', function () {
     return Inertia::render('Sign',[

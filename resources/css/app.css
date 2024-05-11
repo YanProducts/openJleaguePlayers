@@ -44,5 +44,8 @@
   .wrong_div{
     @apply afterAnswer_div_common w-10  border-4  bg-gray-400 text-base font-extrabold leading-snug animate-whenwrong
   }
+  .already_div{
+    @apply right_div bg-gray-200
+  }
 
 }

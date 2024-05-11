@@ -26,6 +26,10 @@ class ConfigController extends Controller
           throw new CustomException(env("APP_ENV")==="local" ? $e->getMessage(): "ファイルパス取得時のエラーです");
       }
 
+        // １度空にする(foreign keyの関係上、先にTeamを行う)
+        Player::query()->delete();
+        Team::query()->delete();
+
         // チームデータ登録
         $this->update_newYear_team_data($teams_data_path);
 
@@ -44,9 +48,6 @@ class ConfigController extends Controller
             // データの取得
             $team_data=file($teams_data_path."/team_cate.txt");
 
-            // １度空にする
-            Team::Truncate();
-
             // 処理
             DB::transaction(function()use($team_data){
                 foreach($team_data as $each_team_data){
@@ -60,7 +61,7 @@ class ConfigController extends Controller
           throw new CustomException(env("APP_ENV")==="local" ? $e->getMessage():          "チーム登録時のエラーです");
         }
     }
-    
+
     // その年度の選手データの更新
     public function update_newYear_player_data($players_data_path){
         try{
@@ -70,13 +71,10 @@ class ConfigController extends Controller
             // 去年のデータの履歴登録
             $this->store_lastyear_data();
 
-            // １度空にする
-            Player::Truncate();
-
             DB::transaction(function()use($players_data_filenames){
                 // 各チームファイルの取得
                 foreach($players_data_filenames as $players_data_filename){
-                   $players_in_each_team=file($players_data_filename);                   
+                   $players_in_each_team=file($players_data_filename);
                     //sql登録
                     $this->update_each_player_data($players_data_filename,$players_in_each_team);
                 }
@@ -94,8 +92,8 @@ class ConfigController extends Controller
         $team->jpn_name=$each_team_data_inArray[1];
         $team->cate=$each_team_data_inArray[2];
         $team->red=$each_team_data_inArray[3];
-        $team->blue=$each_team_data_inArray[4];
-        $team->green=$each_team_data_inArray[5];
+        $team->green=$each_team_data_inArray[4];
+        $team->blue=$each_team_data_inArray[5];
         $team->save();
     }
 
@@ -115,10 +113,10 @@ class ConfigController extends Controller
         $teamandtxt=mb_substr($filename,$slashpoint+10);
         $team=mb_substr($teamandtxt,0,mb_strlen($teamandtxt)-4);
 
-        $n=0;   
+        $n=0;
 
         foreach($lists as $list){
-            
+
             // 選手データは３行に１つ
             if($n%3===0){
 
@@ -126,11 +124,11 @@ class ConfigController extends Controller
             $fullname="";
             $restname="";
             $partname=[];
-     
+
             // 正規表現
             preg_match_all($ptn_num,$list,$numbase);
             preg_match_all($ptn_name,$list,$namebase);
-            
+
             // スペースが初めからない時の初期設定
             $fullname=$namebase[0][0];
             $partname[]=$namebase[0][0];
