@@ -1,5 +1,5 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import React, {useState} from "react";
+import React from "react";
 import { Link, Head } from '@inertiajs/react';
 import AnswerRandom from "./Part/AnswerRandom";
 import AnswerByTeam from "./Part/AnswerByTeam";
@@ -96,7 +96,7 @@ export default function Play(props) {
         };
         // 投稿
         const fetch_return=await gameplay_fetch(fetch_params);
-        console.log(fetch_return);
+
         if(fetch_return.success){
             // 成功の場合
             setIsAfter(true);
@@ -130,6 +130,18 @@ export default function Play(props) {
 
     // 回答後のUI
     const AfterAnsewrComponent=()=>{
+        React.useEffect(function(){
+            // クイズ回答後の場合は3秒後に疑似ページ遷移してクイズ回答前の状態にする
+            if(isAfter){
+                const timer=setTimeout(()=>{
+                    setIsAfter(false);
+                },3000)
+            // useEffect内部での処理を終了後に、useEffectが発生する前の状態に戻す
+                return()=>{
+                    clearTimeout(timer)
+                }
+            }
+        },[isAfter])
         if(isAfter){
             if(isRightState==="right"){
                 return(
