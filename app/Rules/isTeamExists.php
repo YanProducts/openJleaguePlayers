@@ -28,13 +28,13 @@ class isTeamExists implements ValidationRule
             case "J3":
                 if(!Team::where([
                     ["cate","=",$this->cate],
-                    ["jpn_name","=",$value],
+                    ["eng_name","=",$value],
                 ])->exists()){
                     $fail("チームが見当たりません");
                 }
             break;
             case "all":
-                if(!Team::where("jpn_name","=",$value)->exists()){
+                if(!Team::where("eng_name","=",$value)->exists()){
                     $fail("チームが見当たりません");
                 }
             break;

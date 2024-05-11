@@ -5,6 +5,7 @@ import AnswerRandom from "./Part/AnswerRandom";
 import AnswerByTeam from "./Part/AnswerByTeam";
 import backgroundImage from '../../../img/back.jpg';
 import gameplay_fetch from '../fetchAPI/GamePlay_fetch';
+import { Inertia } from '@inertiajs/inertia';
 
 export default function Play(props) {
 
@@ -17,6 +18,12 @@ export default function Play(props) {
     // エラー有無
     const [error,setError]=React.useState("");
 
+    // 回答後か否か
+    const [isAfter,setIsAfter]=React.useState(false);
+
+    // 正解か不正解か未回答か(jsonと区別するためにStateを変数名で使用)
+    const [isRightState,setIsRightState]=React.useState("yet");
+
     // inputのcursor
     const inputRef=React.useRef(null);
 
@@ -26,16 +33,16 @@ export default function Play(props) {
     }
 
     //チーム選択によって変化
-    const [answerTeam,setAnswerTeam]=React.useState("");
+    const [answerTeam,setAnswerTeam]=React.useState("no_choice");
 
     // inputのcomponents(quiz_typeの値で変化)
     const InputComponent=()=>{
         if(props.quiz_type.indexOf("team")!==-1){
             return(
-                <div className="base_input_div flex justify-center">
-                <input className='h-8 ml-auto' ref={inputRef} value={inputVal} onChange={onInputChange}/>
-                <button onClick={onAnswerBtnClick} className="base_btn inline-block ml-1 text-left">回答！</button>
-                </div>
+                <form className="base_input_div flex justify-center" onSubmit={onAnswerBtnClick} >
+                <input className='h-8 ml-auto' ref={inputRef} value={inputVal} onChange={onInputChange} />
+                <button className="base_btn inline-block ml-1 text-left">回答！</button>
+                </form>
             )
         }else if(props.quiz_type.indexOf("rand")!==-1){
 
@@ -44,28 +51,35 @@ export default function Play(props) {
             }
 
             return(
-                <div className="base_input_div flex justify-center">
+                <form className="base_input_div flex justify-center" onSubmit={onAnswerBtnClick} >
                 <input className='h-8 ml-auto mr-2' ref={inputRef} value={inputVal} onChange={onInputChange}/>
                 <select value={answerTeam} className='mr-2' onChange={onTeamSelectChange}>
-                    <option hidden>チームの選択</option>
-                    {props.teams.map(m=>(<option key={m.id} value={m.jpn_name}>{m.jpn_name}</option>))}
+                    <option hidden value="no_choice">チームの選択</option>
+                    {props.teams.map(m=>(<option key={m.id} value={m.eng_name}>{m.jpn_name}</option>))}
                 </select>
-                <button onClick={onAnswerBtnClick} className="base_btn inline-block ml-1 text-left">回答！</button>
-                </div>
+                <button className="base_btn inline-block ml-1 text-left">回答！</button>
+                </form>
             )
         }else{
-            // エラーページへ遷移！！！！！！！
-
-
-
+            // エラーページへ遷移
+            Inertia.visit(props.error_view_route);
+            return;
         }
 
     }
 
-    // 回答ボタンを押したとき
-    const onAnswerBtnClick=async ()=>{
+    // 回答がsubmitされたとき
+    const onAnswerBtnClick=async (e)=>{
+
+        e.preventDefault();
+
         if(inputVal===""){
-            alert("入力されていません");
+            alert("選手が入力されていません");
+            return;
+        }
+
+        if(props.quiz_type.indexOf("rand")!==-1 && answerTeam==="no_choice"){
+            alert("チームが入力されていません");
             return;
         }
         const fetch_params={
@@ -74,8 +88,6 @@ export default function Play(props) {
             answered: answered,
             setAnswered: setAnswered,
             inputVal: inputVal,
-            setInputVal: setInputVal,
-            inputRef: inputRef,
             player_lists: props.player_lists,
             name_type: props.name_type,
             quiz_type: props.quiz_type,
@@ -83,10 +95,16 @@ export default function Play(props) {
             cate: props.cate
         };
         // 投稿
-        const fetch_return=await gameplay_fetch()
+        const fetch_return=await gameplay_fetch(fetch_params);
+        console.log(fetch_return);
         if(fetch_return.success){
             // 成功の場合
-
+            setIsAfter(true);
+            // 正否の表示
+            setIsRightState(fetch_return.isRight);
+                    // input要素を空にしてfocus(成功でもエラーでも同じ処理)
+        setInputVal("")
+        inputRef.current.focus();
         }else{
             // 失敗の場合
             setError(fetch_return.errorMessage)
@@ -104,13 +122,26 @@ export default function Play(props) {
                 <AnswerRandom answered={answered}/>
             )
         }else{
-            // エラーページへ遷移！！！！！！！
-
-
-
+            // エラーページへ遷移！
+            Inertia.visit(props.error_view_route);
+            return;
         }
     }
 
+    // 回答後のUI
+    const AfterAnsewrComponent=()=>{
+        if(isAfter){
+            if(isRightState==="right"){
+                return(
+                    <div className='right_div'>正解！</div>
+                    )
+            }else if(isRightState==="wrong"){
+                return(
+                    <div className='wrong_div'>X</div>
+                )
+            }
+        }
+    }
 
 
     return (
@@ -131,10 +162,13 @@ export default function Play(props) {
 
             <h3 className='base_h py-1 mb-2'>知っている選手の{props.name_type}を書いてください</h3>
 
+            {/* 正否表示 */}
+            {AfterAnsewrComponent()}
+
             {/* input周りのcomponent */}
             {InputComponent()}
 
-            {error.answerValue &&(<p id="error_cate" className='base_error animate-whenerror'>{error.answerValue.join("\n")}</p>)}
+            {error.validationError &&(<p id="error_cate" className='base_error animate-whenerror'>{error.validationError}</p>)}
 
             {/* quiz_typeがチーム別かrondomかで分割 */}
             {quize_route_choise()}

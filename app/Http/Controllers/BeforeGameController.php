@@ -106,8 +106,9 @@ class BeforeGameController extends Controller
 
             "answer_check_route"=>route("answerCheck"),
             "top_page_route"=>route("topPage"),
+            "error_view_route"=>route("error_view"),
             "player_lists"=>json_encode(session("player_lists")),
-            "name_type"=>session("name_type")=== "part" ? "名前の一部" : "名前",
+            "name_type"=>session("name_type")=== "part" ? "名前の一部" : "登録名",
             "quiz_type"=>session("quiz_type"),
             "cate"=>session("cate"),
             "teams"=>session("selected_teams")

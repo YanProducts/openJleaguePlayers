@@ -46,7 +46,7 @@ export default function TopPage(props) {
             setError(fetch_return.errorMessage)
         }else{
             // ページ遷移
-            Inertia.visit(props.play_game_route)
+            Inertia.visit(props.play_game_route);
             return;
         }
     }

@@ -75,8 +75,12 @@ Route::get('/sign', function () {
 Route::get("/update_data",[ConfigController::class,"update_newYear_data"])
 ->name("dataChange_newYear");
 
-// 以下テスト用
-// エラーテスト
-Route::get("test/error",[TestController::class,"test_error"]);
+    // エラーがあった時のビュー
+Route::get("/error_view",function(){
+        // // ビューの表示
+        return Inertia::render('Error/Custom',[
+            "top_page"=>route("topPage")
+        ],500);
+})->name("error_view");
 
 require __DIR__.'/auth.php';

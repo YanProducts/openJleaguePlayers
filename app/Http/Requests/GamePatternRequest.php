@@ -33,8 +33,6 @@ class GamePatternRequest extends FormRequest
     }
 
 
-
-
      public function authorize(): bool
     {
         return true;
@@ -65,13 +63,14 @@ class GamePatternRequest extends FormRequest
             ]
             ];
 
-            // 回答時のみ：回答にチームが含まれるか？
-            if($this->route->getName()==="answerCheck" && strpos($this->input("quizType"),"rand")!==false){
-                    $rule_sets["answerTeam"]=[
-                            "required",
-                            new ExcludeNoChoiceRule(new isTeamExists($this->input("cate")))
-                    ];
-            }
+            // // 回答時のみ：回答にチームが含まれるか？
+            // if( $this->route()->getName()==="answerCheck"
+            //  && strpos($this->input("quizType"),"rand")!==false){
+            //         $rule_sets["answerTeam"]=[
+            //                 "required",
+            //                 new ExcludeNoChoiceRule(new isTeamExists($this->input("cate")))
+            //         ];
+            // }
         return $rule_sets;
     }
     public function messages(){
