@@ -24,7 +24,6 @@ class BeforeGameController extends Controller
         // ページ表示
         return Inertia::render('TopPage',[
             "csrf_token"=>csrf_token(),
-            "post_route"=>route("decideGamePattern"),
 
             // 年度の設定
             "year"=>empty(session("year")) ? date("y",time()) : session("year"),
@@ -34,8 +33,6 @@ class BeforeGameController extends Controller
             "quizSets"=>json_encode(StaticValueController::$QuizSets),
             "nameSets"=>json_encode(StaticValueController::$NameSets),
 
-            //ゲームスタートのルート
-            "play_game_route"=>route("play_game")
         ]);
     }
 
@@ -103,15 +100,11 @@ class BeforeGameController extends Controller
             // 年度の設定!?????
             "year"=>empty(session("year")) ? date("y",time()) : session("year"),
 
-
-            "answer_check_route"=>route("answerCheck"),
-            "top_page_route"=>route("topPage"),
-            "error_view_route"=>route("error_view"),
             "player_lists"=>json_encode(session("player_lists")),
             "name_type"=>session("name_type")=== "part" ? "名前の一部" : "登録名",
             "quiz_type"=>session("quiz_type"),
             "cate"=>session("cate"),
-            "teams"=>session("selected_teams")
+            "teams"=>session("selected_teams"),
         ]);
     }
 

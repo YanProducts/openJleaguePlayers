@@ -9,7 +9,7 @@ export default async function gameplay_fetch(props){
     // 投稿
     try{
        const response=await fetch(
-            props.answer_check_route,
+            "/game/answerCheck",
             {
                 method:"post",
                 headers:headers,

@@ -11,15 +11,24 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use Illuminate\Support\Facades\Route;
 
+
+// 認証されていないユーザーの場合
 Route::middleware('guest')->group(function () {
+
+// 登録はこちら
     Route::get('register', [RegisteredUserController::class, 'create'])
                 ->name('register');
 
+// 新規登録
     Route::post('register', [RegisteredUserController::class, 'store']);
 
-    Route::get('login', [AuthenticatedSessionController::class, 'create'])
-                ->name('login');
 
+    // ログインページ表示のルート
+    Route::get('login', [AuthenticatedSessionController::class, 'create'])
+    ->name('login');
+
+
+    // 実際のログイン
     Route::post('login', [AuthenticatedSessionController::class, 'store']);
 
     Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])
@@ -35,6 +44,8 @@ Route::middleware('guest')->group(function () {
                 ->name('password.store');
 });
 
+
+// 認証されているユーザーの場合
 Route::middleware('auth')->group(function () {
     Route::get('verify-email', EmailVerificationPromptController::class)
                 ->name('verification.notice');
@@ -54,6 +65,11 @@ Route::middleware('auth')->group(function () {
 
     Route::put('password', [PasswordController::class, 'update'])->name('password.update');
 
+    // ログアウト
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
-                ->name('logout');
+    ->name('logout');
+
+    // ログインしないで遊ぶ
+    Route::get("no_login_playing",[AuthenticatedSessionController::class, 'noLoginPlaying'])
+    ->name("noLoginPlaying");
 });

@@ -1,5 +1,5 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
 import backgroundImage from '../../img/back.jpg';
 import { Inertia } from '@inertiajs/inertia';
 import React, {useState} from "react";
@@ -40,17 +40,15 @@ export default function TopPage(props) {
         setError({});
 
         // ここでバリデーションエラーにfetch送信
-        // post_routeはweb.phpで変数設定済みのルーティング
-        const fetch_return=await TopPage_fetch(props.csrf_token,props.post_route,pattern);
+        const fetch_return=await TopPage_fetch(props.csrf_token,pattern);
         if(!fetch_return.success){
             setError(fetch_return.errorMessage)
         }else{
             // ページ遷移
-            Inertia.visit(props.play_game_route);
+            Inertia.visit("/game.play");
             return;
         }
     }
-
 
     return (
         <AuthenticatedLayout
@@ -70,12 +68,12 @@ export default function TopPage(props) {
                 }
 
 
-                <form method="post" action={props.post_route} className='base_frame font-bold'>
+                <form method="post" action="game.decide_pattern" className='base_frame font-bold'>
 
                 <input type="hidden" name="token" value={props.csrf_token}/>
 
 
-                <div className="base-frame bg-white bg-opacity-80  text-center mb-10">
+                <div className="base-frame base_backColor  text-center mb-10">
 
                     <label htmlFor="cate_select">カテゴリー：</label>
                     <select className="ml-3" id="cate_select" name="cate"
@@ -96,7 +94,7 @@ export default function TopPage(props) {
                     }
                 </div>
 
-                <div className="base-frame bg-white bg-opacity-80  text-center mb-10">
+                <div className="base-frame base_backColor  text-center mb-10">
                     <label htmlFor="quizType_select">クイズ形式：</label>
                     <select className="ml-3" id="quizType_select" name="quizType"
                     onChange={onQuizTypeChange}>
@@ -115,7 +113,7 @@ export default function TopPage(props) {
                 )}
                 </div>
 
-                <div className="base-frame bg-white bg-opacity-80  text-center mb-10">
+                <div className="base-frame base_backColor  text-center mb-10">
                     <label htmlFor="nameType_select">　回答形式：</label>
                     <select className="ml-3" id="nameType_select" name="nameType" onChange={onNameTypeChange}>
                         <option hidden value="no_choice" className="nameType_option">選択してください</option>
@@ -138,6 +136,11 @@ export default function TopPage(props) {
                     <button className='base_btn' onClick={onDecideButtonClick}>決定！</button>
                 </div>
                 </form>
+
+                <div className='base_link_p mt-4'><Link
+                className='base_link' href="/logout" method="post">
+                ログアウト</Link></div>
+
             </div>
         </AuthenticatedLayout>
     );

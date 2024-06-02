@@ -1,37 +1,16 @@
-import { Link, Head } from '@inertiajs/react';
+import { Link, Head,useForm } from '@inertiajs/react';
 import {useEffect} from "react";
 import { Inertia } from "@inertiajs/inertia";
+// import route from 'ziggy-js';
 
-export default function Welcome({ auth, laravelVersion, phpVersion,topRoute }) {
+
+// 「/」でアクセスされたら、ログインの可否に応じてリダイレクト
+export default function Welcome({ auth, laravelVersion, phpVersion }){
     useEffect(() => {
         if (auth.user) {
-            Inertia.visit(topRoute);
+            Inertia.visit("/topPage");
+        }else{
+            Inertia.visit("login");
         }
-    }, [auth.user]);
-    return (
-        <>
-            <Head title="Welcome" />
-            <div>
-                <div>
-                    {!auth.user && (
-                        <>
-                            <Link
-                                href={route('login')}
-                                className="base_link"
-                            >
-                                Log in
-                            </Link>
-
-                            <Link
-                                href={route('register')}
-                                className="base_link"
-                            >
-                                Register
-                            </Link>
-                        </>
-                    )}
-                </div>
-            </div>
-        </>
-    );
+    }, []);
 }

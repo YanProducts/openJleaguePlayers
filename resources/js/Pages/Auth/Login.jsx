@@ -9,7 +9,7 @@ import { Head, Link, useForm } from '@inertiajs/react';
 
 export default function Login({ status, canResetPassword }) {
     const { data, setData, post, processing, errors, reset } = useForm({
-        email: '',
+        name: '',
         password: '',
         remember: false,
     });
@@ -23,6 +23,7 @@ export default function Login({ status, canResetPassword }) {
     const submit = (e) => {
         e.preventDefault();
 
+        // ログイン
         post(route('login'));
     };
 
@@ -34,17 +35,17 @@ export default function Login({ status, canResetPassword }) {
 
             <form onSubmit={submit}>
                 <div>
-                    <InputLabel htmlFor="email" value="Email" />
+                    <InputLabel htmlFor="loginName" value="ユーザーネーム" />
 
                     <TextInput
-                        id="email"
-                        type="email"
-                        name="email"
-                        value={data.email}
+                        id="loginName"
+                        type="text"
+                        name="name"
+                        value={data.name}
                         className="mt-1 block w-full"
-                        autoComplete="username"
+                        autoComplete="name"
                         isFocused={true}
-                        onChange={(e) => setData('email', e.target.value)}
+                        onChange={(e) => setData('name', e.target.value)}
                     />
 
                     <InputError message={errors.email} className="mt-2" />
@@ -78,20 +79,21 @@ export default function Login({ status, canResetPassword }) {
                 </div>
 
                 <div className="flex items-center justify-end mt-4">
-                    {canResetPassword && (
-                        <Link
-                            href={route('password.request')}
-                            className="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                        >
-                            Forgot your password?
-                        </Link>
-                    )}
-
-                    <PrimaryButton className="ms-4" disabled={processing}>
-                        Log in
-                    </PrimaryButton>
+                 <PrimaryButton className="ms-4" disabled={processing}>
+                     Log in
+                 </PrimaryButton>
                 </div>
             </form>
+            <p className="base_link_p">
+                <Link href={route('noLoginPlaying')} className="base_link">
+                    ログインせずに遊ぶ
+                </Link>
+            </p>
+            <p className="base_link_p">
+                <Link href={route('register')} className="base_link">
+                    新規登録はこちらから
+                </Link>
+            </p>
         </GuestLayout>
     );
 }

@@ -19,6 +19,7 @@ class AuthenticatedSessionController extends Controller
      */
     public function create(): Response
     {
+
         return Inertia::render('Auth/Login', [
             'canResetPassword' => Route::has('password.request'),
             'status' => session('status'),
@@ -28,20 +29,22 @@ class AuthenticatedSessionController extends Controller
     /**
      * Handle an incoming authentication request.
      */
+    // パスワードが合っているか確認
     public function store(LoginRequest $request): RedirectResponse
     {
+
         $request->authenticate();
 
         $request->session()->regenerate();
 
+        // App\Providers\RouteServiceProviderに表示
         return redirect()->intended(RouteServiceProvider::HOME);
     }
 
-    /**
-     * Destroy an authenticated session.
-     */
+    // ログアウト
     public function destroy(Request $request): RedirectResponse
     {
+        // dd("yy");
         Auth::guard('web')->logout();
 
         $request->session()->invalidate();
@@ -49,5 +52,29 @@ class AuthenticatedSessionController extends Controller
         $request->session()->regenerateToken();
 
         return redirect('/');
+    }
+
+    // ログインせずに遊ぶ
+    public function noLoginPlaying(){
+
+        // まだ作成されていない時は作成
+        $this->createCommonUser();
+
+        // 共通のユーザーネームでログイン
+        $this->loginCommonUser();
+
+
+        //ページ遷移
+        return Inertia::render("topPage");
+    }
+
+    // 共通のユーザーの作成
+    public function createCommonUser(){
+
+    }
+
+    // 共通のユーザーでログイン
+    public function loginCommonUser(){
+
     }
 }

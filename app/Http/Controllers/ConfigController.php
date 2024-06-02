@@ -58,7 +58,7 @@ class ConfigController extends Controller
             });
         }catch(\Throwable $e){
         // カスタム例外スロー
-          throw new CustomException(env("APP_ENV")==="local" ? $e->getMessage():          "チーム登録時のエラーです");
+          throw new CustomException(env("APP_ENV")==="local" ? $e->getMessage(): "チーム登録時のエラーです");
         }
     }
 

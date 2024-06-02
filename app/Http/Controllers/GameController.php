@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Auth;
+use App\Exceptions\CustomException;
 use App\Http\Requests\GamePatternRequest;
 use App\Models\Team;
 use App\Models\Player;
 use App\models\Results;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 // ゲーム中の操作
 class GameController extends Controller
@@ -71,8 +74,6 @@ class GameController extends Controller
         // チーム名の日本語と色を取得
         $team_data=Team::where("eng_name",$answer_team)->first();
 
-
-
         return[
             "isRight"=>$isRight,
             "team"=>$team_data->jpn_name,
@@ -121,6 +122,37 @@ class GameController extends Controller
             }
         }
         return $is_already;
+    }
+
+    // ゲームクリア
+    public function game_clear(){
+
+        // sessionの値が期待と違った時
+        if(!SessionController::confirm_session_value(["cate","quiz_type","name_type"])){
+            //エラーページへ
+            throw new CustomException(env("APP_ENV")==="local" ? "sessionの値が期待と違います": "不正なルートです");
+        }
+
+        // ログイン情報取得
+        $userInfomation=Auth::user();
+        $username=$userInfomation->name;
+
+
+
+        // sessionの再度チャレンジできるようsessionの削除はしない
+
+        // sqlに挿入
+        // 名前はどうゲットするか？
+
+        // クイズタイプをUI表示に見やすい形式に
+        $quiz_type_inJpn=StaticValueController::$QuizSets[session("quiz_type")];
+
+        // クリア画面へ
+        return Inertia::render('Game/Clear',[
+            "name_type"=>session("name_type")=== "part" ? "名前の一部" : "登録名",
+            "quiz_type"=>$quiz_type_inJpn,
+            "cate"=>session("cate")==="all" ? "全て" : session("cate"),
+        ]);
     }
 
 }

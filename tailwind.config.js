@@ -12,6 +12,11 @@ export default {
 
     theme: {
         extend: {
+            screens:{
+                "md":"600px",
+                "sm":"400px",
+                "xs":"300px",
+            },
             keyframes:{
                 whenerror_anime:{
                     "0%,99%":{
@@ -63,5 +68,17 @@ export default {
         },
     },
 
-    plugins: [forms],
+    plugins: [
+        // カスタムの定義を追加
+        function ({ addUtilities }) {
+            const newUtilities = {
+              '.text-shadow-outline': {
+                textShadow: '2px 2px 0 white, -2px -2px 0 white, -2px 2px 0 white, 2px -2px 0 white, 2px 0 0 white, 0 2px 0 white, -2px 0 0 white, 0 -2px 0 white',
+              },
+              
+
+            }
+            addUtilities(newUtilities, ['responsive', 'hover'])
+          },
+        forms],
 };

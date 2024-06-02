@@ -27,7 +27,6 @@ Route::get('/', function () {
         'canRegister' => Route::has('register'),
         'laravelVersion' => Application::VERSION,
         'phpVersion' => PHP_VERSION,
-        "topRoute"=>route("topPage")
     ]);
 });
 
@@ -66,6 +65,10 @@ Route::get('/sign', function () {
     ]);
 })->middleware(['auth', 'verified'])->name('view_sign_page');
 
+// ゲームクリアのルート
+Route::get("/game/clear",[GameController::class,"game_clear"])
+->middleware(['auth', 'verified'])
+->name("gameClear");
 
 
 // 以下config用
@@ -81,4 +84,5 @@ Route::get("/error_view",function(){
         ],500);
 })->name("error_view");
 
+// ログイン操作
 require __DIR__.'/auth.php';

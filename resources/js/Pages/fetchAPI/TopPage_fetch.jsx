@@ -1,4 +1,4 @@
-export default async function TopPage_fetch(csrf_token,post_route,pattern)
+export default async function TopPage_fetch(csrf_token,pattern)
 {
 
     // ヘッダー設定
@@ -10,7 +10,7 @@ export default async function TopPage_fetch(csrf_token,post_route,pattern)
     // プロミスではなくawaitで行う
     try{
        const response= await fetch(
-            post_route,
+        "/game.decide_pattern",
             {
                 method:"post",
                 headers:headers,
