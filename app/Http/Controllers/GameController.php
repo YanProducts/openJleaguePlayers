@@ -4,10 +4,11 @@ namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Auth;
 use App\Exceptions\CustomException;
+use Illuminate\Support\Facades\Log;
 use App\Http\Requests\GamePatternRequest;
 use App\Models\Team;
 use App\Models\Player;
-use App\models\Results;
+use App\models\Result;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -17,29 +18,23 @@ class GameController extends Controller
     //回答チェック
     public function answer_check(GamePatternRequest $request){
 
-        $answer=$request->answer;
-        $quiz_type=$request->quizType;
-        $name_type=$request->nameType;
-        $cate=$request->cate;
-        $answer_team=$request->team;
-        $already_answered_lists=json_decode($request->answered,true);
-
+        // userのバリデーション追加!!!!!!!!!!
 
         //そのチームに選手が存在するか否か
-        switch($name_type){
+        switch($request->nameType){
             case "part":
              return response()->json(
-                 $this->checkAnswer_whenPart($answer,$answer_team,$already_answered_lists)
+                 $this->checkAnswer_whenPart($request)
              );
              break;
              case "full":
                 return response()->json(
-                    $this->checkAnswer_whenfull($answer,$answer_team,$already_answered_lists)
+                    $this->checkAnswer_whenfull($request)
                 );
             break;
             default:
             return response()->json([
-                "error"=>"不正な処理です"
+                "namePatternError"=>"不正な処理です"
             ],500);
             break;
         }
@@ -47,7 +42,10 @@ class GameController extends Controller
     }
 
     // 名前の１部での回答チェック
-    public function checkAnswer_whenPart($answer,$answer_team,$already_answered_lists){
+    public function checkAnswer_whenPart($request){
+        $answer=$request->answer;
+        $answer_team=$request->team;
+        $already_answered_lists=json_decode($request->answered,true);
 
         // そのチームの全選手リスト取得
         $player_data_in_team=Player::where("team",$answer_team)->get();
@@ -74,6 +72,16 @@ class GameController extends Controller
         // チーム名の日本語と色を取得
         $team_data=Team::where("eng_name",$answer_team)->first();
 
+        // 結果挿入
+        if($isRight){
+            $isResultInsertSuccess=StoreResultController::insert_sql($player_name_lists,$answer_team,$request->user,"part",$request->quizType,$request->cate);
+            if(!$isResultInsertSuccess["success"]){
+                return[
+                    "resultInsertError"=>$isResultInsertSuccess["content"]
+                ];
+            }
+        }
+
         return[
             "isRight"=>$isRight,
             "team"=>$team_data->jpn_name,
@@ -85,20 +93,59 @@ class GameController extends Controller
     }
 
     // フルネームでの回答チェック
-    public function checkAnswer_whenFull($answer,$answer_team,$already_answered_lists){
-        // そのチームに所属する、その名前の選手がいるか？
-        if(Player::where([
-            ["full","=",$answer],
-            ["team","=",$answer_team]
-        ])->exists()){
+    public function checkAnswer_whenFull($request){
+
+        $answer=$request->answer;
+        $answer_team=$request->team;
+        $already_answered_lists=json_decode($request->answered,true);
+
+        // partの間がスペース、全角スペース、黒丸の時、それを取り除いた値に直す
+        // $answer=$this->fullname_change($answer);
+
+        // そのチームの全選手リスト取得
+        $player_data_in_team=Player::where("team",$answer_team)->get();
+        $player_name_lists=[];
+        $isRight="wrong";
+
+        // そのチームに所属する、その名前の選手がいるか？（同姓同名を考慮して、foreachを回す）
+        foreach($player_data_in_team as $eachplayer){
+            // 正解の場合
+            if(trim($answer)===trim($eachplayer["full"])){
+            //回答済か否か
+                if(!$this->check_existed_answer($already_answered_lists,$eachplayer)){
+                    $isRight="right";
+                    array_push($player_name_lists,$eachplayer->full);
+                }else if($isRight==="wrong"){
+                    $isRight="already";
+                }
+            }
+        }
+
+        // 結果挿入
+        if($isRight){
+        $isResultInsertSuccess=StoreResultController::insert_sql($player_name_lists,$answer_team,$request->user,"full",$request->quizType,$request->cate);
+        if(!$isResultInsertSuccess["success"]){
             return[
-                "is_right"=>"right"
-            ];
-        }else{
-            return[
-                "is_right"=>"false"
+                "resultInsertError"=>$isResultInsertSuccess["content"]
             ];
         }
+    }
+
+        // チーム名の日本語と色を取得
+        $team_data=Team::where("eng_name",$answer_team)->first();
+
+        return[
+            "isRight"=>$isRight,            "team"=>$team_data->jpn_name,
+            "red"=>$team_data->red,
+            "green"=>$team_data->green,
+            "blue"=>$team_data->blue,
+            "playerLists"=>$player_name_lists
+        ];
+
+
+
+
+
     }
 
     // 重複チェック
@@ -123,6 +170,15 @@ class GameController extends Controller
         }
         return $is_already;
     }
+
+
+    // フルネームの全角/半角/・の処理
+    public function fullname_change(){
+
+    }
+
+
+
 
     // ゲームクリア
     public function game_clear(){

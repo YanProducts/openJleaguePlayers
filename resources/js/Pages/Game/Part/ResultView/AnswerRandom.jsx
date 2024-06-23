@@ -11,6 +11,7 @@ export default function AnswerRandom(props){
         team:"チーム名"
     });
 
+
     const answeredLists=()=>{
         if(props.answered.length===0){
             return(

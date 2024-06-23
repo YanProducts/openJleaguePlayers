@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Auth;
 
 class BeforeGameController extends Controller
 {
@@ -100,6 +101,8 @@ class BeforeGameController extends Controller
             // 年度の設定!?????
             "year"=>empty(session("year")) ? date("y",time()) : session("year"),
 
+            // ユーザー名
+            "user"=>Auth::user(),
             "player_lists"=>json_encode(session("player_lists")),
             "name_type"=>session("name_type")=== "part" ? "名前の一部" : "登録名",
             "quiz_type"=>session("quiz_type"),

@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Providers\RouteServiceProvider;
+use App\Rules\noGuestRule;
+use App\Rules\noCommonUserRule;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -32,8 +34,16 @@ class RegisteredUserController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
-            'name' => 'required|string|max:255|unique:'.User::class,
+            'name' => ['required','string','max:100',"min:3",'unique:'.User::class,
+            new noCommonUserRule,new noGuestRule],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+        ],[
+            "name.required"=>"ユーザー名は必ず記入してください",
+            "name.unique"=>"そのユーザー名は既に使用されています",
+            "name:min"=>"ユーザー名は3字以上にしてください",
+            "name:max"=>"ユーザー名は100字以内にしてください",
+            "password.required"=>"パスワードは必ず入力してください",
+            "password.confirmed"=>"パスワードが一致しません"
         ]);
 
         $user = User::create([
@@ -46,5 +56,16 @@ class RegisteredUserController extends Controller
         Auth::login($user);
 
         return redirect(RouteServiceProvider::HOME);
+    }
+
+    // 共通のユーザーの作成
+    static public function createCommonUser(){
+        // 存在していない時のみ作成
+        if(!User::where("name","commonUser")->exists()){
+            User::create([
+                'name' => "commonUser",
+                'password' => Hash::make(env("COMMON_USER_PASS")),
+            ]);
+        }
     }
 }

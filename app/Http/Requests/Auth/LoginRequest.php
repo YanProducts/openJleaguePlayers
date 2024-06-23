@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use App\Rules\noCommonUserRule;
 
 class LoginRequest extends FormRequest
 {
@@ -27,8 +28,16 @@ class LoginRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required', 'string'],
+            'name' => ['required', 'string',"min:3",new noCommonUserRule],
             'password' => ['required', 'string'],
+        ];
+    }
+
+    public function messages(){
+        return[
+            "name.required"=>"ユーザー名は必ず記入してください",
+            "name.min"=>"ユーザー名は3字以上にしてください",
+            "password.required"=>"パスワードは必ず入力してください",
         ];
     }
 

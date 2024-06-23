@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect,useState } from 'react';
 import Checkbox from '@/Components/Checkbox';
 import GuestLayout from '@/Layouts/GuestLayout';
 import InputError from '@/Components/InputError';
@@ -7,7 +7,7 @@ import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
 import { Head, Link, useForm } from '@inertiajs/react';
 
-export default function Login({ status, canResetPassword }) {
+export default function Login({ status, canResetPassword,noLoginPass }) {
     const { data, setData, post, processing, errors, reset } = useForm({
         name: '',
         password: '',
@@ -20,12 +20,34 @@ export default function Login({ status, canResetPassword }) {
         };
     }, []);
 
+
     const submit = (e) => {
         e.preventDefault();
-
         // ログイン
         post(route('login'));
     };
+
+
+    // Commonユーザーがセットされたかの確認
+    const [commonFlug,setCommonFlug]=useState(false);
+    useEffect(()=>{
+        if(commonFlug){
+            post(route('login'));
+        }
+        return setCommonFlug(false);
+    },[data])
+
+    // ログインしないで遊ぶ
+    const onNoLoginClick=()=>{
+        setData({
+            "name":"commonUser",
+            "password":noLoginPass,
+            "remember":false
+        });
+        setCommonFlug(true);
+    }
+
+    // ログイン操作
 
     return (
         <GuestLayout>
@@ -48,7 +70,7 @@ export default function Login({ status, canResetPassword }) {
                         onChange={(e) => setData('name', e.target.value)}
                     />
 
-                    <InputError message={errors.email} className="mt-2" />
+                    <InputError message={errors.name} className="mt-2" />
                 </div>
 
                 <div className="mt-4">
@@ -84,11 +106,7 @@ export default function Login({ status, canResetPassword }) {
                  </PrimaryButton>
                 </div>
             </form>
-            <p className="base_link_p">
-                <Link href={route('noLoginPlaying')} className="base_link">
-                    ログインせずに遊ぶ
-                </Link>
-            </p>
+            <p className="base_link_p"><span className="base_link" onClick={onNoLoginClick}>ログインせずに遊ぶ</span></p>
             <p className="base_link_p">
                 <Link href={route('register')} className="base_link">
                     新規登録はこちらから

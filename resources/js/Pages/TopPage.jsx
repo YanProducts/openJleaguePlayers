@@ -7,6 +7,8 @@ import TopPage_fetch from "./fetchAPI/TopPage_fetch"
 
 export default function TopPage(props) {
 
+
+
     // クイズのパターン一覧
     const [pattern,setPattern]=useState({
            cate:"no_choice",
@@ -67,6 +69,7 @@ export default function TopPage(props) {
                 <p className='base_error animate-whenerror mb-5'>不明なエラーです</p>
                 }
 
+                <p className='base_frame base_backColor text-right font-bold my-3 px-3 py-1'>挑戦者：{props.auth.user.name === "commonUser" ? "ゲスト": props.auth.user.name}さん</p>
 
                 <form method="post" action="game.decide_pattern" className='base_frame font-bold'>
 
@@ -138,8 +141,9 @@ export default function TopPage(props) {
                 </form>
 
                 <div className='base_link_p mt-4'><Link
-                className='base_link' href="/logout" method="post">
-                ログアウト</Link></div>
+                className='base_link' href="/logout" method="post" as="button">
+                    {props.auth.user.name === "commonUser" ? "ログインして遊ぶ":"ログアウト"}
+                </Link></div>
 
             </div>
         </AuthenticatedLayout>

@@ -6,6 +6,7 @@ export default async function gameplay_fetch(props){
         'X-CSRF-TOKEN':props.csrf_token,
     });
 
+
     // 投稿
     try{
        const response=await fetch(
@@ -16,9 +17,10 @@ export default async function gameplay_fetch(props){
                 body:new URLSearchParams({
                     answer:props.inputVal,
                     quizType:props.quiz_type,
-                    nameType:props.name_type==="名前の一部" ? "part" : (name_type==="登録名" ? "full":""),
+                    nameType:props.name_type==="名前の一部" ? "part" : (props.name_type==="登録名" ? "full":""),
                     team:props.answerTeam,
                     cate:props.cate,
+                    user:props.user.name,
                     answered:JSON.stringify(props.answered)
                 })
             });
@@ -33,6 +35,12 @@ export default async function gameplay_fetch(props){
             }
         }
         const returnJson=await response.json();
+
+        // jsonの値でエラーが含まれるとき
+        if(returnJson.resultInsertError){
+            throw new Error(JSON.stringify({"unCategorizedError":"予期せぬエラーです"}));
+        }
+
         return {
             "success":true,
             "returnSets":returnJson

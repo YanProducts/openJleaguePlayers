@@ -9,6 +9,13 @@ import { NowPlayingQuizResultComponent } from './Part/ResultView/NowPlayingQuizR
 
 export default function Play(props) {
 
+    // fetchされた後か否か
+    const [fetchDone,setFetchDone]=React.useState(false);
+
+    // fetch後のオブジェクト格納
+    const [fetchReturn,setFetchReturn]=React.useState({});
+
+
     // 回答された選手のリスト
     const [answered,setAnswered]=React.useState([]);
 
@@ -16,13 +23,15 @@ export default function Play(props) {
     const [inputVal,setInputVal]=React.useState("");
 
     // エラー有無
-    const [error,setError]=React.useState("");
+    const [error,setError]=React.useState({});
 
     // 回答後か否か
     const [isAfter,setIsAfter]=React.useState(false);
 
     // 正解か不正解か未回答か回答済か(jsonと区別するためにStateを変数名で使用)
     const [isRightState,setIsRightState]=React.useState("yet");
+
+
 
     // inputのcursor
     const inputRef=React.useRef(null);
@@ -35,9 +44,91 @@ export default function Play(props) {
     //チーム選択によって変化
     const [answerTeam,setAnswerTeam]=React.useState("no_choice");
 
-    // 回答がsubmitされたとき
-    const onAnswerBtnClick=async (e)=>{
 
+    // まず、fetchDoneの値によって変化
+    React.useEffect(()=>{
+        // fetch前なら作動しない
+        if(!fetchDone){
+            return;
+        }
+        const fetch_params={
+            csrf_token: props.csrf_token,
+            answered: answered,
+            setAnswered: setAnswered,
+            inputVal: inputVal,
+            player_lists: props.player_lists,
+            name_type: props.name_type,
+            quiz_type: props.quiz_type,
+            answerTeam:answerTeam,
+            cate: props.cate,
+            user:props.user
+        };
+
+        // 投稿
+        gameplay_fetch(fetch_params).then((result)=>{
+            // 投稿で返ってきた変数の格納
+            setFetchReturn(result);
+            // 投稿終了
+            setFetchDone(false);
+        })
+
+    },[fetchDone]);
+
+
+
+    // 次に、fetchDoneによって変化が生じたfetchReturnの値によって変化させる分
+    React.useEffect(()=>{
+        // fetchReturn取得前は何もしない
+        if(Object.keys(fetchReturn).length===0){
+            return;
+        }
+
+        // UI初期化(既に送信済みなのでinputは空にできる)
+        setInputVal("")
+        // 入力はできる状態にしておく。送信はisAfterがtrueなら不可
+        inputRef.current.focus();
+
+        if(fetchReturn.success){
+            // 正否の入力
+            setIsRightState(fetchReturn.returnSets.isRight);
+        }else{
+            // 失敗の場合
+            setError(fetchReturn.errorMessage);
+        }
+        
+    },[fetchReturn])
+
+
+    // その後、isRightStateに変化が生じたら、回答リストに挿入
+    React.useEffect(()=>{
+
+        // 正解の場合：選手リストに追加
+        if(isRightState==="right"){
+
+            let insertAnswered=fetchReturn.returnSets.playerLists.map((eachPlayer,index)=>({
+                    "number":answered.length+index+1,
+                    "player":eachPlayer,
+                    "team":fetchReturn.returnSets.team,
+                    "red":fetchReturn.returnSets.red,
+                    "green":fetchReturn.returnSets.green,
+                    "blue":fetchReturn.returnSets.blue,
+            }));
+
+            // 挿入は１度に行う必要がある
+            setAnswered([...answered,...insertAnswered]);
+        }
+
+        // 回答後画面へのフラグ(isAfter)反映
+        if(isRightState!=="yet"){
+            setIsAfter(true);
+        }
+
+
+    },[isRightState])
+
+
+    // 回答がsubmitされたとき
+    const onAnswerBtnClick=(e)=>{
         e.preventDefault();
 
         // 回答後の段階なら送信できない
@@ -50,58 +141,16 @@ export default function Play(props) {
             alert("選手が入力されていません");
             return;
         }
-
         if(props.quiz_type.indexOf("rand")!==-1 && answerTeam==="no_choice"){
             alert("チームが入力されていません");
             return;
         }
-        const fetch_params={
-            csrf_token: props.csrf_token,
-            answered: answered,
-            setAnswered: setAnswered,
-            inputVal: inputVal,
-            player_lists: props.player_lists,
-            name_type: props.name_type,
-            quiz_type: props.quiz_type,
-            answerTeam:answerTeam,
-            cate: props.cate
-        };
-        // 投稿
-        const fetch_return=await gameplay_fetch(fetch_params);
 
-        if(fetch_return.success){
-
-            // 正否の入力
-            setIsRightState(fetch_return.returnSets.isRight);
-
-            // 回答後の表示(正否入力が終了した後に必要)
-            setIsAfter(true);
-
-            // 正解の場合：選手リストに追加
-            if(fetch_return.returnSets.isRight==="right"){
-                let insertAnswered=fetch_return.returnSets.playerLists.map((eachPlayer,index)=>({
-                        "number":answered.length+index+1,
-                        "player":eachPlayer,
-                        "team":fetch_return.returnSets.team,
-                        "red":fetch_return.returnSets.red,
-                        "green":fetch_return.returnSets.green,
-                        "blue":fetch_return.returnSets.blue,
-                }));
-                // 挿入は１度に行う必要がある
-                setAnswered([...answered,...insertAnswered]);
-            }
-
-            // input要素を空にしてfocus(成功でもエラーでも同じ処理)
-            setInputVal("")
-            // 入力はできる状態にしておく。送信はisAfterがtrueなら不可
-            inputRef.current.focus();
-        }else{
-            // 失敗の場合
-            setError(fetch_return.errorMessage)
-        }
-
+        // fetch実行モードへ
+        // fetchDoneが変更すれば、連動してfetchReturnもisRightStateも変更
+        // 順序の関係で、それぞれの変数内で初期化
+        setFetchDone(true)
     }
-
 
     return (
         <AuthenticatedLayout
@@ -127,6 +176,7 @@ export default function Play(props) {
                 isAfter={isAfter}
                 setIsAfter={setIsAfter}
                 isRightState={isRightState}
+                setIsRightState={setIsRightState}
                 answered={answered}
             />
 

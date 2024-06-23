@@ -21,15 +21,16 @@ class AuthenticatedSessionController extends Controller
     {
 
         return Inertia::render('Auth/Login', [
-            'canResetPassword' => Route::has('password.request'),
             'status' => session('status'),
+            'canResetPassword' => Route::has('password.request'),
+            "noLoginPass"=>env("COMMON_USER_PASS"),
         ]);
     }
 
     /**
      * Handle an incoming authentication request.
      */
-    // パスワードが合っているか確認
+    // ログイン時にユーザー名とパスワードが合っているか確認
     public function store(LoginRequest $request): RedirectResponse
     {
 
@@ -44,7 +45,6 @@ class AuthenticatedSessionController extends Controller
     // ログアウト
     public function destroy(Request $request): RedirectResponse
     {
-        // dd("yy");
         Auth::guard('web')->logout();
 
         $request->session()->invalidate();
@@ -54,27 +54,4 @@ class AuthenticatedSessionController extends Controller
         return redirect('/');
     }
 
-    // ログインせずに遊ぶ
-    public function noLoginPlaying(){
-
-        // まだ作成されていない時は作成
-        $this->createCommonUser();
-
-        // 共通のユーザーネームでログイン
-        $this->loginCommonUser();
-
-
-        //ページ遷移
-        return Inertia::render("topPage");
-    }
-
-    // 共通のユーザーの作成
-    public function createCommonUser(){
-
-    }
-
-    // 共通のユーザーでログイン
-    public function loginCommonUser(){
-
-    }
 }

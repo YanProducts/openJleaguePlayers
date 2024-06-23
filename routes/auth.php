@@ -17,7 +17,7 @@ Route::middleware('guest')->group(function () {
 
 // 登録はこちら
     Route::get('register', [RegisteredUserController::class, 'create'])
-                ->name('register');
+    ->name('register');
 
 // 新規登録
     Route::post('register', [RegisteredUserController::class, 'store']);
@@ -29,7 +29,8 @@ Route::middleware('guest')->group(function () {
 
 
     // 実際のログイン
-    Route::post('login', [AuthenticatedSessionController::class, 'store']);
+    Route::post('login', [AuthenticatedSessionController::class, 'store'])->name('login_post_route');
+
 
     Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])
                 ->name('password.request');
@@ -69,7 +70,8 @@ Route::middleware('auth')->group(function () {
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
     ->name('logout');
 
-    // ログインしないで遊ぶ
-    Route::get("no_login_playing",[AuthenticatedSessionController::class, 'noLoginPlaying'])
-    ->name("noLoginPlaying");
 });
+
+// 共通のユーザーの作成(作成時のみ必要)
+Route::get("create/commonUser",[RegisteredUserController::class,"createCommonUser"])
+->name("createCommonUser");
