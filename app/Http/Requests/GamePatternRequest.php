@@ -13,8 +13,7 @@ use App\Rules\ExcludeNoChoiceRule;
 use App\Rules\isTeamExists;
 use App\Rules\NameTypeRule;
 use App\Rules\QuizTypeRule;
-
-
+use App\Rules\userIsExistsRule;
 
 // ゲームの種類設定のリクエスト
 class GamePatternRequest extends FormRequest
@@ -60,17 +59,24 @@ class GamePatternRequest extends FormRequest
             "nameType"=>[
                 "required",
                 new ExcludeNoChoiceRule(new NameTypeRule),
+            ],
+            // ユーザー
+            "user"=>[
+                "required",
+                new userIsExistsRule()
             ]
+
             ];
 
+
             // // 回答時のみ：回答にチームが含まれるか？
-            // if( $this->route()->getName()==="answerCheck"
-            //  && strpos($this->input("quizType"),"rand")!==false){
-            //         $rule_sets["answerTeam"]=[
-            //                 "required",
-            //                 new ExcludeNoChoiceRule(new isTeamExists($this->input("cate")))
-            //         ];
-            // }
+            if( $this->route()->getName()==="answerCheck"
+             && strpos($this->input("quizType"),"rand")!==false){
+                    $rule_sets["team"]=[
+                            "required",
+                            new ExcludeNoChoiceRule(new isTeamExists($this->input("cate")))
+                    ];
+            }
         return $rule_sets;
     }
     public function messages(){

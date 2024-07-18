@@ -6,9 +6,9 @@ export default async function gameplay_fetch(props){
         'X-CSRF-TOKEN':props.csrf_token,
     });
 
-
     // 投稿
     try{
+
        const response=await fetch(
             "/game/answerCheck",
             {
@@ -20,10 +20,10 @@ export default async function gameplay_fetch(props){
                     nameType:props.name_type==="名前の一部" ? "part" : (props.name_type==="登録名" ? "full":""),
                     team:props.answerTeam,
                     cate:props.cate,
-                    user:props.user.name,
+                    user:props.user,
                     answered:JSON.stringify(props.answered)
                 })
-            });
+          });
 
         if(!response.ok){
             if(response.status===422){

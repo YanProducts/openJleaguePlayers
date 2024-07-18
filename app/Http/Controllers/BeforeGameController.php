@@ -33,6 +33,8 @@ class BeforeGameController extends Controller
             "cateSets"=>json_encode(StaticValueController::$CateSets),
             "quizSets"=>json_encode(StaticValueController::$QuizSets),
             "nameSets"=>json_encode(StaticValueController::$NameSets),
+            // ユーザー名
+            "user"=>Auth::user(),
 
         ]);
     }
@@ -92,7 +94,7 @@ class BeforeGameController extends Controller
 
         // sessionがあるか？
         if(!SessionController::confirm_session_value(["cate","quiz_type","name_type","player_lists","selected_teams"])){
-            throw new CustomException("設定上のエラーです");
+            throw new CustomException("ゲームの種類を選択してください");
         }
 
         return Inertia::render('Game/Play',[

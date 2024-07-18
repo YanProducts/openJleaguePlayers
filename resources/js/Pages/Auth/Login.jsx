@@ -12,6 +12,7 @@ export default function Login({ status, canResetPassword,noLoginPass }) {
         name: '',
         password: '',
         remember: false,
+        noLoginFlug:false
     });
 
     useEffect(() => {
@@ -30,21 +31,33 @@ export default function Login({ status, canResetPassword,noLoginPass }) {
 
     // Commonユーザーがセットされたかの確認
     const [commonFlug,setCommonFlug]=useState(false);
+
+    // dataが変更されたことによって変更
     useEffect(()=>{
+        // バッジ処理によって、すでにcommonFlugは改良されている
         if(commonFlug){
             post(route('login'));
         }
-        return setCommonFlug(false);
+        return ()=>{
+            setCommonFlug(false)
+            if(data.noLoginFlug){
+                setData({
+                    ...data,
+                    "noLoginFlug":false
+                })
+            }
+        }
     },[data])
 
-    // ログインしないで遊ぶ
+    // ログインしないで遊ぶ（バッジ処理で、先にsetCommonFlugが処理）
     const onNoLoginClick=()=>{
+        setCommonFlug(true);
         setData({
             "name":"commonUser",
             "password":noLoginPass,
-            "remember":false
+            "remember":false,
+            "noLoginFlug":true
         });
-        setCommonFlug(true);
     }
 
     // ログイン操作

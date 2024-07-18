@@ -7,13 +7,12 @@ import TopPage_fetch from "./fetchAPI/TopPage_fetch"
 
 export default function TopPage(props) {
 
-
-
     // クイズのパターン一覧
     const [pattern,setPattern]=useState({
            cate:"no_choice",
            quizType:"no_choice",
            nameType:"no_choice",
+           user:props.user.name
     })
 
     // エラーかどうか

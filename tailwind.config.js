@@ -12,6 +12,9 @@ export default {
 
     theme: {
         extend: {
+            display:{
+                "table-row":"table-row"
+            },
             screens:{
                 "md":"600px",
                 "sm":"400px",
@@ -75,7 +78,7 @@ export default {
               '.text-shadow-outline': {
                 textShadow: '2px 2px 0 white, -2px -2px 0 white, -2px 2px 0 white, 2px -2px 0 white, 2px 0 0 white, 0 2px 0 white, -2px 0 0 white, 0 -2px 0 white',
               },
-              
+
 
             }
             addUtilities(newUtilities, ['responsive', 'hover'])

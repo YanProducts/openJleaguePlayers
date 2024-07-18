@@ -34,11 +34,14 @@ class AuthenticatedSessionController extends Controller
     public function store(LoginRequest $request): RedirectResponse
     {
 
+        // ユーザーネームとパスワードが正しいか？
         $request->authenticate();
 
+        // セッションIDを再生成(LoginRequestの親クラスのメソッド)
         $request->session()->regenerate();
 
-        // App\Providers\RouteServiceProviderに表示
+
+        // redirect()->intended()はユーザーが元々アクセスしようとしていたページに戻すためのもの（途中でログインしていないから戻らされた時)。そうではなくログイン画面に直接アクセスして来た場合、RouteServiceProvider::HOMEにアクセスする（この場合はtopPage.jsx）。
         return redirect()->intended(RouteServiceProvider::HOME);
     }
 

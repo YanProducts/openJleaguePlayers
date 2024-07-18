@@ -9,18 +9,11 @@ import { NowPlayingQuizResultComponent } from './Part/ResultView/NowPlayingQuizR
 
 export default function Play(props) {
 
-    // fetchされた後か否か
-    const [fetchDone,setFetchDone]=React.useState(false);
-
     // fetch後のオブジェクト格納
     const [fetchReturn,setFetchReturn]=React.useState({});
 
-
     // 回答された選手のリスト
     const [answered,setAnswered]=React.useState([]);
-
-    // 入力内容
-    const [inputVal,setInputVal]=React.useState("");
 
     // エラー有無
     const [error,setError]=React.useState({});
@@ -31,60 +24,21 @@ export default function Play(props) {
     // 正解か不正解か未回答か回答済か(jsonと区別するためにStateを変数名で使用)
     const [isRightState,setIsRightState]=React.useState("yet");
 
-
-
-    // inputのcursor
+    // inputとselectの要素取得
+    // fetch時点で最新のものを取得するため、valueもここから取得する
     const inputRef=React.useRef(null);
-
-    // input要素が変化したとき
-    const onInputChange=(e)=>{
-        setInputVal(e.target.value)
-    }
-
-    //チーム選択によって変化
-    const [answerTeam,setAnswerTeam]=React.useState("no_choice");
-
-
-    // まず、fetchDoneの値によって変化
-    React.useEffect(()=>{
-        // fetch前なら作動しない
-        if(!fetchDone){
-            return;
-        }
-        const fetch_params={
-            csrf_token: props.csrf_token,
-            answered: answered,
-            setAnswered: setAnswered,
-            inputVal: inputVal,
-            player_lists: props.player_lists,
-            name_type: props.name_type,
-            quiz_type: props.quiz_type,
-            answerTeam:answerTeam,
-            cate: props.cate,
-            user:props.user
-        };
-
-        // 投稿
-        gameplay_fetch(fetch_params).then((result)=>{
-            // 投稿で返ってきた変数の格納
-            setFetchReturn(result);
-            // 投稿終了
-            setFetchDone(false);
-        })
-
-    },[fetchDone]);
-
-
+    const answerTeamRef=React.useRef(null);
 
     // 次に、fetchDoneによって変化が生じたfetchReturnの値によって変化させる分
     React.useEffect(()=>{
+
         // fetchReturn取得前は何もしない
         if(Object.keys(fetchReturn).length===0){
             return;
         }
 
         // UI初期化(既に送信済みなのでinputは空にできる)
-        setInputVal("")
+        inputRef.current.value="";
         // 入力はできる状態にしておく。送信はisAfterがtrueなら不可
         inputRef.current.focus();
 
@@ -95,7 +49,7 @@ export default function Play(props) {
             // 失敗の場合
             setError(fetchReturn.errorMessage);
         }
-        
+
     },[fetchReturn])
 
 
@@ -123,7 +77,6 @@ export default function Play(props) {
             setIsAfter(true);
         }
 
-
     },[isRightState])
 
 
@@ -137,19 +90,36 @@ export default function Play(props) {
         }
 
         // 入力なしなら戻る
-        if(inputVal===""){
+        if(inputRef.current.value===""){
             alert("選手が入力されていません");
             return;
         }
-        if(props.quiz_type.indexOf("rand")!==-1 && answerTeam==="no_choice"){
+
+        if(props.quiz_type.indexOf("rand")!==-1 && answerTeamRef.current.value==="no_choice"){
             alert("チームが入力されていません");
             return;
         }
 
-        // fetch実行モードへ
-        // fetchDoneが変更すれば、連動してfetchReturnもisRightStateも変更
-        // 順序の関係で、それぞれの変数内で初期化
-        setFetchDone(true)
+        // この時点では
+        const fetch_params={
+            csrf_token: props.csrf_token,
+            answered: answered,
+            setAnswered: setAnswered,
+            inputVal: inputRef.current.value,
+            player_lists: props.player_lists,
+            name_type: props.name_type,
+            quiz_type: props.quiz_type,
+            answerTeam:answerTeamRef.current.value,
+            cate: props.cate,
+            user:props.user.name
+        };
+
+
+        // 投稿
+        gameplay_fetch(fetch_params).then((result)=>{
+            // 投稿で返ってきた変数の格納
+            setFetchReturn(result);
+        })
     }
 
     return (
@@ -158,8 +128,10 @@ export default function Play(props) {
             header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">{props.cate == "all" ? "Jリーグ" : props.cate}選手当てクイズ！</h2>}>
         <Head title={`${props.cate == "all" ? "Jリーグ" : props.cate}選手当てクイズ`}/>
 
-            <div className="h-full pt-30" style={{ backgroundImage: `url(${backgroundImage})`,
+            <div className="custom_body pt-30" style={{ backgroundImage: `url(${backgroundImage})`,
          backgroundSize:"contain"}}>
+
+            <div>　</div>
 
             <h1 className="base_h base_h1"  id="toph1">{props.year}年{props.cate==="all" ? "J" : props.cate}リーグ<br/>選手何人言えるかな？</h1>
 
@@ -185,12 +157,8 @@ export default function Play(props) {
                 props={props}
                 onAnswerBtnClick={onAnswerBtnClick}
                 inputRef={inputRef}
-                inputVal={inputVal}
-                onInputChange={onInputChange}
-                answerTeam={answerTeam}
-                setAnswerTeam={setAnswerTeam}
+                answerTeamRef={answerTeamRef}
                 isAfter={isAfter}
-
             />
 
             {error.validationError &&(<p id="error_cate" className='base_error animate-whenerror'>{error.validationError}</p>)}
@@ -202,6 +170,8 @@ export default function Play(props) {
             />
 
             <p className='base_link_p'><Link className='base_link' href="/topPage">トップへ</Link></p>
+
+            <div>　</div>
 
             </div>
         </AuthenticatedLayout>

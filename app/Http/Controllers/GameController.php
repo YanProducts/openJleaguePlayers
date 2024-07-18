@@ -18,9 +18,7 @@ class GameController extends Controller
     //回答チェック
     public function answer_check(GamePatternRequest $request){
 
-        // userのバリデーション追加!!!!!!!!!!
-
-        //そのチームに選手が存在するか否か
+        //そのチームに選手が存在するか否か→正解チェック
         switch($request->nameType){
             case "part":
              return response()->json(
@@ -57,7 +55,7 @@ class GameController extends Controller
             $part_array=explode(",",$eachplayer->part);
             foreach($part_array as $part_each){
                 // partと回答があっていたとき
-                if($part_each===$answer){
+                if(trim($part_each)===trim($answer)){
                     //回答済か否かあったとき
                     if(!$this->check_existed_answer($already_answered_lists,$eachplayer)){
                         $isRight="right";
@@ -73,7 +71,7 @@ class GameController extends Controller
         $team_data=Team::where("eng_name",$answer_team)->first();
 
         // 結果挿入
-        if($isRight){
+        if($isRight==="right"){
             $isResultInsertSuccess=StoreResultController::insert_sql($player_name_lists,$answer_team,$request->user,"part",$request->quizType,$request->cate);
             if(!$isResultInsertSuccess["success"]){
                 return[
@@ -99,9 +97,6 @@ class GameController extends Controller
         $answer_team=$request->team;
         $already_answered_lists=json_decode($request->answered,true);
 
-        // partの間がスペース、全角スペース、黒丸の時、それを取り除いた値に直す
-        // $answer=$this->fullname_change($answer);
-
         // そのチームの全選手リスト取得
         $player_data_in_team=Player::where("team",$answer_team)->get();
         $player_name_lists=[];
@@ -109,8 +104,10 @@ class GameController extends Controller
 
         // そのチームに所属する、その名前の選手がいるか？（同姓同名を考慮して、foreachを回す）
         foreach($player_data_in_team as $eachplayer){
+
+            // partの間がスペース、全角スペース、黒丸の時、それを取り除いた値とのチェック
             // 正解の場合
-            if(trim($answer)===trim($eachplayer["full"])){
+            if($this->fullname_change($answer,$eachplayer)){
             //回答済か否か
                 if(!$this->check_existed_answer($already_answered_lists,$eachplayer)){
                     $isRight="right";
@@ -135,17 +132,13 @@ class GameController extends Controller
         $team_data=Team::where("eng_name",$answer_team)->first();
 
         return[
-            "isRight"=>$isRight,            "team"=>$team_data->jpn_name,
+            "isRight"=>$isRight,
+            "team"=>$team_data->jpn_name,
             "red"=>$team_data->red,
             "green"=>$team_data->green,
             "blue"=>$team_data->blue,
             "playerLists"=>$player_name_lists
         ];
-
-
-
-
-
     }
 
     // 重複チェック
@@ -153,7 +146,6 @@ class GameController extends Controller
         if(empty($already_answered_lists)){
             return false;
         }
-
 
         $is_already=false;
 
@@ -173,10 +165,74 @@ class GameController extends Controller
 
 
     // フルネームの全角/半角/・の処理
-    public function fullname_change(){
+    public function fullname_change($answer,$eachplayer){
+
+        // 直接正解のとき
+        if(trim($answer)===trim($eachplayer["full"])){
+            return true;
+        }
+
+        // answerのそれぞれがeachplayer["part"]と合うかどうか
+        $answer_with_comma = str_replace(["・", "　", " "], ",", $answer);
+        $comma_count=mb_substr_count($eachplayer["part"],",");
+
+        // // そもそも区切りが名前にない時はreturn false(正解の場合はreturn)
+        if($comma_count===0){
+            return false;
+        }
+
+        // 正解の候補の格納
+        $correct_candidates=[];
+
+        // 検索の開始位置
+        $point=0;
+
+        // 1つ目のカンマの位置がstart(最初含む)、最後のカンマの位置がlast
+        for($number=0;$number<$comma_count+1;$number++){
+            //number番目のcommaの位置
+            $newpoint=mb_strpos($eachplayer["part"],",",$point);
+
+            // 最後のカンマ〜文字列までの時
+            if ($newpoint === false) {
+                $newstr = mb_substr($eachplayer["part"], $point);
+            }else{
+                // 前のカンマから現在のカンマの直前までの文字列
+                $newstr=mb_substr($eachplayer["part"],$point,$newpoint-$point);
+            }
+
+            // 次回の検索位置を今回検索カンマの次に設定
+            $point=$newpoint+1;
+
+            // カンマあり、カンマなし、それぞれの文字列を連結
+            // 空の時は正解候補に格納
+            if(empty($correct_candidates)){
+                $correct_candidates[]=$newstr;
+                $correct_candidates[]=$newstr.",";
+            }else{
+            // 空でない時は正解候補と次の文字列を連結
+                $new_candidate=[];
+                    foreach($correct_candidates as $correct_candidate){
+                        $new_candidate[]=$correct_candidate.$newstr.",";
+                        $new_candidate[]=$correct_candidate.$newstr;
+                    }
+                // リストに格納
+                $correct_candidates=$new_candidate;
+            }
+        }
+
+        // 最後のカンマが入っている場合を考慮
+        $correct_candidates = array_map(function($candidate) {
+            return rtrim($candidate, ",");
+        }, $correct_candidates);
+
+        // 正解候補にあれば正解
+        if(in_array($answer_with_comma,$correct_candidates)){
+            return true;
+        }
+
+        return false;
 
     }
-
 
 
 

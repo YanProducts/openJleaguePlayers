@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use App\Rules\noCommonUserRule;
+use App\Rules\userIsExistsRule;
 
 class LoginRequest extends FormRequest
 {
@@ -27,15 +28,20 @@ class LoginRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
-            'name' => ['required', 'string',"min:3",new noCommonUserRule],
-            'password' => ['required', 'string'],
-        ];
+            $rule=[
+                'name' => ['required', new userIsExistsRule],
+                'password' => ['required', 'string'],
+            ];
+
+            // noLoginFlugがtrueか否かで分ける
+            if(!$this->input("noLoginFlug")){
+                $rule["name"][]=new noCommonUserRule;
+            }
+            return $rule;
     }
 
     public function messages(){
         return[
-            "name.required"=>"ユーザー名は必ず記入してください",
             "name.min"=>"ユーザー名は3字以上にしてください",
             "password.required"=>"パスワードは必ず入力してください",
         ];
@@ -54,7 +60,8 @@ class LoginRequest extends FormRequest
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
-                'name' => trans('auth.failed'),
+                "password"=>"パスワードが違います"
+                // 'name' => trans('auth.failed'),
             ]);
         }
 

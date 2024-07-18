@@ -5,22 +5,19 @@
     import { InputStyleByInnerWidth,OptionDefaultViewChange } from "./CustomStyle/InputStyle";
 
     //   分割代入
-   export const InputComponent=({props,onAnswerBtnClick,inputRef,inputVal,onInputChange,answerTeam,setAnswerTeam,isAfter})=>{
+   export const InputComponent=({props,onAnswerBtnClick,inputRef,answerTeamRef,isAfter})=>{
 
     // 要素を返す
     if(props.quiz_type.indexOf("team")!==-1){
         return(
             <form className="base_input_div flex justify-center" onSubmit={onAnswerBtnClick} >
-            <input className='h-8 ml-auto' ref={inputRef} value={inputVal} onChange={onInputChange} />
+            <input className='h-8 ml-auto' ref={inputRef}/>
             <button
             className={`base_btn inline-block ml-1 text-left ${isAfter ? 'pointer-events-auto' : 'pointer-events-none'}`}>回答！</button>
             </form>
         )
     }else if(props.quiz_type.indexOf("rand")!==-1){
 
-        const onTeamSelectChange=(e)=>{
-            setAnswerTeam(e.target.value);
-        }
 
         const [optionDefaultView,setOptionDefaultView]=React.useState("チームの選択");
 
@@ -28,8 +25,8 @@
             <>
             <OptionDefaultViewChange setOptionDefaultView={setOptionDefaultView}/>
             <form className="base_input_div flex justify-center form_font_change" onSubmit={onAnswerBtnClick} >
-            <input className='h-10 ml-auto mr-2 w-1/3' ref={inputRef} value={inputVal} onChange={onInputChange}/>
-            <select value={answerTeam} className='mr-2 w-1/3 h-10' onChange={onTeamSelectChange}>
+            <input className='h-10 ml-auto mr-2 w-1/3' ref={inputRef}/>
+            <select ref={answerTeamRef} className='mr-2 w-1/3 h-10'>
                 <option hidden value="no_choice">{optionDefaultView}</option>
                 {props.teams.map(m=>(<option key={m.id} value={m.eng_name}>{m.jpn_name}</option>))}
             </select>

@@ -6,6 +6,10 @@
 
 /* カスタム定義 */
 @layer components {
+    /* bodyの高さ */
+    .custom_body{
+     @apply min-h-full h-auto
+    }
   .base_frame {
     @apply w-4/5 min-w-[300px] max-w-[1000px] mx-auto;
   }

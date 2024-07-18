@@ -12,7 +12,7 @@
                 const timer=setTimeout(()=>{
                     // クリアしたかどうか
                     // if(Number(props.quiz_type.substring(4))>=answered.length){
-                    if(10<=answered.length){
+                    if(50<=answered.length){
                         Inertia.visit("/game/clear");
                     } else {
                         setIsAfter(false);
