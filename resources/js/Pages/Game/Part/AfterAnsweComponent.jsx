@@ -5,24 +5,37 @@
     // 分割代入
     export const AfterAnsewrComponent=({isAfter,setIsAfter,isRightState,setIsRightState,answered})=>{
 
+        // 2重のinertia.visitの防止用
+        const [moveResult,setMoveResult]=React.useState(false);
+
         React.useEffect(function(){
-            // クイズ回答後の場合は3秒後に疑似ページ遷移してクイズ回答前の状態にする
+            // クイズ回答後の場合は3秒後にクイズ回答前の状態にする
             if(isAfter){
                 // 回答前のUIへ戻す
                 const timer=setTimeout(()=>{
                     // クリアしたかどうか
                     // if(Number(props.quiz_type.substring(4))>=answered.length){
-                    if(50<=answered.length){
-                        Inertia.visit("/game/clear");
+                        // 実験
+                    if(2<=answered.length){
+                        // SQL登録のlaravel。その後に遷移。2回以上登録される。
+                        setIsAfter(false);
+                        if(!moveResult){
+                            setMoveResult(true);
+                            Inertia.visit("/game.clear", {
+                                //sessionがあるのでいらない "game_token":game_token
+                            });
+                        }
+                        return;
                     } else {
                         setIsAfter(false);
                     }
-                },3000)
+                },2000)
             // useEffect内部での処理を終了後に、useEffectが発生する前の状態に戻す
                 return()=>{
                     setIsAfter(false);
                     clearTimeout(timer);
                     setIsRightState("yet");
+                    setMoveResult(false);
                 }
             }
         },[isAfter])

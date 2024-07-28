@@ -77,8 +77,9 @@ export default {
             const newUtilities = {
               '.text-shadow-outline': {
                 textShadow: '2px 2px 0 white, -2px -2px 0 white, -2px 2px 0 white, 2px -2px 0 white, 2px 0 0 white, 0 2px 0 white, -2px 0 0 white, 0 -2px 0 white',
-              },
-
+              },".text-underline":{
+                "text-decoretion":"underline"
+              }
 
             }
             addUtilities(newUtilities, ['responsive', 'hover'])

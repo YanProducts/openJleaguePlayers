@@ -3,7 +3,7 @@ import { Head, Link } from '@inertiajs/react';
 import backgroundImage from '../../img/back.jpg';
 import { Inertia } from '@inertiajs/inertia';
 import React, {useState} from "react";
-import TopPage_fetch from "./fetchAPI/TopPage_fetch"
+import TopPage_fetch from "./fetchAPI/TopPage_fetch";
 
 export default function TopPage(props) {
 
@@ -46,7 +46,11 @@ export default function TopPage(props) {
             setError(fetch_return.errorMessage)
         }else{
             // ページ遷移
-            Inertia.visit("/game.play");
+            Inertia.visit("/game.play",
+            {
+                preserveScroll: true,
+                preserveState: true
+              });
             return;
         }
     }

@@ -21,6 +21,8 @@ export default function Play(props) {
     // 回答後か否か
     const [isAfter,setIsAfter]=React.useState(false);
 
+    const [uniqueToken,setUniqueToken]=React.useState(props.unique_token);
+
     // 正解か不正解か未回答か回答済か(jsonと区別するためにStateを変数名で使用)
     const [isRightState,setIsRightState]=React.useState("yet");
 
@@ -37,16 +39,27 @@ export default function Play(props) {
             return;
         }
 
+
         // UI初期化(既に送信済みなのでinputは空にできる)
         inputRef.current.value="";
         // 入力はできる状態にしておく。送信はisAfterがtrueなら不可
         inputRef.current.focus();
 
         if(fetchReturn.success){
+            // 新たなsessionの設定
+            setUniqueToken(fetchReturn.returnSets.new_token);
             // 正否の入力
             setIsRightState(fetchReturn.returnSets.isRight);
         }else{
             // 失敗の場合
+            // 二重投稿の場合は何もしない
+            if(fetchReturn.errorMessage.unCategorizedError && fetchReturn.errorMessage.unCategorizedError
+                ==="duplicated"){
+                console.log("duple");
+                return;
+            }
+
+            // それ以外の場合
             setError(fetchReturn.errorMessage);
         }
 
@@ -111,9 +124,9 @@ export default function Play(props) {
             quiz_type: props.quiz_type,
             answerTeam:answerTeamRef.current.value,
             cate: props.cate,
-            user:props.user.name
+            user:props.user.name,
+            uniqueToken:uniqueToken
         };
-
 
         // 投稿
         gameplay_fetch(fetch_params).then((result)=>{

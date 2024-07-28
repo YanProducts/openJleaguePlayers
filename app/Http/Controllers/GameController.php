@@ -11,12 +11,32 @@ use App\Models\Player;
 use App\models\Result;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Illuminate\Support\Str;
 
 // ゲーム中の操作
 class GameController extends Controller
 {
     //回答チェック
     public function answer_check(GamePatternRequest $request){
+
+
+        // 2重投稿フラグ配列の存在チェック(存在さえなければエラー)
+            if(!SessionController::session_exists(["quiz_unique_token"]) || !SessionController::session_isNotNull(["used_quiz_unique_tokens"])){
+                // 非同期の中なのでエラーページには移動せずログ保存
+                Log::info("クイズのsessionがセットされていません");
+                return response()->json([
+                    "sessionSettingError"=>"不正な処理です"
+                ]);
+            }
+
+        // 二重投稿の確認
+        // 二重投稿の時は、１回目の投稿で既に新しいsessionは投稿済
+         if(!$this->duplicate_post_check($request->unique_token)){
+            return response()->json([
+                "duplicatedError"=>"二重投稿です"
+            ]);
+        }
+
 
         //そのチームに選手が存在するか否か→正解チェック
         switch($request->nameType){
@@ -86,7 +106,8 @@ class GameController extends Controller
             "red"=>$team_data->red,
             "green"=>$team_data->green,
             "blue"=>$team_data->blue,
-            "playerLists"=>$player_name_lists
+            "playerLists"=>$player_name_lists,
+            "new_token"=>session("quiz_unique_token")
         ];
     }
 
@@ -239,6 +260,8 @@ class GameController extends Controller
     // ゲームクリア
     public function game_clear(){
 
+        Log::info('root called for user');
+
         // sessionの値が期待と違った時
         if(!SessionController::confirm_session_value(["cate","quiz_type","name_type"])){
             //エラーページへ
@@ -250,21 +273,67 @@ class GameController extends Controller
         $username=$userInfomation->name;
 
 
-
         // sessionの再度チャレンジできるようsessionの削除はしない
 
-        // sqlに挿入
-        // 名前はどうゲットするか？
+
+
+        // tokenがusedされていなければ、回答者ごとの成績をsqlに挿入。returnのsessionは成功か否かを記入
+        if(!SessionController::session_exists(["used_game_tokens"]) ||  !in_array(session("game_token"),session("used_game_tokens"))){
+            SessionController::create_sessions([
+                "isGradeInserted"=>QuizGradeController::insert_sql($username)
+            ]);
+
+            // 過去リストに挿入
+            $used_game_tokens=session("used_game_tokens",[]);
+            $used_game_tokens[]=session("game_token");
+            SessionController::create_sessions([
+                "used_game_tokens"=>$used_game_tokens
+            ]);
+        }
+
+        // そのユーザーのクリア回数
+        $user_number_of_times_sets=QuizGradeController::get_number_of_times($username);
+        // 全体ユーザーのクリア回数
+        $all_number_of_times_sets=QuizGradeController::get_number_of_times();
+
 
         // クイズタイプをUI表示に見やすい形式に
         $quiz_type_inJpn=StaticValueController::$QuizSets[session("quiz_type")];
 
         // クリア画面へ
         return Inertia::render('Game/Clear',[
+            "userName"=>$username,
             "name_type"=>session("name_type")=== "part" ? "名前の一部" : "登録名",
             "quiz_type"=>$quiz_type_inJpn,
             "cate"=>session("cate")==="all" ? "全て" : session("cate"),
+            "userNumberSets"=>$user_number_of_times_sets,
+            "allNumberSets"=>$all_number_of_times_sets,
+            "canGradeUpdated"=>session("isGradeInserted")
         ]);
     }
+
+
+    // クイズ二重投稿の確認
+    public function duplicate_post_check($unique_token){
+
+        // 過去のリストにあれば二重投稿
+            if(in_array($unique_token,session("used_quiz_unique_tokens"))){
+                Log::info("duplicated");
+                return false;
+            }
+
+        // 過去のリストへtoken追加(sessionヘルパー関数は単純に追加はできない)
+            $array=session("used_quiz_unique_tokens");
+            $array[]=$unique_token;
+            SessionController::create_sessions([
+                "used_quiz_unique_tokens"=>$array
+            ]);
+
+
+         // 新たにtoken作成
+         SessionController::createSessionNotWithinArray("quiz_unique_token","used_quiz_unique_tokens");
+        return true;
+    }
+
 
 }

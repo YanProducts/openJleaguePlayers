@@ -10,7 +10,7 @@ use LDAP\Result;
 
 class StoreResultController extends Controller
 {
-    //結果のsqlに挿入するコントローラー
+    //回答された選手の結果のsqlに挿入するコントローラー
 
     // 結果挿入の段取り
     public static function insert_sql($player_name_lists,$team,$user,$name_type,$quiz_type,$cate_type){

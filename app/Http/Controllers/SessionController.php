@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 
 // 複数個のsessionそ操作したい時に使用
@@ -25,6 +25,16 @@ class SessionController extends Controller
     public static function session_exists($session_lists){
         foreach($session_lists as $key){
             if(empty(session($key))){
+                return false;
+            }
+        }
+        return true;
+    }
+
+    // sessionでarrayなどが定義されているかをチェック。空の場合もtrue
+    public static function session_isNotNull($session_lists){
+        foreach($session_lists as $key){
+            if(null===session($key)){
                 return false;
             }
         }
@@ -64,6 +74,19 @@ class SessionController extends Controller
 
         }
         return true;
+    }
+
+    // ある配列に含まれないsessionを作成する
+    static public function createSessionNotWithinArray($str_name,$array_name){
+        // そのゲームのトークン作成(成績表示の際に2重投稿防止)
+        if(!self::session_exists([$array_name]) && self::session_isNotNull([$array_name])){
+            do{
+                $new_str=Str::random(40);
+            }while(in_array($new_str,session("used_game_tokens")));
+        }else{
+            $new_str=Str::random(40);
+        }
+        self::create_sessions([$str_name=>$new_str]);
     }
 
 }

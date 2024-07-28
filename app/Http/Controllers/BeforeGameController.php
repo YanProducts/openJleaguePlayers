@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Cookie;
 
 class BeforeGameController extends Controller
 {
@@ -19,8 +21,17 @@ class BeforeGameController extends Controller
 
         // session削除
         SessionController::delete_sessions(([
-            "cate","quiz_type","name_type","player_lists","selected_teams"
+            "cate","quiz_type","name_type",
+            "player_lists","selected_teams",
+            "used_quiz_uniwue_tokens",
+            "quiz_unique_token",
+            "used_game_tokens",
+            "game_token",
+            "isGradeInserted"
         ]));
+
+
+
 
         // ページ表示
         return Inertia::render('TopPage',[
@@ -38,7 +49,6 @@ class BeforeGameController extends Controller
 
         ]);
     }
-
 
 
     // ゲームパターンが決定後、そのパターンを返す
@@ -97,6 +107,15 @@ class BeforeGameController extends Controller
             throw new CustomException("ゲームの種類を選択してください");
         }
 
+        // 成績表示の時の二重投稿防止
+        SessionController::createSessionNotWithinArray("game_token","used_game_tokens");
+
+        // 二重投稿防止用に初期のセッションのセット
+        SessionController::create_sessions([
+            "quiz_unique_token"=>Str::random(40),
+            "used_quiz_unique_tokens"=>[]
+        ]);
+
         return Inertia::render('Game/Play',[
             "csrf_token"=>csrf_token(),
 
@@ -110,6 +129,10 @@ class BeforeGameController extends Controller
             "quiz_type"=>session("quiz_type"),
             "cate"=>session("cate"),
             "teams"=>session("selected_teams"),
+
+            // 二重投稿防止のsession
+            "unique_token"=>session("quiz_unique_token"),
+
         ]);
     }
 

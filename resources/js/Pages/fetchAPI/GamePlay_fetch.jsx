@@ -21,7 +21,8 @@ export default async function gameplay_fetch(props){
                     team:props.answerTeam,
                     cate:props.cate,
                     user:props.user,
-                    answered:JSON.stringify(props.answered)
+                    answered:JSON.stringify(props.answered),
+                    unique_token:props.uniqueToken
                 })
           });
 
@@ -37,8 +38,16 @@ export default async function gameplay_fetch(props){
         const returnJson=await response.json();
 
         // jsonの値でエラーが含まれるとき
-        if(returnJson.resultInsertError){
+        if(returnJson.resultInsertError ||
+           returnJson.namePatternError ||
+           returnJson.sessionSettingError
+        ){
             throw new Error(JSON.stringify({"unCategorizedError":"予期せぬエラーです"}));
+        }
+
+        //二重投稿の時
+        if(returnJson.duplicatedError){
+            throw new Error(JSON.stringify({"unCategorizedError":"duplicated"}));
         }
 
         return {

@@ -9,7 +9,7 @@ use App\Http\Controllers\GameController;
 use App\Http\Controllers\BeforeGameController;
 use App\Http\Controllers\StaticValueController;
 use App\Http\Controllers\TestController;
-
+use Illuminate\Support\Facades\Log;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -66,7 +66,7 @@ Route::get('/sign', function () {
 })->middleware(['auth', 'verified'])->name('view_sign_page');
 
 // ゲームクリアのルート
-Route::get("/game/clear",[GameController::class,"game_clear"])
+Route::get("/game.clear",[GameController::class,"game_clear"])
 ->middleware(['auth', 'verified'])
 ->name("gameClear");
 
@@ -83,6 +83,8 @@ Route::get("/error_view",function(){
             "top_page"=>route("topPage")
         ],500);
 })->name("error_view");
+
+
 
 // ログイン操作
 require __DIR__.'/auth.php';

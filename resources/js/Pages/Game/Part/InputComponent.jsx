@@ -25,8 +25,8 @@
             <>
             <OptionDefaultViewChange setOptionDefaultView={setOptionDefaultView}/>
             <form className="base_input_div flex justify-center form_font_change" onSubmit={onAnswerBtnClick} >
-            <input className='h-10 ml-auto mr-2 w-1/3' ref={inputRef}/>
-            <select ref={answerTeamRef} className='mr-2 w-1/3 h-10'>
+            <input id="inputFiled" className='h-10 ml-auto mr-2 w-1/3' ref={inputRef}/>
+            <select id="selectfield" ref={answerTeamRef} className='mr-2 w-1/3 h-10'>
                 <option hidden value="no_choice">{optionDefaultView}</option>
                 {props.teams.map(m=>(<option key={m.id} value={m.eng_name}>{m.jpn_name}</option>))}
             </select>

@@ -4,8 +4,43 @@ import { Link, Head } from '@inertiajs/react';
 import backgroundImage from '../../../img/back.jpg';
 import { Inertia } from '@inertiajs/inertia';
 
+
+const CountComponent=({countSets,userWhich,colorTail})=>{
+  if(Object.keys(countSets).length!==0){
+    return(
+            <div className={`base-frame ${colorTail} border-2 border-black mb-3`}>
+            <p className="py-1 font-bold text-underline border-b-2 border-black mb-1">{userWhich}のクリア</p>
+            <p className="py-1 font-bold">同じカテゴリー{countSets.cate}回目</p>
+            <p className="py-1 font-bold">同じクイズ形式で{countSets.quiz}回目</p>
+            <p className="py-1 font-bold">同じ回答形式で{countSets.name}回目</p>
+            <p className="py-1 font-bold">トータルで{countSets.all}回目</p>
+        </div>
+    )
+  }
+}
+
+
 // ゲームクリアの画面
 export default function clearGames(props){
+
+  console.log(props.userName);
+
+  // そのユーザーにおける過去の正解数
+  const [userNumberSets,setUserNumberSets]=React.useState({});
+  React.useEffect(()=>{
+    if(props.userName!=="commonUser"){
+      setUserNumberSets(props.userNumberSets);
+    }
+  },[props.userNumberSets]);
+
+  // 全ユーザートータルの過去の正解数
+  const [allNumberSets,setAllNumberSets]=React.useState({});
+  React.useEffect(()=>{
+    setAllNumberSets(props.allNumberSets);
+  },[props.allNumberSets]);
+
+
+
     return(
      <AuthenticatedLayout
         user={props.auth.user}
@@ -21,22 +56,18 @@ export default function clearGames(props){
         <p className='base_frame text-lg font-bold bg-white bg-opacity-80  text-center mb-5 border-b-2 border-black'>おめでとうございます！！</p>
 
         <div className='base_frame bg-white bg-opacity-80  text-center mb-2'>
-            <p>カテゴリー：{props.cate}</p>
-            <p>クイズ形式：{props.quiz_type}</p>
-            <p>回答形式：{props.name_type}</p>
+            <p className="font-bold">カテゴリー：{props.cate}</p>
+            <p className="font-bold">クイズ形式：{props.quiz_type}</p>
+            <p className="font-bold">回答形式：{props.name_type}</p>
         </div>
 
-        <div className='base_frame bg-white bg-opacity-80  text-center mb-2'>
-            <div>
-              <p className="">あなたのクリア</p>
-              <p className="">同じカテゴリー回目</p>
-              <p className="">同じクイズ形式で回目</p>
-              <p className="">同じ回答形式で回目</p>
-              <p className="">通算で回目</p>
-            </div>
 
-            <p>同じパターンのクイズのクリアは、全体で回目</p>
-            <p>うち回があなたです！</p>
+        <div className='base_frame bg-white bg-opacity-80  text-center mb-2'>
+
+              <CountComponent countSets={userNumberSets} userWhich={"あなたの通算"} colorTail={"bg-sky-300"}/>
+
+              <CountComponent countSets={allNumberSets} userWhich={"全体の通算"} colorTail={"bg-lime-300"}/>
+
         </div>
 
 
