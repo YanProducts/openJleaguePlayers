@@ -9,13 +9,16 @@ export default async function gameplay_fetch(props){
     // 投稿
     try{
 
+        // answerはquizTypeで分ける
+        let userAnswer=props.quizType==="" ? props.inputVal : JSON.stringify(props.inputSets);
+
        const response=await fetch(
             "/game/answerCheck",
             {
                 method:"post",
                 headers:headers,
                 body:new URLSearchParams({
-                    answer:props.inputVal,
+                    answer:userAnswer,
                     quizType:props.quiz_type,
                     nameType:props.name_type==="名前の一部" ? "part" : (props.name_type==="登録名" ? "full":""),
                     team:props.answerTeam,

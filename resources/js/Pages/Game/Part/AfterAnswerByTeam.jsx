@@ -3,7 +3,7 @@
     import { Inertia } from "@inertiajs/inertia";
 
     // 分割代入
-    export const AfterAnsewrComponent=({isAfter,setIsAfter,isRightState,setIsRightState,answered})=>{
+    export const AfterAnswerComponent=({isAfter,setIsAfter,isRightState,setIsRightState,answered})=>{
 
         // 2重のinertia.visitの防止用
         const [moveResult,setMoveResult]=React.useState(false);
@@ -16,7 +16,7 @@
                     // クリアしたかどうか
                     // if(Number(props.quiz_type.substring(4))>=answered.length){
                         // 実験
-                    if(2<=answered.length){
+                    if(10<=answered.length){
                         // SQL登録のlaravel。その後に遷移。2回以上登録される。
                         setIsAfter(false);
                         if(!moveResult){

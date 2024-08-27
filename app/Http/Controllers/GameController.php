@@ -37,31 +37,46 @@ class GameController extends Controller
             ]);
         }
 
-
-        //そのチームに選手が存在するか否か→正解チェック
-        switch($request->nameType){
-            case "part":
-             return response()->json(
-                 $this->checkAnswer_whenPart($request)
-             );
-             break;
-             case "full":
+        // quizTypeによる仕分け
+        // falseの場合を除くため「===」で比較
+        // この2パターン以外はRequestで弾かれている
+        if(substr($request->quizType,"rand")===0){
+            // ランダムの場合は回答をそのまま比較
+            $answer=$request->answer;
+            //名前のタイプによる仕分け
+            switch($request->nameType){
+                case "part":
                 return response()->json(
-                    $this->checkAnswer_whenfull($request)
+                    $this->checkAnswer_whenPart($request,$answer)
                 );
-            break;
-            default:
-            return response()->json([
-                "namePatternError"=>"不正な処理です"
-            ],500);
-            break;
+                break;
+                case "full":
+                    return response()->json(
+                        $this->checkAnswer_whenfull($request,$answer)
+                    );
+                break;
+                default:
+                return response()->json([
+                    "namePatternError"=>"不正な処理です"
+                ],500);
+                break;
+            }
+        }else if(substr($request->quizType,"team")===0){
+            // チーム別の場合は回答の配列を取り出して
+            // inputの〜番目かはteamの順序に合わせる
+            $answerLists=$request->answer;
+            $teamLists=$request->teams;
+            foreach($answerLists as $key=>$answer){
+                // keyを3で割った商の部分でみる
+            }
+
         }
+
         exit;
     }
 
     // 名前の１部での回答チェック
-    public function checkAnswer_whenPart($request){
-        $answer=$request->answer;
+    public function checkAnswer_whenPart($request,$answer){
         $answer_team=$request->team;
         $already_answered_lists=json_decode($request->answered,true);
 
@@ -112,9 +127,8 @@ class GameController extends Controller
     }
 
     // フルネームでの回答チェック
-    public function checkAnswer_whenFull($request){
+    public function checkAnswer_whenFull($request,$answer){
 
-        $answer=$request->answer;
         $answer_team=$request->team;
         $already_answered_lists=json_decode($request->answered,true);
 

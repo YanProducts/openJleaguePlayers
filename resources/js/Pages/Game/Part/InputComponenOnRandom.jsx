@@ -5,20 +5,9 @@
     import { InputStyleByInnerWidth,OptionDefaultViewChange } from "./CustomStyle/InputStyle";
 
     //   分割代入
-   export const InputComponent=({props,onAnswerBtnClick,inputRef,answerTeamRef,isAfter})=>{
+   export const InputComponentOnRandom=({props,onAnswerBtnClick,inputRef,answerTeamRef,isAfter})=>{
 
     // 要素を返す
-    if(props.quiz_type.indexOf("team")!==-1){
-        return(
-            <form className="base_input_div flex justify-center" onSubmit={onAnswerBtnClick} >
-            <input className='h-8 ml-auto' ref={inputRef}/>
-            <button
-            className={`base_btn inline-block ml-1 text-left ${isAfter ? 'pointer-events-auto' : 'pointer-events-none'}`}>回答！</button>
-            </form>
-        )
-    }else if(props.quiz_type.indexOf("rand")!==-1){
-
-
         const [optionDefaultView,setOptionDefaultView]=React.useState("チームの選択");
 
         return(
@@ -30,14 +19,12 @@
                 <option hidden value="no_choice">{optionDefaultView}</option>
                 {props.teams.map(m=>(<option key={m.id} value={m.eng_name}>{m.jpn_name}</option>))}
             </select>
-            <button className={`base_btn inline-block ml-1 text-left ${isAfter ? 'opacity-70 pointer-events-none' : 'opacity-100 pointer-events-auto'}`}>回答！</button>
+            <button className={`base_btn inline-block ml-1 text-left font-bold ${isAfter ? 'opacity-70 pointer-events-none' : 'opacity-100 pointer-events-auto'}`}>回答！</button>
             <InputStyleByInnerWidth />
             </form>
             </>
         )
-    }else{
         // エラーページへ遷移
         Inertia.visit("/error_view");
         return;
-    }
 };

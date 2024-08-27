@@ -3,11 +3,11 @@ import React from "react";
 import { Link, Head} from '@inertiajs/react';
 import backgroundImage from '../../../img/back.jpg';
 import gameplay_fetch from '../fetchAPI/GamePlay_fetch';
-import { InputComponent } from './Part/InputComponent';
-import { AfterAnsewrComponent } from './Part/AfterAnsweComponent';
-import { NowPlayingQuizResultComponent } from './Part/ResultView/NowPlayingQuizResultComponent';
+import { InputComponentOnRandom } from './Part/InputComponenOnRandom';
+import { AfterAnswerComponent } from './Part/AfterAnswerRandom';
+import AnswerRandom from "./Part/ResultView/AnswerRandom";
 
-export default function Play(props) {
+export default function PlayRand(props) {
 
     // fetch後のオブジェクト格納
     const [fetchReturn,setFetchReturn]=React.useState({});
@@ -21,6 +21,7 @@ export default function Play(props) {
     // 回答後か否か
     const [isAfter,setIsAfter]=React.useState(false);
 
+    // ２重投稿防止トークン
     const [uniqueToken,setUniqueToken]=React.useState(props.unique_token);
 
     // 正解か不正解か未回答か回答済か(jsonと区別するためにStateを変数名で使用)
@@ -38,7 +39,6 @@ export default function Play(props) {
         if(Object.keys(fetchReturn).length===0){
             return;
         }
-
 
         // UI初期化(既に送信済みなのでinputは空にできる)
         inputRef.current.value="";
@@ -108,12 +108,11 @@ export default function Play(props) {
             return;
         }
 
-        if(props.quiz_type.indexOf("rand")!==-1 && answerTeamRef.current.value==="no_choice"){
+        if(answerTeamRef.current.value==="no_choice"){
             alert("チームが入力されていません");
             return;
         }
 
-        // この時点では
         const fetch_params={
             csrf_token: props.csrf_token,
             answered: answered,
@@ -157,7 +156,7 @@ export default function Play(props) {
 
             {/* 正否表示 */}
             {/* クリア時のページ遷移含む */}
-            <AfterAnsewrComponent
+            <AfterAnswerComponent
                 isAfter={isAfter}
                 setIsAfter={setIsAfter}
                 isRightState={isRightState}
@@ -166,7 +165,7 @@ export default function Play(props) {
             />
 
             {/* input周りのcomponent */}
-            <InputComponent
+            <InputComponentOnRandom
                 props={props}
                 onAnswerBtnClick={onAnswerBtnClick}
                 inputRef={inputRef}
@@ -176,11 +175,7 @@ export default function Play(props) {
 
             {error.validationError &&(<p id="error_cate" className='base_error animate-whenerror'>{error.validationError}</p>)}
 
-            {/* quiz_typeがチーム別かrondomかで分割 */}
-            < NowPlayingQuizResultComponent
-              props={props}
-              answered={answered}
-            />
+            <AnswerRandom answered={answered}/>
 
             <p className='base_link_p'><Link className='base_link' href="/topPage">トップへ</Link></p>
 

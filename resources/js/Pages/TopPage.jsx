@@ -45,11 +45,16 @@ export default function TopPage(props) {
         if(!fetch_return.success){
             setError(fetch_return.errorMessage)
         }else{
+
             // ページ遷移
             Inertia.visit("/game.play",
             {
-                preserveScroll: true,
-                preserveState: true
+                onError: (errors) => {
+                alert('Inertia visit error:', JSON.stringify(errors));
+                },
+
+                // preserveScroll: true,
+                // preserveState: true
               });
             return;
         }

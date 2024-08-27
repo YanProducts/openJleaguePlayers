@@ -116,7 +116,14 @@ class BeforeGameController extends Controller
             "used_quiz_unique_tokens"=>[]
         ]);
 
-        return Inertia::render('Game/Play',[
+        // 上記でsessionの値はconfirm済
+        if(strpos(session("quiz_type"),"rand")===0){
+            $game="Game/PlayRand";
+        }else if(strpos(session("quiz_type"),"team")===0){
+            $game="Game/PlayTeam";
+        }
+
+        return Inertia::render($game,[
             "csrf_token"=>csrf_token(),
 
             // 年度の設定!?????
