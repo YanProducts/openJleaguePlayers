@@ -81,14 +81,17 @@ export default function AnswerByTeam({teams,requiredAnswer,answered,openedInput,
     },[inputSets,focusIndex])
 
 
-    const liOrInput=(total_n)=>{
+    const liOrInput=(total_n,blackOrWhite)=>{
         if(Object.keys(openedInput).includes(String(total_n))){
             return(
-                <span>{openedInput(total_n)}</span>
+                <li key={total_n} className="my-2 text-center  border-y" style={{height:liHight,color:`${blackOrWhite}`,borderColor:`${blackOrWhite}`}}>
+                <span className="font-bold">{openedInput[total_n]}</span>
+                </li>
             )
         }else{
             return(
                 // refのelは、そのDOMのこと
+                <li key={total_n} className="my-2 text-center" style={{height:liHight}}>
                 <input
                 type="text"
                 key={total_n} className="w-full p-0 visible" style={{color:"black",height:liHight}}
@@ -101,18 +104,19 @@ export default function AnswerByTeam({teams,requiredAnswer,answered,openedInput,
                 //  日本語入力終了
                 onCompositionEnd={(e) => onInputCompositionEnd(total_n,e)}
                  />
+                 </li>
             )
         }
     }
 
 
-    const AnsweredLiComponents=({total_n})=>{
+    const AnsweredLiComponents=({total_n,blackOrWhite})=>{
         const LiComponents=[]
         for(let n=0;n<Number(requiredAnswer);n++){
             LiComponents.push(
-            <li key={total_n} className="my-1 text-center" style={{height:liHight}}>
-                {liOrInput(total_n)}
-            </li>
+            <div key={total_n}>
+                {liOrInput(total_n,blackOrWhite)}
+            </div>
           )
         total_n++;
         }
@@ -131,12 +135,13 @@ export default function AnswerByTeam({teams,requiredAnswer,answered,openedInput,
         let total_n=0;
 
         teams.forEach((team,index)=>{
+            const blackOrWhite=0.299*team.red + 0.587 *team.green + 0.114*team.blue > 128 ? "black" : "white";
             // 各チームの要素
             let eachComponent=(
-                <div key={index} className="border-black border-2 p-2 w-5/6 mx-1" style={{ backgroundColor:`rgb(${team.red},${team.green},${team.blue})`,color:`${0.299*team.red + 0.587 *team.green + 0.114*team.blue > 128 ? "black" : "white"}`}}>
+                <div key={index} className="border-black border-2 p-2 w-5/6 mx-1" style={{ backgroundColor:`rgb(${team.red},${team.green},${team.blue})`,color:`${blackOrWhite}`}}>
                     <p className="text-center font-bold mb-2">{team.jpn_name}</p>
                     <ul>
-                    <AnsweredLiComponents key={index} total_n={total_n}/>
+                    <AnsweredLiComponents key={index} total_n={total_n} blackOrWhite={blackOrWhite}/>
                     </ul>
                 </div>
             );

@@ -23,19 +23,19 @@ import { Inertia } from "@inertiajs/inertia"
     export const LiHeightSetting=(setLiHeight,requiredAnswer)=>{
         switch(Number(requiredAnswer)){
             case 1:
-                setLiHeight("40px");
+                setLiHeight("45px");
             break;
             case 3:
-                setLiHeight("35px");
+                setLiHeight("40px");
             break;
             case 5:
-                setLiHeight("30px");
+                setLiHeight("35px");
             break;
             case 11:
-                setLiHeight("25px");
+                setLiHeight("30px");
             break;
             case 20:
-                setLiHeight("20px");
+                setLiHeight("25px");
             break;
             // それ以外はエラー
             default:

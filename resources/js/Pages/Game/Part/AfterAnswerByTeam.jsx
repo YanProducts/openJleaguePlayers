@@ -45,15 +45,13 @@
             return null;
         }
         // 回答後(buttonのpointerEventはInput側で操作)
-        switch(isRightState){
-            case "right":
-                return <div className='right_div'>正解！</div>
-            case "wrong":
+        if(!isNaN(Number(isRightState)) && isRightState!=="already" ){
+                return  <div className='already_div'>エラー</div>
+        }else{
+            if(isRightState==0){
                 return <div className='wrong_div'>X</div>
-            case "already":
-            return  <div className='already_div'>回答済</div>
-            default:
-            // 処理段階のエラー
-            return  <div className='already_div'>エラー</div>
+            }else{
+                return <div className='right_div'>{isRightState}人正解！</div>
+            }
         }
     }

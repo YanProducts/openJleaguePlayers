@@ -113,16 +113,30 @@ class GameController extends Controller
                         ];
                         // 正解数をたす
                         $right_counts++;
-                        // 正解リストに加える
-                        $returned_lists[]=$response;
                     }
+                    // 正解リストに加える
+                    $returned_lists[]=$response;
                 }
             endforeach;
 
+            // 正解者リストを「チーム」ごとにまとめる
+            $new_returned_lists=[];
+            foreach($returned_lists as $list){
+                if(array_key_exists($list["team"],$new_returned_lists)){
+                    array_push($new_returned_lists[$list["team"]]["players"],...$list["playerLists"]);
+                }else{
+                    $new_returned_lists[$list["team"]]=[
+                        "red"=>$list["red"],
+                        "green"=>$list["green"],
+                        "blue"=>$list["blue"],
+                        "players"=>$list["playerLists"]
+                    ];
+                }
+            }
 
             return response()->json([
                 "rightCounts"=>$right_counts,
-                "returnedLists"=>$returned_lists,
+                "returnedLists"=>$new_returned_lists,
                 "new_token"=>session("quiz_unique_token")
             ]);
 

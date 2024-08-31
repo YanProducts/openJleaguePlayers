@@ -8,6 +8,9 @@ import AnswerByTeam from "./Part/ResultView/AnswerByTeam";
 
 export default function PlayTeam(props) {
 
+    // 必要な回答数
+    const requiredAnswer=props.quiz_type.substring(4);
+
     // 回答され開いてliに変更されたinput要素(開いた番目のinputを挿入)と、そこに埋まる値
     const [openedInput,setOpenedInput]=React.useState({});
 
@@ -20,7 +23,7 @@ export default function PlayTeam(props) {
     // fetch後のオブジェクト格納
     const [fetchReturn,setFetchReturn]=React.useState({});
 
-    // 回答された選手のリスト
+    // 回答された選手のリスト(チームをキーに、選手リストをオブジェクトにして使用)
     const [answered,setAnswered]=React.useState([]);
 
     // エラー有無
@@ -35,16 +38,31 @@ export default function PlayTeam(props) {
     // 何人正解か？
     const [isRightState,setIsRightState]=React.useState("yet");
 
+    // fetchの際のteamsには必要な要素のみを渡す
+    const comvertingTeams=(teams)=>{
+        return(
+        teams.map((obj,key)=>({
+                "id":obj.id,
+                "red":obj.red,
+                "green":obj.green,
+                "blue":obj.blue,
+                "eng_name":obj.eng_name,
+                "jpn_name":obj.jpn_name,
+                "cate":obj.cate
+            })
+        )
+    )}
 
-    // 次に、fetchDoneによって変化が生じたfetchReturnの値によって変化させる分
+
+
+
+    // fetch後①：fetchDoneによって変化が生じたfetchReturnの値によって変化させる分
     React.useEffect(()=>{
 
         // fetchReturn取得前は何もしない
         if(Object.keys(fetchReturn).length===0){
             return;
         }
-
-        console.log(fetchReturn);
 
         // UI初期化(既に送信済みなのでinputは空にできる)
         // inputRef.current.value="";
@@ -55,8 +73,9 @@ export default function PlayTeam(props) {
 
             // 正解人数の表示
             // まだ！！！全員回答済だった場合！！！！！
-            setIsRightState(fetchReturn.rightCounts);
+            setIsRightState(fetchReturn.returnSets.rightCounts);
 
+            // setOpenedInput();
         }else{
             // 失敗の場合
             // 二重投稿の場合は何もしない
@@ -73,46 +92,81 @@ export default function PlayTeam(props) {
     },[fetchReturn])
 
 
-    // その後、isRightStateに変化が生じたら、回答リストに挿入
+    // fetch後②：isRightStateが変更した後で、正解者をリストに捕捉する
+    React.useEffect(()=>{
+            // 数値かどうかをまずチェック
+            if(isNaN(Number(isRightState))){
+                // 数値でない場合
+                return;
+            }
+
+            const afterFetchLists=fetchReturn.returnSets.returnedLists;
+
+
+            // 正解者の格納
+            Object.keys(afterFetchLists).forEach((team)=>{
+                let list=afterFetchLists[team];
+                // チームごとに回答済リストに格納
+                if(Object.keys(answered).includes(team)){
+                    setAnswered(prevState=>({
+                        ...prevState,
+                        [team]:[...answered[team],...list.players]
+                    }))
+                }else{
+                    setAnswered(prevState=>({
+                        ...prevState,
+                        [team]:[...list.players]
+                     })
+                    )
+                }
+            })
+    },[isRightState])
+
+
+
+    // fetch後③：answeerd変化が生じたら、UIの変更
     React.useEffect(()=>{
 
-        // 正解の場合：選手リストに追加
-        // if(isRightState==="right"){
+        // 数値かどうかをチェック
+        if(isNaN(Number(isRightState))){
+            // 数値でない場合
+            return;
+        }
 
-        //     let insertAnswered=fetchReturn.returnSets.playerLists.map((eachPlayer,index)=>({
-        //             "number":answered.length+index+1,
-        //             "player":eachPlayer,
-        //             "team":fetchReturn.returnSets.team,
-        //             "red":fetchReturn.returnSets.red,
-        //             "green":fetchReturn.returnSets.green,
-        //             "blue":fetchReturn.returnSets.blue,
-        //     }));
 
-        //     // 挿入は１度に行う必要がある
-        //     setAnswered([...answered,...insertAnswered]);
-        // }
+        // 回答されたリストを見て、チームごとに空いている番号を取得
+        // 非同期対策必要！！！！！
+        let beforeOpenenLiInput={};
+        Object.keys(answered).forEach((teamFromAnswered)=>{
+            // 開ける場所を決定
+            props.teams.forEach((teamFromProps,index)=>{
+                let answerNumberByTeam=0;
+                if(teamFromProps.jpn_name===teamFromAnswered){
+                    for(let n=index*requiredAnswer;n<(index+1)*requiredAnswer;n++){
+                        // 既に空いていたら次へ
+                        if(Object.keys(openedInput).includes(n)){
+                            continue;
+                        }
+                        // 空いていない番号から順に、openenInputに入れていく
+                        beforeOpenenLiInput={
+                            ...beforeOpenenLiInput,
+                            [n]:answered[teamFromAnswered][answerNumberByTeam]
+                        }
+                        answerNumberByTeam++;
+                        if(answerNumberByTeam>=(answered[teamFromAnswered].length || answerNumberByTeam >= requiredAnswer)){
+                            break;
+                        }
+                    }
+                }
+            })
+        })
+        setOpenedInput(beforeOpenenLiInput);
 
         // // 回答後画面へのフラグ(isAfter)反映
         if(isRightState!=="yet"){
             setIsAfter(true);
         }
-    },[isRightState])
-
-    // teamsには必要な要素のみを渡す
-    const comvertingTeams=(teams)=>{
-        return(
-        teams.map((obj,key)=>({
-                "id":obj.id,
-                "red":obj.red,
-                "green":obj.green,
-                "blue":obj.blue,
-                "eng_name":obj.eng_name,
-                "jpn_name":obj.jpn_name,
-                "cate":obj.cate
-            })
-        )
-    )}
-
+    },[answered])
 
 
     // 回答がsubmitされたとき
@@ -134,7 +188,7 @@ export default function PlayTeam(props) {
             player_lists: props.player_lists,
             name_type: props.name_type,
             quiz_type: props.quiz_type,
-            requiredAnswer:props.quiz_type.substring(4),
+            requiredAnswer:requiredAnswer,
             teams:JSON.stringify(comvertedTeams),
             cate: props.cate,
             user:props.user.name,
@@ -143,7 +197,6 @@ export default function PlayTeam(props) {
 
         // 投稿
         gameplay_fetch(fetch_params).then((result)=>{
-            console.log(result);
             // 投稿で返ってきた変数の格納
             setFetchReturn(result);
         })
