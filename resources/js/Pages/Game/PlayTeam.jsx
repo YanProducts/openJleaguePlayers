@@ -14,6 +14,9 @@ export default function PlayTeam(props) {
     // 回答に向けたinputのセット(totalのliでn番目のものと、それに対応したinputの値)
     const [inputSets,setInputSets]=React.useState({});
 
+    // inputのref(inputRefs.currentで配列)
+    const inputRefs=React.useRef({});
+
     // fetch後のオブジェクト格納
     const [fetchReturn,setFetchReturn]=React.useState({});
 
@@ -41,14 +44,19 @@ export default function PlayTeam(props) {
             return;
         }
 
+        console.log(fetchReturn);
+
         // UI初期化(既に送信済みなのでinputは空にできる)
-        inputRef.current.value="";
+        // inputRef.current.value="";
 
         if(fetchReturn.success){
             // 新たなsessionの設定
             setUniqueToken(fetchReturn.returnSets.new_token);
-            // 正否の入力
-            setIsRightState(fetchReturn.returnSets.isRight);
+
+            // 正解人数の表示
+            // まだ！！！全員回答済だった場合！！！！！
+            setIsRightState(fetchReturn.rightCounts);
+
         }else{
             // 失敗の場合
             // 二重投稿の場合は何もしない
@@ -90,15 +98,33 @@ export default function PlayTeam(props) {
         }
     },[isRightState])
 
+    // teamsには必要な要素のみを渡す
+    const comvertingTeams=(teams)=>{
+        return(
+        teams.map((obj,key)=>({
+                "id":obj.id,
+                "red":obj.red,
+                "green":obj.green,
+                "blue":obj.blue,
+                "eng_name":obj.eng_name,
+                "jpn_name":obj.jpn_name,
+                "cate":obj.cate
+            })
+        )
+    )}
+
+
 
     // 回答がsubmitされたとき
     const onAnswerBtnClick=()=>{
-
 
         // 回答後の段階なら送信できない
         if(isAfter){
             return;
         }
+
+        // チームを必要データのみに変換
+        const comvertedTeams=comvertingTeams(props.teams);
 
         const fetch_params={
             csrf_token: props.csrf_token,
@@ -108,17 +134,16 @@ export default function PlayTeam(props) {
             player_lists: props.player_lists,
             name_type: props.name_type,
             quiz_type: props.quiz_type,
-            team:JSON.stringify(props.teams),
+            requiredAnswer:props.quiz_type.substring(4),
+            teams:JSON.stringify(comvertedTeams),
             cate: props.cate,
             user:props.user.name,
-            uniqueToken:uniqueToken
+            uniqueToken:uniqueToken,
         };
-
-        console.log(fetch_params);
-        return;
 
         // 投稿
         gameplay_fetch(fetch_params).then((result)=>{
+            console.log(result);
             // 投稿で返ってきた変数の格納
             setFetchReturn(result);
         })
@@ -171,6 +196,7 @@ export default function PlayTeam(props) {
             openedInput={openedInput}
             inputSets={inputSets}
             setInputSets={setInputSets}
+            inputRefs={inputRefs}
         />
 
         <p className='base_link_p'><Link className='base_link' href="/topPage">トップへ</Link></p>

@@ -2,7 +2,7 @@ import React, {useState} from "react";
 import { setInnerWidth,LiHeightSetting } from "./CutomStyle/ByTeam";
 
 // 回答をチームごとに答える場合
-export default function AnswerByTeam({teams,requiredAnswer,answered,openedInput,inputSets,setInputSets}){
+export default function AnswerByTeam({teams,requiredAnswer,answered,openedInput,inputSets,setInputSets,inputRefs}){
 
     // flexの数
     const [flexCounts,setFlexCounts]=React.useState("");
@@ -10,11 +10,15 @@ export default function AnswerByTeam({teams,requiredAnswer,answered,openedInput,
     // liのheight
     const [liHight,setLiHeight]=React.useState("30px");
 
-    // inputのref(inputRefs.currentで配列)
-    const inputRefs=React.useRef([]);
+    // 日本語入力変化中
+    const isComposing=React.useRef(false)
+
+    // 日本語入力変換中の保持
+    const tempInputValue=React.useRef({});
 
     // 何番目のinputをfocusさせるか
     const [focusIndex,setFocusIndex]=React.useState("");
+
 
 
     // 回答後、開いたinput要素を入れる
@@ -41,19 +45,37 @@ export default function AnswerByTeam({teams,requiredAnswer,answered,openedInput,
     },[])
 
 
-    // 各inputが変更された時
-    const onInputChange=(total_n,inputValue)=>{
-        // const settingTeam=teams[Math.floor((total_n/3))].jpn_name;
-        // stateの変更
-        setInputSets(prevState=>({
-            ...prevState,
-            [total_n]:inputValue
-        }))
-        // focusするindexの変更
-        setFocusIndex(total_n);
-    }
+  // 日本語入力開始
+  const onInputCompositionStart = () => {
+    isComposing.current = true;
+  };
 
-    // inputが変更した後、変更したinputに引き続きfocusする
+  // 日本語入力終了
+  const onInputCompositionEnd = (total_n, e) => {
+    setInputSets((prevState) => ({
+        ...prevState,
+        [total_n]: tempInputValue.current[total_n]// 確定された値で更新
+    }));
+    setFocusIndex(total_n);
+    isComposing.current = false;
+  };
+
+  // 各inputが変更された時
+  const onInputChange = (total_n,value) => {
+    if (isComposing.current) {
+    //日本語入力中のrefを変換
+      tempInputValue.current[total_n]=value;
+      return; // 日本語変換中は何もしない
+    }
+    setInputSets((prevState) => ({
+      ...prevState,
+      [total_n]: value,
+    }));
+    setFocusIndex(total_n);
+  };
+
+
+  // inputが変更した後、変更したinputに引き続きfocusする
     React.useEffect(()=>{
         inputRefs.current[focusIndex]?.focus();
     },[inputSets,focusIndex])
@@ -67,9 +89,18 @@ export default function AnswerByTeam({teams,requiredAnswer,answered,openedInput,
         }else{
             return(
                 // refのelは、そのDOMのこと
-                <input key={total_n} className="w-full p-0 visible" style={{color:"black",height:liHight}} ref={(el)=>inputRefs.current[total_n]=el}
-                 value={inputSets[total_n] || ""}
-                 onChange={(e)=>{onInputChange(total_n,e.target.value)}}/>
+                <input
+                type="text"
+                key={total_n} className="w-full p-0 visible" style={{color:"black",height:liHight}}
+                ref={(el) => (inputRefs.current[total_n] = el)}
+                // 動的なvalueではなく、初期値を変更し、動的な値は素のHTMLに任せる
+                defaultValue={inputSets[total_n] || ""}
+                onChange={(e) => onInputChange(total_n, e.target.value)}
+                //  日本語入力開始
+                onCompositionStart={onInputCompositionStart}
+                //  日本語入力終了
+                onCompositionEnd={(e) => onInputCompositionEnd(total_n,e)}
+                 />
             )
         }
     }

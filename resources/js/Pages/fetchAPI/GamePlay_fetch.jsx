@@ -9,8 +9,12 @@ export default async function gameplay_fetch(props){
     // 投稿
     try{
 
-        // answerはquizTypeで分ける
-        let userAnswer=props.quizType==="" ? props.inputVal : JSON.stringify(props.inputSets);
+        // answerとteamはquizTypeで分ける
+        let userAnswer=(props.quiz_type).indexOf("rand")===0 ? props.inputVal : JSON.stringify(props.inputSets);
+        let choicedTeam=(props.quiz_type).indexOf("rand")===0 ? props.answerTeam : props.teams;
+
+        // quizTypeがチームの時は、「チームごとに答える人数」をセット
+        let requiredAnswer=props.requiredAnswer ?? "";
 
        const response=await fetch(
             "/game/answerCheck",
@@ -20,8 +24,10 @@ export default async function gameplay_fetch(props){
                 body:new URLSearchParams({
                     answer:userAnswer,
                     quizType:props.quiz_type,
+                    requiredAnswer:requiredAnswer,
                     nameType:props.name_type==="名前の一部" ? "part" : (props.name_type==="登録名" ? "full":""),
-                    team:props.answerTeam,
+                    // teamごとの場合は複数ではある
+                    team:choicedTeam,
                     cate:props.cate,
                     user:props.user,
                     answered:JSON.stringify(props.answered),

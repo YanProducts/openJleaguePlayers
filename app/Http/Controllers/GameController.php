@@ -19,7 +19,6 @@ class GameController extends Controller
     //回答チェック
     public function answer_check(GamePatternRequest $request){
 
-
         // 2重投稿フラグ配列の存在チェック(存在さえなければエラー)
             if(!SessionController::session_exists(["quiz_unique_token"]) || !SessionController::session_isNotNull(["used_quiz_unique_tokens"])){
                 // 非同期の中なのでエラーページには移動せずログ保存
@@ -37,22 +36,30 @@ class GameController extends Controller
             ]);
         }
 
+        // それぞれの代入(randとteam共通の項目)
+        $already_answered_lists=json_decode($request->answered,true);
+        $user=$request->user;
+        $cate=$request->cate;
+        $quizType=$request->quizType;
+
         // quizTypeによる仕分け
         // falseの場合を除くため「===」で比較
         // この2パターン以外はRequestで弾かれている
-        if(substr($request->quizType,"rand")===0){
+        if(strpos($request->quizType,"rand")===0){
             // ランダムの場合は回答をそのまま比較
             $answer=$request->answer;
+            // teamもそのまま比較
+            $answer_team=$request->team;
             //名前のタイプによる仕分け
             switch($request->nameType){
                 case "part":
                 return response()->json(
-                    $this->checkAnswer_whenPart($request,$answer)
+                    $this->checkAnswer_whenPart($user,$cate,$quizType,$already_answered_lists,$answer_team,$answer)
                 );
                 break;
                 case "full":
                     return response()->json(
-                        $this->checkAnswer_whenfull($request,$answer)
+                        $this->checkAnswer_whenfull($user,$cate,$quizType,$already_answered_lists,$answer_team,$answer)
                     );
                 break;
                 default:
@@ -61,14 +68,63 @@ class GameController extends Controller
                 ],500);
                 break;
             }
-        }else if(substr($request->quizType,"team")===0){
-            // チーム別の場合は回答の配列を取り出して
-            // inputの〜番目かはteamの順序に合わせる
-            $answerLists=$request->answer;
-            $teamLists=$request->teams;
-            foreach($answerLists as $key=>$answer){
-                // keyを3で割った商の部分でみる
-            }
+        }else if(strpos($request->quizType,"team")===0){
+            // チーム別の場合は回答とチームを文字列からjsonに直す
+            $answerLists=json_decode($request->answer);
+            $teamLists=json_decode($request->team);
+            $required_answer=$request->requiredAnswer;
+
+            // 正解の数
+            $right_counts=0;
+            // それぞれの正解データが格納
+            $returned_lists=[];
+
+            foreach($answerLists as $key=>$answer):
+
+                // keyを3で割った商からチームを決定
+                $answer_team=$teamLists[floor($key/$required_answer)]->eng_name;
+
+                //名前のタイプによる仕分け(それぞれをjsonではなくforeach内部で返す)
+                switch($request->nameType){
+                    case "part":
+                        $response=$this->checkAnswer_whenPart($user,$cate,$quizType,$already_answered_lists,$answer_team,$answer);
+                    break;
+                    case "full":
+                        $response=$this->checkAnswer_whenfull($user,$cate,$quizType,$already_answered_lists,$answer_team,$answer);
+                    break;
+                    default:
+                    return response()->json([
+                        "namePatternError"=>"不正な処理です"
+                    ],500);
+                    break;
+                  }
+                // 処理がエラーのとき
+                if(array_key_exists("resultInsertError",$response)){
+                    return response()->json($response);
+                }
+
+                //responseが正解のときは
+                if($response["isRight"]==="right"){
+                    foreach($response["playerLists"] as $right_player){
+                        // 回答済リストに選手を入力
+                        $already_answered_lists[]=[
+                            "team"=>$answer_team,
+                            "player"=>$right_player
+                        ];
+                        // 正解数をたす
+                        $right_counts++;
+                        // 正解リストに加える
+                        $returned_lists[]=$response;
+                    }
+                }
+            endforeach;
+
+
+            return response()->json([
+                "rightCounts"=>$right_counts,
+                "returnedLists"=>$returned_lists,
+                "new_token"=>session("quiz_unique_token")
+            ]);
 
         }
 
@@ -76,9 +132,7 @@ class GameController extends Controller
     }
 
     // 名前の１部での回答チェック
-    public function checkAnswer_whenPart($request,$answer){
-        $answer_team=$request->team;
-        $already_answered_lists=json_decode($request->answered,true);
+    public function checkAnswer_whenPart($user,$cate,$quizType,$already_answered_lists,$answer_team,$answer){
 
         // そのチームの全選手リスト取得
         $player_data_in_team=Player::where("team",$answer_team)->get();
@@ -107,7 +161,7 @@ class GameController extends Controller
 
         // 結果挿入
         if($isRight==="right"){
-            $isResultInsertSuccess=StoreResultController::insert_sql($player_name_lists,$answer_team,$request->user,"part",$request->quizType,$request->cate);
+            $isResultInsertSuccess=StoreResultController::insert_sql($player_name_lists,$answer_team,$user,"part",$quizType,$cate);
             if(!$isResultInsertSuccess["success"]){
                 return[
                     "resultInsertError"=>$isResultInsertSuccess["content"]
@@ -127,10 +181,7 @@ class GameController extends Controller
     }
 
     // フルネームでの回答チェック
-    public function checkAnswer_whenFull($request,$answer){
-
-        $answer_team=$request->team;
-        $already_answered_lists=json_decode($request->answered,true);
+    public function checkAnswer_whenFull($user,$cate,$quizType,$already_answered_lists,$answer_team,$answer){
 
         // そのチームの全選手リスト取得
         $player_data_in_team=Player::where("team",$answer_team)->get();
@@ -155,13 +206,13 @@ class GameController extends Controller
 
         // 結果挿入
         if($isRight){
-        $isResultInsertSuccess=StoreResultController::insert_sql($player_name_lists,$answer_team,$request->user,"full",$request->quizType,$request->cate);
+        $isResultInsertSuccess=StoreResultController::insert_sql($player_name_lists,$answer_team,$user,"full",$quizType,$cate);
         if(!$isResultInsertSuccess["success"]){
             return[
                 "resultInsertError"=>$isResultInsertSuccess["content"]
             ];
         }
-    }
+     }
 
         // チーム名の日本語と色を取得
         $team_data=Team::where("eng_name",$answer_team)->first();
@@ -177,6 +228,8 @@ class GameController extends Controller
     }
 
     // 重複チェック
+    // each_playerはteamとfullのセット
+    // already_answered_listsはteamとfullのセットの配列
     public function check_existed_answer($already_answered_lists,$eachplayer){
         if(empty($already_answered_lists)){
             return false;
@@ -186,8 +239,6 @@ class GameController extends Controller
 
         //その選手とそのチームが回答済なら、必ず回答済
         foreach($already_answered_lists as $already_answer){
-
-
             $eng_team=Team::where("jpn_name",$already_answer["team"])->pluck("eng_name")->first();
             if($eng_team===$eachplayer->team &&
             $already_answer["player"] ===$eachplayer->full){
