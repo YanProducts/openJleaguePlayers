@@ -37,7 +37,6 @@ class GameController extends Controller
         }
 
         // それぞれの代入(randとteam共通の項目)
-        $already_answered_lists=json_decode($request->answered,true);
         $user=$request->user;
         $cate=$request->cate;
         $quizType=$request->quizType;
@@ -50,6 +49,8 @@ class GameController extends Controller
             $answer=$request->answer;
             // teamもそのまま比較
             $answer_team=$request->team;
+            // 回答済リスト
+            $already_answered_lists=json_decode($request->answered,true);
             //名前のタイプによる仕分け
             switch($request->nameType){
                 case "part":
@@ -69,10 +70,26 @@ class GameController extends Controller
                 break;
             }
         }else if(strpos($request->quizType,"team")===0){
+            // 必要な回答数
+            $required_answer=$request->requiredAnswer;
+
             // チーム別の場合は回答とチームを文字列からjsonに直す
             $answerLists=json_decode($request->answer);
             $teamLists=json_decode($request->team);
-            $required_answer=$request->requiredAnswer;
+
+            // 回答済リストの形式をrandに合わせる
+            $old_already_answered_lists=json_decode($request->answered,true);
+            $already_answered_lists=[];
+            foreach($already_answered_lists as $already_team=>$already_players){
+                foreach($already_players as $already_player){
+                    $already_answered_lists[]=[
+                        "team"=>$already_team,
+                        "player"=>$already_player
+                    ];
+                }
+            }
+
+
 
             // 正解の数
             $right_counts=0;

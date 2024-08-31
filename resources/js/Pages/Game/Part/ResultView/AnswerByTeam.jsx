@@ -84,7 +84,7 @@ export default function AnswerByTeam({teams,requiredAnswer,answered,openedInput,
     const liOrInput=(total_n,blackOrWhite)=>{
         if(Object.keys(openedInput).includes(String(total_n))){
             return(
-                <li key={total_n} className="my-2 text-center  border-y" style={{height:liHight,color:`${blackOrWhite}`,borderColor:`${blackOrWhite}`}}>
+                <li key={total_n} className="my-2 text-center  border-y" style={{height:liHight,lineHeight:liHight,color:`${blackOrWhite}`,borderColor:`${blackOrWhite}`,borderStyle:'dashed'}}>
                 <span className="font-bold">{openedInput[total_n]}</span>
                 </li>
             )

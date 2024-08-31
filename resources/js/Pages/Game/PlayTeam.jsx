@@ -36,7 +36,7 @@ export default function PlayTeam(props) {
     const [uniqueToken,setUniqueToken]=React.useState(props.unique_token);
 
     // 何人正解か？
-    const [isRightState,setIsRightState]=React.useState("yet");
+    const [isRightState,setIsRightState]=React.useState("first");
 
     // fetchの際のteamsには必要な要素のみを渡す
     const comvertingTeams=(teams)=>{
@@ -94,14 +94,27 @@ export default function PlayTeam(props) {
 
     // fetch後②：isRightStateが変更した後で、正解者をリストに捕捉する
     React.useEffect(()=>{
+
+        // 最初のレンダリング時、また回答後に切り替わった画面では進ませない
+            if(isRightState=="first" || isRightState=="yet"){
+                return;
+            }
+
             // 数値かどうかをまずチェック
             if(isNaN(Number(isRightState))){
                 // 数値でない場合
+                // // 回答後画面へのフラグ(isAfter)反映=エラー
+                setIsAfter(true);
+                return;
+            }
+
+            // 正解人数が0の場合はそのままsetIsAfterへ
+            if(isRightState==0){
+                setIsAfter(true);
                 return;
             }
 
             const afterFetchLists=fetchReturn.returnSets.returnedLists;
-
 
             // 正解者の格納
             Object.keys(afterFetchLists).forEach((team)=>{
@@ -121,7 +134,6 @@ export default function PlayTeam(props) {
                 }
             })
     },[isRightState])
-
 
 
     // fetch後③：answeerd変化が生じたら、UIの変更
@@ -180,6 +192,10 @@ export default function PlayTeam(props) {
         // チームを必要データのみに変換
         const comvertedTeams=comvertingTeams(props.teams);
 
+        console.log(comvertedTeams);
+        console.log(answered);
+        console.log(inputSets);
+
         const fetch_params={
             csrf_token: props.csrf_token,
             answered: answered,
@@ -225,6 +241,7 @@ export default function PlayTeam(props) {
             {/* 正否表示 */}
             {/* クリア時のページ遷移含む */}
             <AfterAnswerComponent
+                setInputSets={setInputSets}
                 isAfter={isAfter}
                 setIsAfter={setIsAfter}
                 isRightState={isRightState}
@@ -236,7 +253,7 @@ export default function PlayTeam(props) {
 
        <div className='text-center base_frame mb-3'>
             <button
-            className={`base_btn inline-block ml-1 font-bold ${isAfter ? 'opacity-70 pointer-events-none' : 'opacity-100 pointer-events-auto'}`}  onClick={onAnswerBtnClick}>回答してみる</button>
+            className={`base_btn inline-block ml-1 font-bold ${isAfter ? 'opacity-70 pointer-events-none hidden' : 'opacity-100 pointer-events-auto block'}`}  onClick={onAnswerBtnClick}>回答してみる</button>
        </div>
 
             {error.validationError &&(<p id="error_cate" className='base_error animate-whenerror'>{error.validationError}</p>)}

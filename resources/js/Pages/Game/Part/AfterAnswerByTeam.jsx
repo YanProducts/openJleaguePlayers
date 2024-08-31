@@ -3,7 +3,7 @@
     import { Inertia } from "@inertiajs/inertia";
 
     // 分割代入
-    export const AfterAnswerComponent=({isAfter,setIsAfter,isRightState,setIsRightState,answered})=>{
+    export const AfterAnswerComponent=({setInputSets,isAfter,setIsAfter,isRightState,setIsRightState,answered})=>{
 
         // 2重のinertia.visitの防止用
         const [moveResult,setMoveResult]=React.useState(false);
@@ -32,6 +32,7 @@
                 },2000)
             // useEffect内部での処理を終了後に、useEffectが発生する前の状態に戻す
                 return()=>{
+                    setInputSets({});
                     setIsAfter(false);
                     clearTimeout(timer);
                     setIsRightState("yet");
@@ -45,13 +46,13 @@
             return null;
         }
         // 回答後(buttonのpointerEventはInput側で操作)
-        if(!isNaN(Number(isRightState)) && isRightState!=="already" ){
+        if(isNaN(Number(isRightState)) && isRightState!=="already" ){
                 return  <div className='already_div'>エラー</div>
         }else{
             if(isRightState==0){
                 return <div className='wrong_div'>X</div>
             }else{
-                return <div className='right_div'>{isRightState}人正解！</div>
+                return <div className='w-36 right_div '>{isRightState}人正解！</div>
             }
         }
     }
