@@ -38,6 +38,9 @@ export default function PlayTeam(props) {
     // 何人正解か？
     const [isRightState,setIsRightState]=React.useState("first");
 
+    // 重複回答になった選手たち
+    const [nowAlreadyPlayers,setNowAlreadyPlayers]=React.useState([]);
+
     // fetchの際のteamsには必要な要素のみを渡す
     const comvertingTeams=(teams)=>{
         return(
@@ -75,7 +78,9 @@ export default function PlayTeam(props) {
             // まだ！！！全員回答済だった場合！！！！！
             setIsRightState(fetchReturn.returnSets.rightCounts);
 
-            // setOpenedInput();
+            // 今回の回答における回答済リストに入れる
+            setNowAlreadyPlayers(fetchReturn.returnSets.returnedNowAnswerAleradyLists);
+
         }else{
             // 失敗の場合
             // 二重投稿の場合は何もしない
@@ -172,6 +177,7 @@ export default function PlayTeam(props) {
                 }
             })
         })
+        // 開ける
         setOpenedInput(beforeOpenenLiInput);
 
         // // 回答後画面へのフラグ(isAfter)反映
@@ -192,9 +198,6 @@ export default function PlayTeam(props) {
         // チームを必要データのみに変換
         const comvertedTeams=comvertingTeams(props.teams);
 
-        console.log(comvertedTeams);
-        console.log(answered);
-        console.log(inputSets);
 
         const fetch_params={
             csrf_token: props.csrf_token,
@@ -247,6 +250,7 @@ export default function PlayTeam(props) {
                 isRightState={isRightState}
                 setIsRightState={setIsRightState}
                 answered={answered}
+                nowAlreadyPlayers={nowAlreadyPlayers}
             />
 
 
@@ -267,6 +271,7 @@ export default function PlayTeam(props) {
             inputSets={inputSets}
             setInputSets={setInputSets}
             inputRefs={inputRefs}
+            isAfter={isAfter}
         />
 
         <p className='base_link_p'><Link className='base_link' href="/topPage">トップへ</Link></p>

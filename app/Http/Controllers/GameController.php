@@ -80,7 +80,7 @@ class GameController extends Controller
             // 回答済リストの形式をrandに合わせる
             $old_already_answered_lists=json_decode($request->answered,true);
             $already_answered_lists=[];
-            foreach($already_answered_lists as $already_team=>$already_players){
+            foreach($old_already_answered_lists as $already_team=>$already_players){
                 foreach($already_players as $already_player){
                     $already_answered_lists[]=[
                         "team"=>$already_team,
@@ -89,12 +89,12 @@ class GameController extends Controller
                 }
             }
 
-
-
             // 正解の数
             $right_counts=0;
             // それぞれの正解データが格納
             $returned_lists=[];
+            // 回答済の選手リスト
+            $returned_nowAnswer_alreadyLists=[];
 
             foreach($answerLists as $key=>$answer):
 
@@ -133,6 +133,10 @@ class GameController extends Controller
                     }
                     // 正解リストに加える
                     $returned_lists[]=$response;
+                // 回答済の時
+                }else if($response["isRight"]==="already"){
+                // return用の回答済リストに加える
+                    $returned_nowAnswer_alreadyLists[]=$response;
                 }
             endforeach;
 
@@ -154,9 +158,9 @@ class GameController extends Controller
             return response()->json([
                 "rightCounts"=>$right_counts,
                 "returnedLists"=>$new_returned_lists,
+                "returnedNowAnswerAleradyLists"=>$returned_nowAnswer_alreadyLists,
                 "new_token"=>session("quiz_unique_token")
             ]);
-
         }
 
         exit;
@@ -168,6 +172,7 @@ class GameController extends Controller
         // そのチームの全選手リスト取得
         $player_data_in_team=Player::where("team",$answer_team)->get();
         $player_name_lists=[];
+        $nowAlready_players_lists=[];
         $isRight="wrong";
 
         // 該当選手がいたらリスト追加（同姓などを考慮してリストにする）
@@ -182,6 +187,7 @@ class GameController extends Controller
                         array_push($player_name_lists,$eachplayer->full);
                     }else if($isRight==="wrong"){
                         $isRight="already";
+                        array_push($nowAlready_players_lists,$eachplayer->full);
                     }
                 }
             }
@@ -207,6 +213,7 @@ class GameController extends Controller
             "green"=>$team_data->green,
             "blue"=>$team_data->blue,
             "playerLists"=>$player_name_lists,
+            "nowAlreadyPlayers"=>$nowAlready_players_lists,
             "new_token"=>session("quiz_unique_token")
         ];
     }
@@ -217,6 +224,7 @@ class GameController extends Controller
         // そのチームの全選手リスト取得
         $player_data_in_team=Player::where("team",$answer_team)->get();
         $player_name_lists=[];
+        $nowAlready_players_lists=[];
         $isRight="wrong";
 
         // そのチームに所属する、その名前の選手がいるか？（同姓同名を考慮して、foreachを回す）
@@ -231,6 +239,7 @@ class GameController extends Controller
                     array_push($player_name_lists,$eachplayer->full);
                 }else if($isRight==="wrong"){
                     $isRight="already";
+                    array_push($nowAlready_players_lists,$eachplayer->full);
                 }
             }
         }
@@ -254,7 +263,9 @@ class GameController extends Controller
             "red"=>$team_data->red,
             "green"=>$team_data->green,
             "blue"=>$team_data->blue,
-            "playerLists"=>$player_name_lists
+            "playerLists"=>$player_name_lists,
+            "nowAlreadyPlayers"=>$nowAlready_players_lists,
+            "new_token"=>session("quiz_unique_token")
         ];
     }
 

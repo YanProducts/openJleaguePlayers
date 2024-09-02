@@ -1,11 +1,15 @@
 import React, {useState} from "react";
-import { setInnerWidth,LiHeightSetting } from "./CutomStyle/ByTeam";
+import { setInnerWidth,LiHeightSetting} from "./CutomStyle/ByTeam";
 
 // 回答をチームごとに答える場合
-export default function AnswerByTeam({teams,requiredAnswer,answered,openedInput,inputSets,setInputSets,inputRefs}){
+export default function AnswerByTeam({teams,requiredAnswer,answered,openedInput,inputSets,setInputSets,inputRefs
+,isAfter
+}){
 
     // flexの数
     const [flexCounts,setFlexCounts]=React.useState("");
+
+    const [eachFlexWidth,setEachFlexWidth]=React.useState("");
 
     // liのheight
     const [liHight,setLiHeight]=React.useState("30px");
@@ -19,30 +23,22 @@ export default function AnswerByTeam({teams,requiredAnswer,answered,openedInput,
     // 何番目のinputをfocusさせるか
     const [focusIndex,setFocusIndex]=React.useState("");
 
-
-
-    // 回答後、開いたinput要素を入れる
-    React.useEffect(()=>{
-        // 全てのinput要素の数
-        const totalInputCounts=requiredAnswer*teams.length;
-        for(let n=0;n<totalInputCounts;n++){
-
-        }
-    },[])
-
-
-
     // css設定（最初のロード終了時のみ）
     React.useEffect(()=>{
         //inputの高さ
         LiHeightSetting(setLiHeight,requiredAnswer);
-        //flexの個数
-        setInnerWidth(setFlexCounts,window.innerWidth);
+        //flexの個数と長さ
+        setInnerWidth(setFlexCounts,window.innerWidth,setEachFlexWidth);
         //windowがresizeされたときのflexの個数の定義
         window.addEventListener("resize",()=>{
-            setInnerWidth(setFlexCounts,window.innerWidth);
+            setInnerWidth(setFlexCounts,window.innerWidth,setEachFlexWidth);
         })
     },[])
+
+    //flex各要素の長さ(flexの個数が決まると同時に決定)
+    // React.useEffect(()=>{
+    //    changeEachFlexWidth(flexCounts,window.innerWidth,setEachFlexWidth);
+    // },[flexCounts])
 
 
   // 日本語入力開始
@@ -80,12 +76,19 @@ export default function AnswerByTeam({teams,requiredAnswer,answered,openedInput,
         inputRefs.current[focusIndex]?.focus();
     },[inputSets,focusIndex])
 
+    React.useEffect(()=>{
+        if(isAfter){
+            // 正解表示中はinput要素を操作できないようにする
+            setFocusIndex("");
+        }
+    },[isAfter])
+
 
     const liOrInput=(total_n,blackOrWhite)=>{
         if(Object.keys(openedInput).includes(String(total_n))){
             return(
                 <li key={total_n} className="my-2 text-center  border-y" style={{height:liHight,lineHeight:liHight,color:`${blackOrWhite}`,borderColor:`${blackOrWhite}`,borderStyle:'dashed'}}>
-                <span className="font-bold">{openedInput[total_n]}</span>
+                <span className="w-full font-bold">{openedInput[total_n]}</span>
                 </li>
             )
         }else{
@@ -94,7 +97,11 @@ export default function AnswerByTeam({teams,requiredAnswer,answered,openedInput,
                 <li key={total_n} className="my-2 text-center" style={{height:liHight}}>
                 <input
                 type="text"
-                key={total_n} className="w-full p-0 visible" style={{color:"black",height:liHight}}
+                //isAfterの間はdisabled
+                disabled={isAfter}
+                key={total_n} className="w-full p-0 visible" style={{color:"black",height:liHight,backgroundColor:isAfter ? "#f5f5f5" : "white",
+                border: isAfter ? '3px dashed #d3d3d3' : '1px solid #ccc'
+                }}
                 ref={(el) => (inputRefs.current[total_n] = el)}
                 // 動的なvalueではなく、初期値を変更し、動的な値は素のHTMLに任せる
                 defaultValue={inputSets[total_n] || ""}
@@ -138,7 +145,7 @@ export default function AnswerByTeam({teams,requiredAnswer,answered,openedInput,
             const blackOrWhite=0.299*team.red + 0.587 *team.green + 0.114*team.blue > 128 ? "black" : "white";
             // 各チームの要素
             let eachComponent=(
-                <div key={index} className="border-black border-2 p-2 w-5/6 mx-1" style={{ backgroundColor:`rgb(${team.red},${team.green},${team.blue})`,color:`${blackOrWhite}`}}>
+                <div key={index} className="border-black border-2 p-2 mx-1" style={{ backgroundColor:`rgb(${team.red},${team.green},${team.blue})`,color:`${blackOrWhite}`,width:`${eachFlexWidth}`}}>
                     <p className="text-center font-bold mb-2">{team.jpn_name}</p>
                     <ul>
                     <AnsweredLiComponents key={index} total_n={total_n} blackOrWhite={blackOrWhite}/>
@@ -150,10 +157,28 @@ export default function AnswerByTeam({teams,requiredAnswer,answered,openedInput,
             groupComponents.push(eachComponent);
 
 
+            // 最後の要素の時はUIのバランスを整える
+            if(index===teams.length-1){
+            // 必要な追加要素の数
+            const requiredFlexDivCounts=(index+1)%flexCounts === 0 ? 0 : flexCounts-(index+1)%flexCounts;
+            for(let n=0; n<requiredFlexDivCounts;n++){
+                let eachHiddenComponent=(
+                    <div key={index+n+1} className="opacity-0" style={{width:`${eachFlexWidth}`}}>
+                            <div>
+                                <input className="w-full"/>
+                            </div>
+                    </div>
+                );
+                groupComponents.push(eachHiddenComponent);
+                }
+            }
+
+
+
             // flexCountで割ったあまりがflexCounts-1になる時、もしくは最後の要素の時は、flexで要素ごとにまとめる
             if(index%flexCounts===flexCounts-1 || index===teams.length-1 || flexCounts==1){
                 returnedByTeamComponents.push(
-                    <div key={group_index} className="flex justify-around my-3">
+                    <div key={group_index} className="flex justify-around my-3 mx-1">
                         {groupComponents}
                     </div>
                 )
