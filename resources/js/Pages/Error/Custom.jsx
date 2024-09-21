@@ -6,6 +6,7 @@ export default function Custom({auth,message,top_page}) {
         <AuthenticatedLayout
             user={auth.user}
             header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">トップページ</h2>}
+            pageName="CustomError"
         >
             <Head title="エラーのお知らせ" />
            <div className='base_frame bg-pink-300 text-lg text-red-600  font-bold my-5 py-1 text-center'>

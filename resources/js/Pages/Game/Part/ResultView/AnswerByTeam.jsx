@@ -35,11 +35,6 @@ export default function AnswerByTeam({teams,requiredAnswer,answered,openedInput,
         })
     },[])
 
-    //flex各要素の長さ(flexの個数が決まると同時に決定)
-    // React.useEffect(()=>{
-    //    changeEachFlexWidth(flexCounts,window.innerWidth,setEachFlexWidth);
-    // },[flexCounts])
-
 
   // 日本語入力開始
   const onInputCompositionStart = () => {

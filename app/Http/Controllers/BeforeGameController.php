@@ -31,8 +31,6 @@ class BeforeGameController extends Controller
         ]));
 
 
-
-
         // ページ表示
         return Inertia::render('TopPage',[
             "csrf_token"=>csrf_token(),

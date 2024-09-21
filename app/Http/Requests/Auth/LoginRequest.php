@@ -61,7 +61,6 @@ class LoginRequest extends FormRequest
 
             throw ValidationException::withMessages([
                 "password"=>"パスワードが違います"
-                // 'name' => trans('auth.failed'),
             ]);
         }
 

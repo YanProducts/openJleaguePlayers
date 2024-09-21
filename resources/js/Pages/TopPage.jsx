@@ -3,35 +3,14 @@ import { Head, Link } from '@inertiajs/react';
 import backgroundImage from '../../img/back.jpg';
 import { Inertia } from '@inertiajs/inertia';
 import React, {useState} from "react";
+import PatternChoicesSets from './Components/PatternChoicesSets';
+import CustomPatternDefinition from './Components/CustomPatternDefinition';
 import TopPage_fetch from "./fetchAPI/TopPage_fetch";
 
 export default function TopPage(props) {
 
-    // クイズのパターン一覧
-    const [pattern,setPattern]=useState({
-           cate:"no_choice",
-           quizType:"no_choice",
-           nameType:"no_choice",
-           user:props.user.name
-    })
+    const { pattern,setPattern,error,setError,onCateChange,onQuizTypeChange,onNameTypeChange } = CustomPatternDefinition(props.user.name);
 
-    // エラーかどうか
-    const [error,setError]=useState({});
-
-    // カテゴリー変更
-    const onCateChange=(e)=>{
-        setPattern({...pattern,cate:e.target.value});
-    }
-
-    // クイズタイプ変更
-    const onQuizTypeChange=(e)=>{
-        setPattern({...pattern,quizType:e.target.value});
-    }
-
-    // 名前タイプ変更
-    const onNameTypeChange=(e)=>{
-        setPattern({...pattern,nameType:e.target.value});
-    }
 
     // 決定ボタンが押されたとき
     const onDecideButtonClick=async (e)=>{
@@ -53,8 +32,6 @@ export default function TopPage(props) {
                 alert('Inertia visit error:', JSON.stringify(errors));
                 },
 
-                // preserveScroll: true,
-                // preserveState: true
               });
             return;
         }
@@ -64,11 +41,10 @@ export default function TopPage(props) {
         <AuthenticatedLayout
             user={props.auth.user}
             header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">トップページ</h2>}
+            pageName="TopPage"
         >
         <Head title="トップページ" />
-        <div className="h-full pt-30" style={{ backgroundImage: `url(${backgroundImage})`,
-         backgroundSize:"contain"}}>
-
+        <div>
                 <div className="h-200">　</div>
                 <h1 className="base_h base_h1"  id="toph1">{props.year}年Jリーグ<br/>選手何人言えるかな？</h1>
 
@@ -83,64 +59,17 @@ export default function TopPage(props) {
 
                 <input type="hidden" name="token" value={props.csrf_token}/>
 
-
-                <div className="base-frame base_backColor  text-center mb-10">
-
-                    <label htmlFor="cate_select">カテゴリー：</label>
-                    <select className="ml-3" id="cate_select" name="cate"
-                    onChange={onCateChange}>
-                        <option hidden value="no_choice" className="cate_option">選択してください</option>
-                        {
-                            Object.entries(JSON.parse(props.cateSets)).map(([cate_key,value])=>{
-                                return(<option value={cate_key}
-                                key={cate_key}>{value}</option>)
-                            })
-                        }
-                    </select>
-                    {/* バリデーションエラー時 */}
-                    {error.cate &&
-                    (
-                        <p id="error_cate" className='base_error animate-whenerror'>{error.cate.join("\n")}</p>
-                    )
-                    }
-                </div>
-
-                <div className="base-frame base_backColor  text-center mb-10">
-                    <label htmlFor="quizType_select">クイズ形式：</label>
-                    <select className="ml-3" id="quizType_select" name="quizType"
-                    onChange={onQuizTypeChange}>
-                        <option hidden value="no_choice" className="quizType_option">選択してください</option>
-                        {
-                            Object.entries(JSON.parse(props.quizSets)).map(([quiz_key,value])=>{
-                                return(
-                                <option value={quiz_key}
-                                key={quiz_key}>{value}</option>)
-                            })
-                        }
-                    </select>
-                {/* バリデーションエラー時 */}
-                {error.quizType &&(
-                    <p className='base_error animate-whenerror'>{error.quizType.join("\n")}</p>
-                )}
-                </div>
-
-                <div className="base-frame base_backColor  text-center mb-10">
-                    <label htmlFor="nameType_select">　回答形式：</label>
-                    <select className="ml-3" id="nameType_select" name="nameType" onChange={onNameTypeChange}>
-                        <option hidden value="no_choice" className="nameType_option">選択してください</option>
-                       {
-                       Object.entries(JSON.parse(props.nameSets)).map  (([answer_key,value])=>{
-                                return(
-                                <option value={answer_key}
-                                key={answer_key}>{value}</option>)
-                       })
-                     }
-                    </select>
-                {/* バリデーションエラー時 */}
-                {error.nameType &&(
-                    <p className='base_error animate-whenerror'>{error.nameType.join("\n")}</p>
-                )}
-                </div>
+                {/* パターンの選択 */}
+                <PatternChoicesSets
+                    onCateChange={onCateChange}
+                    cateSets={props.cateSets}
+                    onQuizTypeChange={onQuizTypeChange}
+                    quizSets={props.quizSets}
+                    onNameTypeChange={onNameTypeChange}
+                    nameSets={props.nameSets}
+                    error={error}
+                    pageName="topPage"
+                />
 
 
                 <div className='base_frame my-0'>

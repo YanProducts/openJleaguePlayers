@@ -224,11 +224,13 @@ export default function PlayTeam(props) {
     return (
         <AuthenticatedLayout
             user={props.auth.user}
-            header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">{props.cate == "all" ? "Jリーグ" : props.cate}選手当てクイズ！</h2>}>
+            header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">{props.cate == "all" ? "Jリーグ" : props.cate}選手当てクイズ！
+            </h2>}
+            pageName="PlayTeam"
+            >
         <Head title={`${props.cate == "all" ? "Jリーグ" : props.cate}選手当てクイズ`}/>
 
-            <div className="custom_body pt-30" style={{ backgroundImage: `url(${backgroundImage})`,
-         backgroundSize:"contain"}}>
+            <div>
 
             <div>　</div>
 
@@ -260,7 +262,7 @@ export default function PlayTeam(props) {
             className={`base_btn inline-block ml-1 font-bold ${isAfter ? 'opacity-70 pointer-events-none hidden' : 'opacity-100 pointer-events-auto block'}`}  onClick={onAnswerBtnClick}>回答してみる</button>
        </div>
 
-            {error.validationError &&(<p id="error_cate" className='base_error animate-whenerror'>{error.validationError}</p>)}
+            {error.validationError &&(<p className='base_error animate-whenerror'>{error.validationError}</p>)}
 
         {/* 回答表示 */}
         <AnswerByTeam
@@ -273,8 +275,6 @@ export default function PlayTeam(props) {
             inputRefs={inputRefs}
             isAfter={isAfter}
         />
-
-        <p className='base_link_p'><Link className='base_link' href="/topPage">トップへ</Link></p>
 
         <div>　</div>
 

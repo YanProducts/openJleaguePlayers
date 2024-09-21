@@ -44,11 +44,11 @@ export default function clearGames(props){
     return(
      <AuthenticatedLayout
         user={props.auth.user}
+        pageName="Clear"
         >
         <Head title='ゲームクリア！'></Head>
 
-        <div className="h-full pt-30" style={{ backgroundImage: `url(${backgroundImage})`,
-         backgroundSize:"contain"}}>
+        <div>
 
       <div className="h-200">　</div>
         <h1 className='base_h base_h1'>ゲームクリア！</h1>
@@ -73,7 +73,6 @@ export default function clearGames(props){
 
         <div>
             <p className='base_link_p'><Link className='base_link' href="/game.play">再チャレンジ</Link></p>
-            <p className='base_link_p'><Link className='base_link' href="/topPage">トップへ</Link></p>
         </div>
         </div>
       </AuthenticatedLayout>

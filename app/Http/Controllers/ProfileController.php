@@ -10,9 +10,25 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 use Inertia\Response;
+use Illuminate\Support\Facades\Log;
 
 class ProfileController extends Controller
 {
+
+    // マイページを見る
+    public function show_my_page(){
+        Log::info(Auth::user());
+        return Inertia::render('MyPage', [
+            "csrf_token"=>csrf_token(),
+            // 各オプション
+            "cateSets"=>json_encode(StaticValueController::$CateSets),
+            "quizSets"=>json_encode(StaticValueController::$QuizSets),
+            "nameSets"=>json_encode(StaticValueController::$NameSets),
+            // ユーザー名
+            "user"=>Auth::user(),
+        ]);
+    }
+
     /**
      * Display the user's profile form.
      */

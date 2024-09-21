@@ -28,8 +28,11 @@ Route::middleware('guest')->group(function () {
     ->name('login');
 
 
-    // 実際のログイン
+    // 実際のログイン(共有ユーザー以外)
     Route::post('login', [AuthenticatedSessionController::class, 'store'])->name('login_post_route');
+
+    // 共有ユーザー用のログイン
+    Route::post('login_for_common', [AuthenticatedSessionController::class, 'login_for_common'])->name('login_post_route_for_common');
 
 
     Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])

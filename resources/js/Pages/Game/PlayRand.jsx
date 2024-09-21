@@ -137,11 +137,12 @@ export default function PlayRand(props) {
     return (
         <AuthenticatedLayout
             user={props.auth.user}
-            header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">{props.cate == "all" ? "Jリーグ" : props.cate}選手当てクイズ！</h2>}>
+            header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">{props.cate == "all" ? "Jリーグ" : props.cate}選手当てクイズ！</h2>}
+            pageName="PlayRand"
+            >
         <Head title={`${props.cate == "all" ? "Jリーグ" : props.cate}選手当てクイズ`}/>
 
-            <div className="custom_body pt-30" style={{ backgroundImage: `url(${backgroundImage})`,
-         backgroundSize:"contain"}}>
+            <div>
 
             <div>　</div>
 
@@ -173,12 +174,9 @@ export default function PlayRand(props) {
                 isAfter={isAfter}
             />
 
-            {error.validationError &&(<p id="error_cate" className='base_error animate-whenerror'>{error.validationError}</p>)}
+            {error.validationError &&(<p className='base_error animate-whenerror'>{error.validationError}</p>)}
 
             <AnswerRandom answered={answered}/>
-
-            <p className='base_link_p'><Link className='base_link' href="/topPage">トップへ</Link></p>
-
             <div>　</div>
 
             </div>

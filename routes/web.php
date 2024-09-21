@@ -42,6 +42,12 @@ Route::get('/topPage', [BeforeGameController::class,"show_top_page"])
 ->middleware(['auth', 'verified'])
 ->name('topPage');
 
+// マイページへ
+Route::get('/myPage', [ProfileController::class,"show_my_page"])
+->middleware(['auth', 'verified'])
+->name('myPage');
+
+
 // ゲーム種類決定
 Route::post("/game.decide_pattern",[BeforeGameController::class,"decide_game_pattern"])
 ->name("decideGamePattern");
@@ -77,11 +83,12 @@ Route::get("/update_data",[ConfigController::class,"update_newYear_data"])
 ->name("dataChange_newYear");
 
     // エラーがあった時のビュー
-Route::get("/error_view",function(){
+Route::get("/error_view/{message?}",function($message=null){
         // // ビューの表示
         return Inertia::render('Error/Custom',[
-            "top_page"=>route("topPage")
-        ],500);
+            "top_page"=>route("topPage"),
+            "message"=>$message ?? "予期せぬエラーです"
+        ])->toResponse(request())->setStatusCode(500);
 })->name("error_view");
 
 

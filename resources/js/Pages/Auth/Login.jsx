@@ -6,69 +6,134 @@ import InputLabel from '@/Components/InputLabel';
 import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
 import { Head, Link, useForm } from '@inertiajs/react';
-
-export default function Login({ status, canResetPassword,noLoginPass }) {
-    const { data, setData, post, processing, errors, reset } = useForm({
-        name: '',
-        password: '',
-        remember: false,
-        noLoginFlug:false
-    });
-
-    useEffect(() => {
-        return () => {
-            reset('password');
-        };
-    }, []);
+import { Inertia } from '@inertiajs/inertia';
+import PasswordStoreToStorage from './Parts/PasswordStoreToStorage';
+import PasswordRetrive from './Parts/PasswordRetrieveFromStorage';
 
 
+export default function Login({ status, canResetPassword,year,noLoginPass,token,isLocal }) {
+
+        const { data, setData, post, processing, errors, reset } = useForm({
+            name: '',
+            password: '',
+            remember: false,
+            noLoginFlug:false
+        });
+
+        // 初回のみ(前回のデータがあれば記入)
+        useEffect(()=>{
+            async function fetchDefaultData(){
+            //前回の値をセット
+            if (localStorage.getItem("previousLoginName") && localStorage.getItem("previousEncryptedPassword") &&
+            localStorage.getItem("previousEncryptionKey")
+            ) {
+                // パスワードの取り出す
+                const realPass=await PasswordRetrive();
+                setData(prevState=>({
+                    ...prevState,
+                    'name': localStorage.getItem("previousLoginName"),
+                    'password':realPass
+                }));
+            } else {
+                setData(prevState=>({
+                    ...prevState,
+                    'name': "",
+                    'password':""
+                }));
+            }
+            }
+          fetchDefaultData();
+    },[])
+
+
+    // noLoginではなく通常のログイン
     const submit = (e) => {
+
         e.preventDefault();
+
+        // rememberがついている時
+        // 前回までのremember値がない時
+        if(data.remember || !localStorage.getItem("previousRemember")){
+            // パスワードの暗号化
+            // ここで暗号化されたキーとパスワードに必要な一式はローカルストレージに保存
+            PasswordStoreToStorage(data.password);
+            // ユーザーの名前&共通ユーザーではないという履歴
+            localStorage.setItem(
+                "previousLoginName",data.name,
+            );
+            if(data.remember){
+                // rememberに追加
+                localStorage.setItem(
+                    "previousRemember",true,
+                );
+            }
+        }
+
+        // rememberの値があって、別ユーザー仕様の場合はlocalstorageに記憶させない
+        if(!data.remember && localStorage.getItem("previousRemember")){
+            localStorage.setItem(
+                "previousRemember",false,
+            );
+        }
+
+
         // ログイン
         post(route('login'));
     };
 
 
-    // Commonユーザーがセットされたかの確認
-    const [commonFlug,setCommonFlug]=useState(false);
-
-    // dataが変更されたことによって変更
-    useEffect(()=>{
-        // バッジ処理によって、すでにcommonFlugは改良されている
-        if(commonFlug){
-            post(route('login'));
+    // ログインしないで遊ぶをクリックしたら、commonUserでdataを格納
+    const onNoLoginClick=()=>{
+        const headers={
+            "Content-Type":"application/json",
+            "X-CSRF-TOKEN":token,
         }
-        return ()=>{
-            setCommonFlug(false)
-            if(data.noLoginFlug){
-                setData({
-                    ...data,
-                    "noLoginFlug":false
+        fetch(
+            "login_for_common",{
+                method:"post",
+                headers:headers,
+                body:JSON.stringify({
+                    "name":"commonUser",
+                    "password":noLoginPass,
+                    "remember":false,
+                    "noLoginFlug":true
                 })
             }
-        }
-    },[data])
+        ).then((response)=>{
+            if(!response.ok){
+            // バリデーションエラー
+            // 共通ユーザー設定がうまくいっていないとき
+            if(response.status===422){
+                throw new Error(response.json(json=>json.validationError ?? "何らかのエラーです"));
+              }
+            }
 
-    // ログインしないで遊ぶ（バッジ処理で、先にsetCommonFlugが処理）
-    const onNoLoginClick=()=>{
-        setCommonFlug(true);
-        setData({
-            "name":"commonUser",
-            "password":noLoginPass,
-            "remember":false,
-            "noLoginFlug":true
-        });
+            return response.json()
+        }).then((json)=>{
+            if(json?.commonUserLogin){
+                // ログイン
+                Inertia.visit("topPage");
+            }else{
+                throw new Error(json?.validationError ?? "バリデーションエラーです");
+            }
+            return;
+        }).catch((e)=>{
+            const commonErrorMessage=isLocal==="local" ? e.message : "何らかのエラーが発生しました"
+            // エラーページへ
+            Inertia.visit(`error_view/${commonErrorMessage}`);
+        })
     }
 
-    // ログイン操作
 
+    // ログイン操作
     return (
         <GuestLayout>
             <Head title="Log in" />
 
-            {status && <div className="mb-4 font-medium text-sm text-green-600">{status}</div>}
+            <div>　</div>
+                <h1 className="base_h base_h1"  id="toph1">{year}年Jリーグ<br/>選手何人言えるかな？</h1>
 
-            <form onSubmit={submit}>
+                <form className="mx-auto base_frame max-w-lg my-10 px-6 py-4 bg-white overflow-hidden shadow-md sm:rounded-lg" onSubmit={submit}>
                 <div>
                     <InputLabel htmlFor="loginName" value="ユーザーネーム" />
 
@@ -76,9 +141,10 @@ export default function Login({ status, canResetPassword,noLoginPass }) {
                         id="loginName"
                         type="text"
                         name="name"
-                        value={data.name}
+                        value={data.name  || ""}
                         className="mt-1 block w-full"
-                        autoComplete="name"
+                        autoComplete="new-name"
+                        // autoComplete="name"
                         isFocused={true}
                         onChange={(e) => setData('name', e.target.value)}
                     />
@@ -87,15 +153,16 @@ export default function Login({ status, canResetPassword,noLoginPass }) {
                 </div>
 
                 <div className="mt-4">
-                    <InputLabel htmlFor="password" value="Password" />
+                    <InputLabel htmlFor="password" value="パスワード"/>
 
                     <TextInput
                         id="password"
                         type="password"
                         name="password"
-                        value={data.password}
+                        value={data.password || ""}
                         className="mt-1 block w-full"
-                        autoComplete="current-password"
+                        // autoCompleteを特定不明の値にする
+                        autoComplete="new-password"
                         onChange={(e) => setData('password', e.target.value)}
                     />
 
@@ -109,7 +176,7 @@ export default function Login({ status, canResetPassword,noLoginPass }) {
                             checked={data.remember}
                             onChange={(e) => setData('remember', e.target.checked)}
                         />
-                        <span className="ms-2 text-sm text-gray-600">Remember me</span>
+                        <span className="ms-2 text-sm font-bold text-gray-600">ログイン情報を保存する</span>
                     </label>
                 </div>
 
@@ -119,7 +186,7 @@ export default function Login({ status, canResetPassword,noLoginPass }) {
                  </PrimaryButton>
                 </div>
             </form>
-            <p className="base_link_p"><span className="base_link" onClick={onNoLoginClick}>ログインせずに遊ぶ</span></p>
+            <p className="base_link_p my-5"><span className="base_link" onClick={onNoLoginClick}>ログインせずに遊ぶ</span></p>
             <p className="base_link_p">
                 <Link href={route('register')} className="base_link">
                     新規登録はこちらから
