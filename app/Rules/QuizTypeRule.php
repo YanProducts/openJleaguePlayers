@@ -4,6 +4,7 @@ namespace App\Rules;
 
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
+use Illuminate\Support\Facades\Log;
 
 class QuizTypeRule implements ValidationRule
 {
@@ -12,6 +13,14 @@ class QuizTypeRule implements ValidationRule
      *
      * @param  \Closure(string): \Illuminate\Translation\PotentiallyTranslatedString  $fail
      */
+
+    protected $route;
+    public function __construct($route)
+    {
+        $this->route=$route;
+    }
+
+
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
         // クイズ形式のルール
@@ -27,6 +36,11 @@ class QuizTypeRule implements ValidationRule
             "rand100",
             "rand200",
         ];
+
+         if($this->route==="fetchMyData"){
+            $pattern[]="all";
+        }
+
         if(!in_array($value,$pattern)){
             $fail("回答形式の異常です");
         }

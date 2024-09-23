@@ -12,14 +12,14 @@ use App\Http\Controllers\Auth\VerifyEmailController;
 use Illuminate\Support\Facades\Route;
 
 
-// 認証されていないユーザーの場合
-Route::middleware('guest')->group(function () {
+    // 認証されていないユーザーの場合
+    Route::middleware('guest')->group(function () {
 
-// 登録はこちら
+   // 登録はこちら
     Route::get('register', [RegisteredUserController::class, 'create'])
     ->name('register');
 
-// 新規登録
+   // 新規登録
     Route::post('register', [RegisteredUserController::class, 'store']);
 
 

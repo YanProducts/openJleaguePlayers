@@ -1,4 +1,5 @@
 import { Inertia } from "@inertiajs/inertia"
+import React from "react";
 
     // flexの個数と長さの定義用
     export const setInnerWidth=(setFlexCounts,innerWidth,setEachFlexWidth)=>{
@@ -11,30 +12,29 @@ import { Inertia } from "@inertiajs/inertia"
             }
 
             let flexWidth="";
-            if(innerWidth>1200){
+            if(innerWidth>1450){
                 flexWidth=(baseWidth/7 -32);
                 setFlexCounts(7)
-            }else if(innerWidth>1000){
+            }else if(innerWidth>1250){
                 flexWidth=(baseWidth/6 -28);
                 setFlexCounts(6)
-            }else if(innerWidth>800){
+            }else if(innerWidth>1050){
                 flexWidth=baseWidth/5 -24;
                 setFlexCounts(5)
-            }else if(innerWidth>600){
+            }else if(innerWidth>850){
                 flexWidth=baseWidth/4 -20;
                 setFlexCounts(4)
-            }else if(innerWidth>400){
+            }else if(innerWidth>650){
                 flexWidth=baseWidth/3 -16;
                 setFlexCounts(3)
-            }else if(innerWidth>300){
+            }else if(innerWidth>400){
                 flexWidth=baseWidth/2 -12;
                 setFlexCounts(2)
             }else{
                 flexWidth=baseWidth -8;
                 setFlexCounts(1)
             }
-            setEachFlexWidth(flexWidth)
-
+            setEachFlexWidth(flexWidth + "px")
     }
 
 

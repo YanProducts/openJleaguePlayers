@@ -114,7 +114,6 @@ export default function PlayRand(props) {
         }
 
         const fetch_params={
-            csrf_token: props.csrf_token,
             answered: answered,
             setAnswered: setAnswered,
             inputVal: inputRef.current.value,

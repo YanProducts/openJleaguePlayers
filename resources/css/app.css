@@ -25,6 +25,9 @@
   .base_table{
     @apply base_frame bg-gray-200 w-4/5 mt-5 mb-5 border-black border-2
   }
+  .base_tableInner{
+   @apply border-collapse border-black border-2 text-center font-bold text-lg
+  }
   .base_input_div{
     @apply base_frame text-center
   }

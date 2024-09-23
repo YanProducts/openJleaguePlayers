@@ -1,10 +1,9 @@
-export default async function TopPage_fetch(csrf_token,pattern)
+export default async function TopPage_fetch(pattern)
 {
 
     // ヘッダー設定
     const headers=new Headers({
         'Content-Type': 'application/x-www-form-urlencoded',
-        'X-CSRF-TOKEN': csrf_token
     });
 
     // プロミスではなくawaitで行う
@@ -18,6 +17,7 @@ export default async function TopPage_fetch(csrf_token,pattern)
         });
 
     if(!response.ok){
+        console.log(response);
         // レスポンスにバリデーションエラーが入っていたとき、そのエラーをjsonで変換し、その後に処理を行う
         if(response.status===422){
             const returnedError=await response.json();

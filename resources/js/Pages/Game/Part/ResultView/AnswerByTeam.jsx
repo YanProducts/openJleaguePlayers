@@ -14,6 +14,8 @@ export default function AnswerByTeam({teams,requiredAnswer,answered,openedInput,
     // liのheight
     const [liHight,setLiHeight]=React.useState("30px");
 
+    // 各チームのwidthの固定
+
     // 日本語入力変化中
     const isComposing=React.useRef(false)
 
@@ -82,21 +84,21 @@ export default function AnswerByTeam({teams,requiredAnswer,answered,openedInput,
     const liOrInput=(total_n,blackOrWhite)=>{
         if(Object.keys(openedInput).includes(String(total_n))){
             return(
-                <li key={total_n} className="my-2 text-center  border-y" style={{height:liHight,lineHeight:liHight,color:`${blackOrWhite}`,borderColor:`${blackOrWhite}`,borderStyle:'dashed'}}>
-                <span className="w-full font-bold">{openedInput[total_n]}</span>
+                <li key={total_n} className="my-2 text-center  border-y w-full" style={{height:liHight,lineHeight:liHight,color:`${blackOrWhite}`,borderColor:`${blackOrWhite}`,borderStyle:'dashed'}}>
+                <span className="font-bold">{openedInput[total_n]}</span>
                 </li>
             )
         }else{
             return(
                 // refのelは、そのDOMのこと
-                <li key={total_n} className="my-2 text-center" style={{height:liHight}}>
+                <li key={total_n} className="my-2 text-center w-full"
+                style={{height:liHight}}>
                 <input
                 type="text"
                 //isAfterの間はdisabled
                 disabled={isAfter}
-                key={total_n} className="w-full p-0 visible" style={{color:"black",height:liHight,backgroundColor:isAfter ? "#f5f5f5" : "white",
-                border: isAfter ? '3px dashed #d3d3d3' : '1px solid #ccc'
-                }}
+                key={total_n} className="p-0 visible w-11/12" style={{color:"black",height:liHight,backgroundColor:isAfter ? "#f5f5f5" : "white",
+                border: isAfter ? '3px dashed #d3d3d3' : '1px solid #ccc',boxSizing:"border-box"}}
                 ref={(el) => (inputRefs.current[total_n] = el)}
                 // 動的なvalueではなく、初期値を変更し、動的な値は素のHTMLに任せる
                 defaultValue={inputSets[total_n] || ""}

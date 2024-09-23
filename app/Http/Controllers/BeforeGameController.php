@@ -33,8 +33,6 @@ class BeforeGameController extends Controller
 
         // ページ表示
         return Inertia::render('TopPage',[
-            "csrf_token"=>csrf_token(),
-
             // 年度の設定
             "year"=>empty(session("year")) ? date("y",time()) : session("year"),
 
@@ -122,8 +120,6 @@ class BeforeGameController extends Controller
         }
 
         return Inertia::render($game,[
-            "csrf_token"=>csrf_token(),
-
             // 年度の設定!?????
             "year"=>empty(session("year")) ? date("y",time()) : session("year"),
 

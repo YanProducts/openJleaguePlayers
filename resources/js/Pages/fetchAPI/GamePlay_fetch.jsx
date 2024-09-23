@@ -2,8 +2,7 @@
 export default async function gameplay_fetch(props){
     //fetchのヘッダー
     const headers=new Headers({
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'X-CSRF-TOKEN':props.csrf_token,
+        'Content-Type': 'application/x-www-form-urlencoded'
     });
 
     // 投稿

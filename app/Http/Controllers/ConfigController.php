@@ -85,7 +85,7 @@ class ConfigController extends Controller
         }
     }
 
-        // ファイルからのチームデータ登録(トランザクション内部に既にいる)
+    // ファイルからのチームデータ登録(トランザクション内部に既にいる)
     public function update_each_team_data($each_team_data_inArray){
         $team=new Team();
         $team->eng_name=$each_team_data_inArray[0];

@@ -53,12 +53,12 @@ class GamePatternRequest extends FormRequest
             // クイズ形式
             "quizType"=>[
                 "required",
-                new ExcludeNoChoiceRule(new QuizTypeRule),
+                new ExcludeNoChoiceRule(new QuizTypeRule($this->route()->getName())),
             ],
             // 回答形式
             "nameType"=>[
                 "required",
-                new ExcludeNoChoiceRule(new NameTypeRule),
+                new ExcludeNoChoiceRule(new NameTypeRule($this->route()->getName())),
             ],
             // ユーザー
             "user"=>[

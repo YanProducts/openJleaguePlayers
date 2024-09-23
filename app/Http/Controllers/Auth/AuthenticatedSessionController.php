@@ -30,7 +30,6 @@ class AuthenticatedSessionController extends Controller
             "year"=>empty(session("year")) ? date("y",time()) : session("year"),
             "noLoginPass"=>env("COMMON_USER_PASS"),
             // トークンはnoCommonUser用
-            "token"=>csrf_token(),
             "isLocal"=>env("APP_ENV")
         ]);
     }

@@ -2,13 +2,20 @@ import React from "react";
 import AuthenticatedLayout from "../Layouts/AuthenticatedLayout";
 import PatternChoicesSets from "./Components/PatternChoicesSets";
 import CustomPatternDefinition from "./Components/CustomPatternDefinition";
+import MyPageCustomDefinition from "./Components/MyPageCustomDefinition";
+import MyPageTrComponents from "./Components/MyPageTrComponents";
 
 // マイページの表示
-export default function MyPage({csrf_token,cateSets,quizSets,nameSets,user}){
+export default function MyPage({cateSets,quizSets,nameSets,user}){
 
+    // topPageとmyPageで共通のフック
+    const { pattern,setPattern,error,setError,onCateChange,onQuizTypeChange,onNameTypeChange } = CustomPatternDefinition(user.name,"myPage");
 
+    // myPageのみで使用するフック
+    const{eachAnswerTotalCounts,setEachAnswerTotalCounts,eachAnswerDataByTeam,setEachAnswerDataByTeam,eachAnswerDataByPlayer,setEachAnswerDataByPlayer,clearCountData,setClearCountData,playerTrComponents,setPlayerTrComponents,teamTrComponents,setTeamTrComponents}=MyPageCustomDefinition(pattern,setError);
 
-    const { pattern,setPattern,error,setError,onCateChange,onQuizTypeChange,onNameTypeChange } = CustomPatternDefinition(user.name);
+    // trの内部
+    MyPageTrComponents(eachAnswerDataByPlayer,setPlayerTrComponents,eachAnswerDataByTeam,setTeamTrComponents)
 
 
     return(
@@ -18,60 +25,71 @@ export default function MyPage({csrf_token,cateSets,quizSets,nameSets,user}){
         pageName="MyPage"
         >
          <div>
-          <h1 className="base_h">{user.nmae}さんの回答数</h1>
 
-        <div class="base_frame flex">
+         <div>　</div>
+
+          <h1 className="base_h flex items-center justify-center h-12 text-xl my-5 text-center">{user.name}さんのデータ</h1>
+
+
+        <div className="base_frame flex">
             <PatternChoicesSets
                     onCateChange={onCateChange}
-                    cateSets={cateSets}
+                    jsonCateSets={cateSets}
                     onQuizTypeChange={onQuizTypeChange}
-                    quizSets={quizSets}
+                    jsonQuizSets={quizSets}
                     onNameTypeChange={onNameTypeChange}
-                    nameSets={nameSets}
+                    jsonNameSets={nameSets}
                     error={error}
                     pageName="myPage"
             />
         </div>
 
-        <div className="">
-          <h2>合計回数</h2>
-          <table className="">
-            <tr className="">
-             <th className="">クリア回数</th>
-             <th className="">合計正解回答数</th>
-            </tr>
-            <tr className="">
-             <td className=""></td>
-             <td className=""></td>
-            </tr>
+        <div className="base_frame mt-5">
+          <h2 className="base_h">合計回数</h2>
+          <table className="base_table mt-2">
+            <thead>
+                <tr className="base_tableInner">
+                <th className="base_tableInner">クリア回数</th>
+                <th className="base_tableInner">合計正解回答数</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr className="base_tableInner">
+                <td className="base_tableInner">{eachAnswerTotalCounts}</td>
+                <td className="base_tableInner">{clearCountData}</td>
+                </tr>
+            </tbody>
           </table>
         </div>
 
-        <div className="">
-          <h2>回答された選手</h2>
-          <table className="">
-            <tr className="">
-             <th className="">選手名</th>
-             <th className="">回答回数</th>
-            </tr>
-            <tr className="">
-             <td className=""></td>
-             <td className=""></td>
-            </tr>
+        <div className="base_frame">
+          <h2 className="base_h">回答された選手</h2>
+          <table className="base_table mt-2">
+            <thead>
+                <tr className="base_tableInner">
+                <th className="base_tableInner">選手名</th>
+                <th className="base_tableInner">チーム名</th>
+                <th className="base_tableInner">回答回数</th>
+                </tr>
+            </thead>
+            <tbody>
+                {playerTrComponents}
+            </tbody>
           </table>
         </div>
 
-        <div className="">
-          <h2>回答の多いチーム</h2>
-          <table className="">
-            <tr className="">
-             <th className="">チーム名</th>
-             <th className="">回答回数</th>
-            </tr>
-            <tr className="">
-             <td className=""></td>
-             <td className=""></td>
-            </tr>
+        <div className="base_frame">
+          <h2 className="base_h">回答の多いチーム</h2>
+          <table className="base_table mt-2">
+            <thead>
+                <tr className="base_tableInner">
+                <th className="base_tableInner">チーム名</th>
+                <th className="base_tableInner">回答回数</th>
+                </tr>
+            </thead>
+            <tbody>
+                {teamTrComponents}
+            </tbody>
           </table>
         </div>
 

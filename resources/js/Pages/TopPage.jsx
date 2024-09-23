@@ -9,18 +9,15 @@ import TopPage_fetch from "./fetchAPI/TopPage_fetch";
 
 export default function TopPage(props) {
 
-    const { pattern,setPattern,error,setError,onCateChange,onQuizTypeChange,onNameTypeChange } = CustomPatternDefinition(props.user.name);
+    const { pattern,setPattern,error,setError,onCateChange,onQuizTypeChange,onNameTypeChange } = CustomPatternDefinition(props.user.name,"topPage");
 
 
     // 決定ボタンが押されたとき
     const onDecideButtonClick=async (e)=>{
         e.preventDefault();
 
-        //１度リセットする（アニメーションをトリガーさせるため）
-        setError({});
-
         // ここでバリデーションエラーにfetch送信
-        const fetch_return=await TopPage_fetch(props.csrf_token,pattern);
+        const fetch_return=await TopPage_fetch(pattern);
         if(!fetch_return.success){
             setError(fetch_return.errorMessage)
         }else{
@@ -57,16 +54,14 @@ export default function TopPage(props) {
 
                 <form method="post" action="game.decide_pattern" className='base_frame font-bold'>
 
-                <input type="hidden" name="token" value={props.csrf_token}/>
-
                 {/* パターンの選択 */}
                 <PatternChoicesSets
                     onCateChange={onCateChange}
-                    cateSets={props.cateSets}
+                    jsonCateSets={props.cateSets}
                     onQuizTypeChange={onQuizTypeChange}
-                    quizSets={props.quizSets}
+                    jsonQuizSets={props.quizSets}
                     onNameTypeChange={onNameTypeChange}
-                    nameSets={props.nameSets}
+                    jsonNameSets={props.nameSets}
                     error={error}
                     pageName="topPage"
                 />

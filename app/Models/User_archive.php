@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-// ユーザーごとのクイズ成績
+//クリアしたら記入していく
 
 class User_archive extends Model
 {

@@ -84,9 +84,9 @@ export default function Login({ status, canResetPassword,year,noLoginPass,token,
 
     // ログインしないで遊ぶをクリックしたら、commonUserでdataを格納
     const onNoLoginClick=()=>{
+        // tokenはcookieにセットされているのでheadersに加える必要ない
         const headers={
             "Content-Type":"application/json",
-            "X-CSRF-TOKEN":token,
         }
         fetch(
             "login_for_common",{

@@ -200,7 +200,6 @@ export default function PlayTeam(props) {
 
 
         const fetch_params={
-            csrf_token: props.csrf_token,
             answered: answered,
             setAnswered: setAnswered,
             inputSets:inputSets,
