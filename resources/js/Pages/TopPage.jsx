@@ -3,7 +3,7 @@ import { Inertia } from '@inertiajs/inertia';
 import React from "react";
 import { Head, Link} from '@inertiajs/react';
 import PatternChoicesSets from './Components/PatternChoicesSets';
-import CustomPatternDefinition from './Components/CustomPatternDefinition';
+import TopPageCustomDefinition from './Components/TopPageCustomDefinition';
 import TopPage_fetch from "./fetchAPI/TopPage_fetch";
 import AutoLoginProcedure from './Auth/AutoLoginProcedure';
 
@@ -13,7 +13,7 @@ export default function TopPage(props) {
     AutoLoginProcedure(props);
 
     // stateのセット
-    const { pattern,setPattern,error,setError,onCateChange,onQuizTypeChange,onNameTypeChange} = CustomPatternDefinition(props.user?.name || "","topPage");
+    const { pattern,setPattern,error,setError,onCateChange,onQuizTypeChange,onNameTypeChange} = TopPageCustomDefinition(props.user?.name || "","topPage");
 
     // 決定ボタンが押されたとき
     const onDecideButtonClick=async (e)=>{

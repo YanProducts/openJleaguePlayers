@@ -1,7 +1,7 @@
 import React, {useState} from "react";
 
 // パターン変化のフックまとめ
-export default function CustomPatternDefinition(userName,pageName){
+export default function TopPageCustomDefinition(userName,pageName){
         const isMyPage=pageName==="myPage";
 
         // クイズのパターン一覧
@@ -29,7 +29,6 @@ export default function CustomPatternDefinition(userName,pageName){
         const onNameTypeChange=(e)=>{
             setPattern({...pattern,nameType:e.target.value});
         }
-
 
         // エラーが設定＝表示された３秒後に消える
         React.useEffect(()=>{

@@ -52,6 +52,7 @@ export default function AnswerByTeam({teams,requiredAnswer,answered,openedInput,
         ...prevState,
         [total_n]: tempInputValue.current[total_n]// 確定された値で更新
     }));
+    setChangePoint(inputRefs.current[total_n].selectionStart || "")
     setFocusIndex(total_n);
     isComposing.current = false;
   };

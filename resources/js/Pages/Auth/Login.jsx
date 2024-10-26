@@ -7,8 +7,8 @@ import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { Inertia } from '@inertiajs/inertia';
-import PasswordStoreToStorage from './Parts/PasswordStoreToStorage';
-import PasswordRetrive from './Parts/PasswordRetrieveFromStorage';
+import PasswordStoreToStorage from './Part/PasswordStoreToStorage';
+import PasswordRetrive from './Part/PasswordRetrieveFromStorage';
 
 
 export default function Login({ status, canResetPassword,year,noLoginPass,token,isLocal }) {

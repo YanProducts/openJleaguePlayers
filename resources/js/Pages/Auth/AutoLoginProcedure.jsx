@@ -1,7 +1,7 @@
 import React from 'react';
 import { useForm } from '@inertiajs/react';
 import { Inertia } from '@inertiajs/inertia';
-import GetDataFromLocalStorage from './Parts/GetDataFromLocalStorage'
+import GetDataFromLocalStorage from './Part/GetDataFromLocalStorage'
 
 // オートログインの一連の流れ
 export default function AutoLoginProcedure(props){
