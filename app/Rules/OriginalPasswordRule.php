@@ -18,7 +18,6 @@ class OriginalPasswordRule implements ValidationRule
         // 英語半角の大文字小文字と数字を含む
         $preg_must="/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9]).+$/";
 
-        Log::info($value);
         if(!preg_match($preg_must,$value)){
             $fail("パスワードは大文字・小文字・数字を全て含んでください");
         }

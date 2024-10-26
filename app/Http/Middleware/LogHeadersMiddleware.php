@@ -17,9 +17,6 @@ class LogHeadersMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // Log::info('Headers before processing', [
-        //     'headers' => $request->headers->all(),
-        // ]);
         return $next($request);
     }
 }

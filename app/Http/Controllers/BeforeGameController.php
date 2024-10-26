@@ -30,7 +30,6 @@ class BeforeGameController extends Controller
             "isGradeInserted"
         ]));
 
-
         // ページ表示
         return Inertia::render('TopPage',[
             // 年度の設定
@@ -41,8 +40,7 @@ class BeforeGameController extends Controller
             "quizSets"=>json_encode(StaticValueController::$QuizSets),
             "nameSets"=>json_encode(StaticValueController::$NameSets),
             // ユーザー名
-            "user"=>Auth::user(),
-
+            "user"=>Auth::check() ? Auth::user() : null
         ]);
     }
 

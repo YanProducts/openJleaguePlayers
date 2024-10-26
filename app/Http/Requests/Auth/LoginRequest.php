@@ -2,6 +2,11 @@
 
 namespace App\Http\Requests\Auth;
 
+// バリデーションエラーのカスタマイズ
+use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Http\Exceptions\HttpResponseException;
+use Inertia\Inertia;
+
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
@@ -10,6 +15,7 @@ use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use App\Rules\noCommonUserRule;
 use App\Rules\userIsExistsRule;
+use Illuminate\Support\Facades\Log;
 
 class LoginRequest extends FormRequest
 {
@@ -28,6 +34,7 @@ class LoginRequest extends FormRequest
      */
     public function rules(): array
     {
+
             $rule=[
                 'name' => ['required', new userIsExistsRule],
                 'password' => ['required', 'string'],
@@ -52,13 +59,14 @@ class LoginRequest extends FormRequest
      *
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function authenticate(): void
-    {
+    public function authenticate(){
+
+
         $this->ensureIsNotRateLimited();
 
         if (! Auth::attempt($this->only('name', 'password'), $this->boolean('remember'))) {
-            RateLimiter::hit($this->throttleKey());
 
+            RateLimiter::hit($this->throttleKey());
             throw ValidationException::withMessages([
                 "password"=>"パスワードが違います"
             ]);
@@ -97,4 +105,17 @@ class LoginRequest extends FormRequest
     {
         return Str::transliterate(Str::lower($this->input('name')).'|'.$this->ip());
     }
+
+
+    // 失敗の場合のメソッドをオーバーロード
+    protected function failedValidation(Validator $validator){
+
+        // オートログインから到達した場合
+        if($this->has("fromURL") && $this->input("fromURL")==="autoLogin"){
+            return redirect()->route("login");
+        }
+        // それ以外は通常のバリデーションエラーハンドリング
+         parent::failedValidation($validator);
+    }
+
 }

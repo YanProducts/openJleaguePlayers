@@ -6,7 +6,7 @@ export default function MyPageFetch(pattern,setError,setEachAnswerTotalCounts,se
         fetch(
             "/fetchMyData",
             {
-                method:"post",
+                method:"POST",
                 headers:headers,
                 body:JSON.stringify(pattern)
             }

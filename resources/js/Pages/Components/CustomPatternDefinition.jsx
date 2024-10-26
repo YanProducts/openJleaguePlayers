@@ -30,7 +30,6 @@ export default function CustomPatternDefinition(userName,pageName){
             setPattern({...pattern,nameType:e.target.value});
         }
 
-
         // エラーが設定＝表示された３秒後に消える
         React.useEffect(()=>{
             const errorTimeout=setTimeout(()=>{

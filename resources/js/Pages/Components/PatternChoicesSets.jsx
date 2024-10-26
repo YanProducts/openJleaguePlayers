@@ -3,7 +3,6 @@ const BaseSelectSets=({jpn_name,engShortName,changeFunction,sets,error,pageName}
 
     const divClassByEachPageName= pageName==="myPage" ? "my-0 text-center w-full md:w-1/3 border-b-2 border-black md:border-none py-2 base_backColor" : "base-frame base_backColor text-center mb-10";
 
-    console.log(engShortName)
     const selectClassNameByEachComponents=pageName==="myPage" ?  "mx-auto p-2 min-w-[160px] md:w-4/5" : (engShortName==="nameType" ? "ml-6 w-[170px]" :"ml-3 w-[170px]")
 
     return(

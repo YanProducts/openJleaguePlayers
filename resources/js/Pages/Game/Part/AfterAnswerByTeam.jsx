@@ -29,7 +29,7 @@
     }
 
     // 分割代入
-    export const AfterAnswerComponent=({setInputSets,isAfter,setIsAfter,isRightState,setIsRightState,answered,nowAlreadyPlayers})=>{
+    export const AfterAnswerComponent=({setInputSets,isAfter,setIsAfter,isRightState,setIsRightState,answered,nowAlreadyPlayers,quiz_type,cate})=>{
 
         // 2重のinertia.visitの防止用
         const [moveResult,setMoveResult]=React.useState(false);
@@ -42,18 +42,31 @@
 
                 // 回答前のUIへ戻す
                 const timer=setTimeout(()=>{
-                    // クリアしたかどうか
-                    // if(Number(props.quiz_type.substring(4))>=answered.length){
-                        // 実験
-                    if(10<=answered.length){
-                        // SQL登録のlaravel。その後に遷移。2回以上登録される。
+                    // クリアしたかどうか？
+                    let isClear=false;
+                    // チーム数が足りている場合は、各チームの正解人数を見ていく
+                    if((cate==="all" && (Object.keys(answered).length===60) ) || (cate!=="all" && (Object.keys(answered).length===20))
+                        ){
+                        // チーム数が足りている場合ひとまずクリアに設定
+                         isClear=true;
+                        //  設定人数より下のチームがあれば未クリアに
+                         Object.values(answered).forEach((eachTeamAnswered)=>{
+                            console.log(eachTeamAnswered.length)
+                            if(eachTeamAnswered.length<Number(quiz_type.substring(4))){
+                                isClear=false;
+                            }
+                         })
+                     }
+
+
+                    // if(10<=Object.keys(answered)){
+                    if(isClear){
+                        // SQL登録のlaravel。その後に遷移。2回以上登録を阻止。
                         setIsAfter(false);
                         setIsRightState("yet");
                         if(!moveResult){
                             setMoveResult(true);
-                            Inertia.visit("/game.clear", {
-                                //sessionがあるのでいらない "game_token":game_token
-                            });
+                            Inertia.visit("/game.clear");
                         }
                         return;
                     } else {

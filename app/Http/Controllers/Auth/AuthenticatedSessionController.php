@@ -13,6 +13,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\StaticValueController;
 
 class AuthenticatedSessionController extends Controller
 {
@@ -22,6 +23,14 @@ class AuthenticatedSessionController extends Controller
     // ログイン時(get)
     public function create(): Response
     {
+;
+        // もしログインしていたら、ログアウト
+        if(Auth::check()){
+            return Inertia::render("Auth/AutoLogout",[
+                "isLocal"=>env("APP_ENV")
+            ]);
+        }
+
 
         return Inertia::render('Auth/Login', [
             'status' => session('status'),
@@ -38,7 +47,8 @@ class AuthenticatedSessionController extends Controller
      * Handle an incoming authentication request.
      */
     // ログイン時にユーザー名とパスワードが合っているか確認
-    public function store(LoginRequest $request): RedirectResponse
+    // 通常のログインとautoLoginの両方がここ
+    public function store(LoginRequest $request)
     {
 
         // ユーザーネームとパスワードが正しいか？
@@ -46,6 +56,12 @@ class AuthenticatedSessionController extends Controller
 
         // セッションIDを再生成(LoginRequestの親クラスのメソッド)
         $request->session()->regenerate();
+
+
+        if($request?->fromURL==="autoLogin"){
+            // ページ表示
+            return redirect()->route('topPage');
+        }
 
 
         // redirect()->intended()はユーザーが元々アクセスしようとしていたページに戻すためのもの（途中でログインしていないから戻らされた時)。そうではなくログイン画面に直接アクセスして来た場合、RouteServiceProvider::HOMEにアクセスする（この場合はtopPage.jsx）。
@@ -73,20 +89,22 @@ class AuthenticatedSessionController extends Controller
 
 
 
-
-
-
-
-
-
-    // ログアウト
-    public function destroy(Request $request): RedirectResponse
+    // ログアウト(手動と自動両方ここ)
+    public function destroy(Request $request)
     {
+
+        // ユーザーのセッション破棄。クッキー情報もクリア。
+        // Auth::user() は空（null）に
         Auth::guard('web')->logout();
 
+        // リクエストページのsessionは自動的に管理されている
         $request->session()->invalidate();
-
         $request->session()->regenerateToken();
+
+        // 自動ログインの際
+        if($request->has("fromURL") && $request->fromURL==="AutoLogout"){
+            return response()->json(["isOK"=>true]);
+        }
 
         return redirect('/');
     }

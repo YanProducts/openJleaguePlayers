@@ -25,6 +25,9 @@ export default function AnswerByTeam({teams,requiredAnswer,answered,openedInput,
     // 何番目のinputをfocusさせるか
     const [focusIndex,setFocusIndex]=React.useState("");
 
+    // 変化させたカーソルの位置
+    const [changePoint,setChangePoint]=React.useState("");
+
     // css設定（最初のロード終了時のみ）
     React.useEffect(()=>{
         //inputの高さ
@@ -60,6 +63,8 @@ export default function AnswerByTeam({teams,requiredAnswer,answered,openedInput,
       tempInputValue.current[total_n]=value;
       return; // 日本語変換中は何もしない
     }
+
+    setChangePoint(inputRefs.current[total_n].selectionStart || "")
     setInputSets((prevState) => ({
       ...prevState,
       [total_n]: value,
@@ -71,7 +76,9 @@ export default function AnswerByTeam({teams,requiredAnswer,answered,openedInput,
   // inputが変更した後、変更したinputに引き続きfocusする
     React.useEffect(()=>{
         inputRefs.current[focusIndex]?.focus();
-    },[inputSets,focusIndex])
+        inputRefs.current[focusIndex]?.setSelectionRange(changePoint,changePoint)
+    },[inputSets,focusIndex,changePoint])
+
 
     React.useEffect(()=>{
         if(isAfter){
@@ -158,9 +165,10 @@ export default function AnswerByTeam({teams,requiredAnswer,answered,openedInput,
             if(index===teams.length-1){
             // 必要な追加要素の数
             const requiredFlexDivCounts=(index+1)%flexCounts === 0 ? 0 : flexCounts-(index+1)%flexCounts;
+
             for(let n=0; n<requiredFlexDivCounts;n++){
                 let eachHiddenComponent=(
-                    <div key={index+n+1} className="opacity-0" style={{width:`${eachFlexWidth}`}}>
+                    <div key={index+n+1} className="border-2 p-2 mx-1 opacity-0" style={{width:`${eachFlexWidth}`}}>
                             <div>
                                 <input className="w-full"/>
                             </div>

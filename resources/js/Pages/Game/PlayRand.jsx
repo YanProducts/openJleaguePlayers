@@ -162,6 +162,7 @@ export default function PlayRand(props) {
                 isRightState={isRightState}
                 setIsRightState={setIsRightState}
                 answered={answered}
+                quiz_type={props.quiz_type}
             />
 
             {/* input周りのcomponent */}

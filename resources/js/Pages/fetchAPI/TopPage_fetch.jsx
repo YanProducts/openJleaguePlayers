@@ -11,13 +11,12 @@ export default async function TopPage_fetch(pattern)
        const response= await fetch(
         "/game.decide_pattern",
             {
-                method:"post",
+                method:"POST",
                 headers:headers,
                 body:new URLSearchParams(pattern)
         });
 
     if(!response.ok){
-        console.log(response);
         // レスポンスにバリデーションエラーが入っていたとき、そのエラーをjsonで変換し、その後に処理を行う
         if(response.status===422){
             const returnedError=await response.json();

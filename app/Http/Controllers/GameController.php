@@ -367,8 +367,6 @@ class GameController extends Controller
     // ゲームクリア
     public function game_clear(){
 
-        Log::info('root called for user');
-
         // sessionの値が期待と違った時
         if(!SessionController::confirm_session_value(["cate","quiz_type","name_type"])){
             //エラーページへ

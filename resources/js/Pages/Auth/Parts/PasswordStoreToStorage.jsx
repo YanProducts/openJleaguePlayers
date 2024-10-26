@@ -12,8 +12,6 @@ async function encryptPassword(password, key) {
     const RandomValue = crypto.getRandomValues(new Uint8Array(12));
 
 
-    console.log(key);
-    
     // UTF8に整えたパスワード、キー、ランダムな値から暗号化を行う(AES-GCMという、暗号化とデータの整合性を同時に提供するモードを使う場合にはiv(Initialization Vector:ランダムな値)が必要)
     const encrypted = await crypto.subtle.encrypt(
         { name: 'AES-GCM', iv: RandomValue },
@@ -41,9 +39,9 @@ async function generateKey() {
 export default async function
 PasswordStoreToStorage(password){
 
+    try{
         // 鍵の生成
         const key = await generateKey();
-
 
         // ランダム文字列とランダム文字列とキーを元に暗号化されたパスワードが返ってくる（RandomValueは既に設定済）
         const encrypted = await encryptPassword(password, key);
@@ -54,5 +52,9 @@ PasswordStoreToStorage(password){
         //キーの保存
         const enctryptedKey=await crypto.subtle.exportKey('raw', key)
         localStorage.setItem('previousEncryptionKey', JSON.stringify(Array.from(new Uint8Array(enctryptedKey))));
+    }catch(e){
+        console.log(e)
+        // 保存されないだけであり、特に問題はないから続行。
+    }
 
 }

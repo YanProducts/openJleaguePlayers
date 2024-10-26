@@ -24,7 +24,4 @@
             </form>
             </>
         )
-        // エラーページへ遷移
-        Inertia.visit("/error_view");
-        return;
 };

@@ -23,8 +23,8 @@ async function decryptPassword(encrypted, key) {
         // 復号したパスワードを返す
         return decoder.decode(decrypted);
     }catch(e){
-        // console.log(e);
-        // 何らかの初期取得エラーの時は、初期パスワードを返さない
+        // キーやパスワードの照合エラーなどは、初期パスワードを返さない
+        console.log(e);
         return null;
     }
 
@@ -32,24 +32,30 @@ async function decryptPassword(encrypted, key) {
 
 
 export default async function PasswordRetrive(){
+    try{
+        // 保存されたパスワード(暗号化されたパスワード、その暗号化の元となるキー、両者を紐づけるiv(ランダム値))の取り出し
+        const storedEncrypted = JSON.parse(localStorage.getItem('previousEncryptedPassword')) || "";
 
-    // 保存されたパスワード(暗号化されたパスワード、その暗号化の元となるキー、両者を紐づけるiv(ランダム値))の取り出し
-    const storedEncrypted = JSON.parse(localStorage.getItem('previousEncryptedPassword'));
+        // 保存されたキーの取り出し
+        const rawKey = new Uint8Array(JSON.parse(localStorage.getItem('previousEncryptionKey')));
 
-    // 保存されたキーの取り出し
-    const rawKey = new Uint8Array(JSON.parse(localStorage.getItem('previousEncryptionKey')));
+        // キーを複合化する
+        const key = await crypto.subtle.importKey(
+        'raw',
+        rawKey.buffer,
+         { name: 'AES-GCM' },
+         true, // ここでextractable(抽出可能)をtrueに
+         ['decrypt']
+        );
+        // パスワードを返す(照合エラーの際はnullが返される)
+        const decryptedPassword = await decryptPassword(storedEncrypted, key);
+        return decryptedPassword;
+    }catch(e){
+        // キーやパスワードの取得エラーなどは、初期パスワードを返さない
+        console.log(e);
+        return null;
+    }
 
-    // キーを複合化する
-    const key = await crypto.subtle.importKey(
-    'raw',
-    rawKey.buffer,
-     { name: 'AES-GCM' },
-     true, // ここでextractable(抽出可能)をtrueに
-     ['decrypt']
-    );
 
-    // パスワードを返す
-    const decryptedPassword = await decryptPassword(storedEncrypted, key);
 
-    return decryptedPassword;
 }

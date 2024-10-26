@@ -51,8 +51,7 @@ export default function Login({ status, canResetPassword,year,noLoginPass,token,
 
         e.preventDefault();
 
-        // rememberがついている時
-        // 前回までのremember値がない時
+        // rememberがついている時や、前回までのremember値がない時は、ローカルストレージに保存して、次回以降のtopPageではその人のページを反映
         if(data.remember || !localStorage.getItem("previousRemember")){
             // パスワードの暗号化
             // ここで暗号化されたキーとパスワードに必要な一式はローカルストレージに保存
@@ -69,13 +68,12 @@ export default function Login({ status, canResetPassword,year,noLoginPass,token,
             }
         }
 
-        // rememberの値があって、別ユーザー仕様の場合はlocalstorageに記憶させない
+        // rememberがついておらず、別ユーザーですでに登録されている場合は、自動ログインをfalseにする
         if(!data.remember && localStorage.getItem("previousRemember")){
             localStorage.setItem(
                 "previousRemember",false,
             );
         }
-
 
         // ログイン
         post(route('login'));
@@ -90,7 +88,7 @@ export default function Login({ status, canResetPassword,year,noLoginPass,token,
         }
         fetch(
             "login_for_common",{
-                method:"post",
+                method:"POST",
                 headers:headers,
                 body:JSON.stringify({
                     "name":"commonUser",
@@ -118,9 +116,9 @@ export default function Login({ status, canResetPassword,year,noLoginPass,token,
             }
             return;
         }).catch((e)=>{
-            const commonErrorMessage=isLocal==="local" ? e.message : "何らかのエラーが発生しました"
+            const commonErrorMessage=isLocal==="local" ? e.message : "commonUserLoginError";
             // エラーページへ
-            Inertia.visit(`error_view/${commonErrorMessage}`);
+            Inertia.visit(`/error_view/?message=${encodeURIComponent(commonErrorMessage)}`);
         })
     }
 

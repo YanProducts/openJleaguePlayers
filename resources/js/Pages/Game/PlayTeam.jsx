@@ -252,6 +252,8 @@ export default function PlayTeam(props) {
                 setIsRightState={setIsRightState}
                 answered={answered}
                 nowAlreadyPlayers={nowAlreadyPlayers}
+                quiz_type={props.quiz_type}
+                cate={props.cate}
             />
 
 

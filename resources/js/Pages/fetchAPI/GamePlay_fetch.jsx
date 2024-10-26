@@ -12,13 +12,14 @@ export default async function gameplay_fetch(props){
         let userAnswer=(props.quiz_type).indexOf("rand")===0 ? props.inputVal : JSON.stringify(props.inputSets);
         let choicedTeam=(props.quiz_type).indexOf("rand")===0 ? props.answerTeam : props.teams;
 
+
         // quizTypeがチームの時は、「チームごとに答える人数」をセット
         let requiredAnswer=props.requiredAnswer ?? "";
 
        const response=await fetch(
             "/game/answerCheck",
             {
-                method:"post",
+                method:"POST",
                 headers:headers,
                 body:new URLSearchParams({
                     answer:userAnswer,
@@ -33,6 +34,7 @@ export default async function gameplay_fetch(props){
                     unique_token:props.uniqueToken
                 })
           });
+
 
         if(!response.ok){
             if(response.status===422){
