@@ -37,6 +37,7 @@ class StoreUserRequest extends FormRequest
     {
         return [
             "name.required"=>"ユーザー名は必ず記入してください",
+            "name.string"=>"ユーザー名は必ず文字で記入してください",
             "name.unique"=>"そのユーザー名は既に使用されています",
             "name.min"=>"ユーザー名は2字以上にしてください",
             "name.max"=>"ユーザー名は100字以内にしてください",

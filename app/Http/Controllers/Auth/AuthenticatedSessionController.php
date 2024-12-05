@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\SessionController;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Http\RedirectResponse;
@@ -31,14 +32,11 @@ class AuthenticatedSessionController extends Controller
             ]);
         }
 
-
         return Inertia::render('Auth/Login', [
-            'status' => session('status'),
-            'canResetPassword' => Route::has('password.request'),
+            // 'status' => session('status'),
             // 年度の設定
             "year"=>empty(session("year")) ? date("y",time()) : session("year"),
             "noLoginPass"=>env("COMMON_USER_PASS"),
-            // トークンはnoCommonUser用
             "isLocal"=>env("APP_ENV")
         ]);
     }

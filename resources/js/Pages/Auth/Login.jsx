@@ -8,10 +8,11 @@ import TextInput from '@/Components/TextInput';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { Inertia } from '@inertiajs/inertia';
 import PasswordStoreToStorage from './Part/PasswordStoreToStorage';
-import PasswordRetrive from './Part/PasswordRetrieveFromStorage';
+import PasswordRetrive from './Part/PasswordRetrieveFromStorage.jsx';
+import BaseNameAndPasswordForm from './Part/BaseNameAndPasswordForm.jsx';
 
 
-export default function Login({ status, canResetPassword,year,noLoginPass,token,isLocal }) {
+export default function Login({ year,noLoginPass,isLocal }) {
 
         const { data, setData, post, processing, errors, reset } = useForm({
             name: '',
@@ -76,7 +77,7 @@ export default function Login({ status, canResetPassword,year,noLoginPass,token,
         }
 
         // ログイン
-        post(route('login'));
+        post(route('login_post_route'));
     };
 
 
@@ -85,6 +86,8 @@ export default function Login({ status, canResetPassword,year,noLoginPass,token,
         // tokenはcookieにセットされているのでheadersに加える必要ない
         const headers={
             "Content-Type":"application/json",
+            // 自動送信されているが、念のため行う
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
         }
         fetch(
             "login_for_common",{
@@ -132,40 +135,12 @@ export default function Login({ status, canResetPassword,year,noLoginPass,token,
                 <h1 className="base_h base_h1"  id="toph1">{year}年Jリーグ<br/>選手何人言えるかな？</h1>
 
                 <form className="mx-auto base_frame max-w-lg my-10 px-6 py-4 bg-white overflow-hidden shadow-md sm:rounded-lg" onSubmit={submit}>
-                <div>
-                    <InputLabel htmlFor="loginName" value="ユーザーネーム" />
 
-                    <TextInput
-                        id="loginName"
-                        type="text"
-                        name="name"
-                        value={data.name  || ""}
-                        className="mt-1 block w-full"
-                        autoComplete="new-name"
-                        // autoComplete="name"
-                        isFocused={true}
-                        onChange={(e) => setData('name', e.target.value)}
-                    />
-
-                    <InputError message={errors.name} className="mt-2" />
-                </div>
-
-                <div className="mt-4">
-                    <InputLabel htmlFor="password" value="パスワード"/>
-
-                    <TextInput
-                        id="password"
-                        type="password"
-                        name="password"
-                        value={data.password || ""}
-                        className="mt-1 block w-full"
-                        // autoCompleteを特定不明の値にする
-                        autoComplete="new-password"
-                        onChange={(e) => setData('password', e.target.value)}
-                    />
-
-                    <InputError message={errors.password} className="mt-2" />
-                </div>
+                <BaseNameAndPasswordForm
+                    data={data}
+                    setData={setData}
+                    errors={errors}
+                />
 
                 <div className="block mt-4">
                     <label className="flex items-center">
@@ -180,15 +155,20 @@ export default function Login({ status, canResetPassword,year,noLoginPass,token,
 
                 <div className="flex items-center justify-end mt-4">
                  <PrimaryButton className="ms-4" disabled={processing}>
-                     Log in
+                     ログイン
                  </PrimaryButton>
                 </div>
             </form>
             <p className="base_link_p my-5"><span className="base_link" onClick={onNoLoginClick}>ログインせずに遊ぶ</span></p>
             <p className="base_link_p">
-                <Link href={route('register')} className="base_link">
-                    新規登録はこちらから
-                </Link>
+            新規登録は<Link href={route('register')} className="base_link">
+                    こちら
+                </Link>から
+            </p>
+            <p className="base_link_p">
+            登録内容変更は<Link href={route("viewUpdateAuthInfo")} className="base_link">
+                    こちら
+                </Link>から
             </p>
         </GuestLayout>
     );

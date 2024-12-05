@@ -12,8 +12,8 @@ export default function AutoLogout({isLocal}){
         }
         const headers={
             "Content-type":"application/json",
-            // クッキーに保存されて渡されるので不要
-            // "X-CSRF-TOKEN":props.token
+            // 自動送信されているが、念のため行う
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
         };
 
         fetch("/logout",{

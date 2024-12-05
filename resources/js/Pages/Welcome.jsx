@@ -5,7 +5,7 @@ import { Inertia } from "@inertiajs/inertia";
 
 
 // 「/」でアクセスされたら、ログインの可否に応じてリダイレクト
-export default function Welcome({ auth, laravelVersion, phpVersion }){
+export default function Welcome({ auth}){
     useEffect(() => {
         if (auth.user) {
             Inertia.visit("/topPage");
@@ -13,4 +13,6 @@ export default function Welcome({ auth, laravelVersion, phpVersion }){
             Inertia.visit("login");
         }
     }, []);
+
+    return null;
 }

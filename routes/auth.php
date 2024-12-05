@@ -2,13 +2,10 @@
 
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\ConfirmablePasswordController;
-use App\Http\Controllers\Auth\EmailVerificationNotificationController;
-use App\Http\Controllers\Auth\EmailVerificationPromptController;
-use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordController;
-use App\Http\Controllers\Auth\PasswordResetLinkController;
+use App\Http\Controllers\Auth\UpdateAuthInfoController;
 use App\Http\Controllers\Auth\RegisteredUserController;
-use App\Http\Controllers\Auth\VerifyEmailController;
+use App\Http\Requests\Auth\UpdateAuthInfoRequest;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -33,12 +30,28 @@ use Inertia\Inertia;
     // 共有ユーザー用のログイン
     Route::post('login_for_common', [AuthenticatedSessionController::class, 'login_for_common'])->name('login_post_route_for_common');
 
+    // 登録内容変更のビュー
+    Route::get('auth/change-data', [UpdateAuthInfoRequest::class,"viewUpdateAuthInfoTop"])
+    ->name("viewUpdateAuthInfo");
 
-    Route::get('reset-password/{token}', [NewPasswordController::class, 'create'])
-    ->name('password.reset');
+    // 登録内容変更決定
+    Route::post('auth/change-data-decide', [UpdateAuthInfoController::class, 'decideUpdateWhichAuth'])
+    ->name("updateAuthInfoDecide");
 
-    Route::post('reset-password', [NewPasswordController::class, 'store'])
-    ->name('password.store');
+    // ユーザー名変更ページ
+    Route::get('reset-userName/{tokenForRouting}', [UpdateAuthInfoController::class, 'viewUpdateUserNamePage'])
+    ->name('username_reset');
+    
+    // パスワード変更ページ
+    Route::get('reset-password/{tokenForRouting}', [UpdateAuthInfoController::class, 'viewUpdatePassWordPage'])
+    ->name('password_reset');
+
+    // ユーザーネーム変更投稿
+    Route::post('reset-username', [UpdateAuthInfoController::class, 'storeUpdateUserName'])
+    ->name("username_update_store");
+    // パスワード変更投稿
+    Route::post('reset-password', [UpdateAuthInfoController::class, 'storeUpdatePassWord'])
+    ->name('password_update_store');
 
 
     Route::get('confirm-password', [ConfirmablePasswordController::class, 'show'])
@@ -47,6 +60,8 @@ use Inertia\Inertia;
     Route::post('confirm-password', [ConfirmablePasswordController::class, 'store']);
 
     Route::put('password', [PasswordController::class, 'update'])->name('password.update');
+
+
 
     // ログアウト
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
@@ -65,19 +80,7 @@ use Inertia\Inertia;
 
 
 
-    // Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])
-    //             ->name('password.request');
 
-    // Route::post('forgot-password', [PasswordResetLinkController::class, 'store'])
-    //             ->name('password.email');
 
-    // Route::get('verify-email', EmailVerificationPromptController::class)
-    //             ->name('verification.notice');
 
-    // Route::get('verify-email/{id}/{hash}', VerifyEmailController::class)
-    //             ->middleware(['signed', 'throttle:6,1'])
-    //             ->name('verification.verify');
 
-    // Route::post('email/verification-notification', [EmailVerificationNotificationController::class, 'store'])
-    //             ->middleware('throttle:6,1')
-    //             ->name('verification.send');

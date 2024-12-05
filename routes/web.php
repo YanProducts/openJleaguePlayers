@@ -24,22 +24,10 @@ use Illuminate\Support\Facades\Log;
 // Route::middleware(['web', 'auth'])->group(function () {
 Route::middleware(['web'])->group(function () {
     // ここにルート定義
-
     Route::get('/', function () {
-        return Inertia::render('Welcome', [
-            'canLogin' => Route::has('login'),
-            'canRegister' => Route::has('register'),
-            'laravelVersion' => Application::VERSION,
-            'phpVersion' => PHP_VERSION,
-        ]);
+        return Inertia::render('Welcome');
     });
 
-    // ログイン認証
-    // Route::middleware('auth')->group(function () {
-    //     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    //     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    //     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-    // });
 
     // トップページ
     Route::get('/topPage', [BeforeGameController::class,"show_top_page"])

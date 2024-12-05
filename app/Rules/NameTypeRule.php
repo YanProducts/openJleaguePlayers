@@ -5,6 +5,7 @@ namespace App\Rules;
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
 
+// クイズの名前の種類のルール
 class NameTypeRule implements ValidationRule
 {
     /**

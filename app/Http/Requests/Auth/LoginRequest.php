@@ -59,37 +59,43 @@ class LoginRequest extends FormRequest
      *
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function authenticate(){
+    public function authenticate($route="login"){
 
-
+        // 連続的なログイン試行の制限
         $this->ensureIsNotRateLimited();
 
+        // ログイン認証が成功するか
         if (! Auth::attempt($this->only('name', 'password'), $this->boolean('remember'))) {
 
+            // ログイン試行回数を１つ増やす
             RateLimiter::hit($this->throttleKey());
+
+            // 例外処理を投げて終了
             throw ValidationException::withMessages([
-                "password"=>"パスワードが違います"
+                "password"=>$route==="login" ? "パスワードが違います" : "以前のパスワードが違います"
             ]);
         }
-
+        //ログイン試行回数のクリア
         RateLimiter::clear($this->throttleKey());
     }
 
     /**
-     * Ensure the login request is not rate limited.
-     *
      * @throws \Illuminate\Validation\ValidationException
      */
+    // ログイン試行回数や試行間隔のエラー
     public function ensureIsNotRateLimited(): void
     {
+        // 5回以上だと多すぎる試行ということで戻される
         if (! RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
             return;
         }
 
         event(new Lockout($this));
 
+        // 制限解除までの秒数
         $seconds = RateLimiter::availableIn($this->throttleKey());
 
+        // 秒数を投げる
         throw ValidationException::withMessages([
             'name' => trans('auth.throttle', [
                 'seconds' => $seconds,

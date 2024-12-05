@@ -2,6 +2,8 @@
 export default function MyPageFetch(pattern,setError,setEachAnswerTotalCounts,setEachAnswerDataByTeam,setEachAnswerDataByPlayer,setClearCountData){
         const headers={
             "Content-Type":"application/json",
+            // 自動送信されているが、念のため行う
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
         }
         fetch(
             "/fetchMyData",
