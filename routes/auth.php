@@ -5,10 +5,14 @@ use App\Http\Controllers\Auth\ConfirmablePasswordController;
 use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\Auth\UpdateAuthInfoController;
 use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\Auth\RememberController;
 use App\Http\Requests\Auth\UpdateAuthInfoRequest;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
+
+
+Route::middleware(['web'])->group(function () {
 
     // auth.loginがなされているかいないかで処理を変更する
 
@@ -19,7 +23,6 @@ use Inertia\Inertia;
    // 新規登録
     Route::post('register', [RegisteredUserController::class, 'store']);
 
-
     // ログインページ表示のルート(念の為ログイン時にはログアウトへリダイレクト)
     Route::get('login', [AuthenticatedSessionController::class, 'create'])
     ->name('login');
@@ -29,6 +32,9 @@ use Inertia\Inertia;
 
     // 共有ユーザー用のログイン
     Route::post('login_for_common', [AuthenticatedSessionController::class, 'login_for_common'])->name('login_post_route_for_common');
+
+    // nameとrememberからパスワードを返す
+    Route::post("getPassFromNameAndToken",[RememberController::class,"get_pass_from_token"]);
 
     // 登録内容変更のビュー
     Route::get('auth/change-data', [UpdateAuthInfoRequest::class,"viewUpdateAuthInfoTop"])
@@ -41,7 +47,7 @@ use Inertia\Inertia;
     // ユーザー名変更ページ
     Route::get('reset-userName/{tokenForRouting}', [UpdateAuthInfoController::class, 'viewUpdateUserNamePage'])
     ->name('username_reset');
-    
+
     // パスワード変更ページ
     Route::get('reset-password/{tokenForRouting}', [UpdateAuthInfoController::class, 'viewUpdatePassWordPage'])
     ->name('password_reset');
@@ -49,33 +55,28 @@ use Inertia\Inertia;
     // ユーザーネーム変更投稿
     Route::post('reset-username', [UpdateAuthInfoController::class, 'storeUpdateUserName'])
     ->name("username_update_store");
+
     // パスワード変更投稿
     Route::post('reset-password', [UpdateAuthInfoController::class, 'storeUpdatePassWord'])
     ->name('password_update_store');
 
 
     Route::get('confirm-password', [ConfirmablePasswordController::class, 'show'])
-                ->name('password.confirm');
+    ->name('password.confirm');
 
     Route::post('confirm-password', [ConfirmablePasswordController::class, 'store']);
 
     Route::put('password', [PasswordController::class, 'update'])->name('password.update');
 
-
-
     // ログアウト
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
     ->name('logout');
-
-
-
 
     // 共通のユーザーの作成(作成時のみ必要)
     Route::get("create/commonUser",[RegisteredUserController::class,"createCommonUser"])
     ->name("createCommonUser");
 
-
-
+});
 
 
 

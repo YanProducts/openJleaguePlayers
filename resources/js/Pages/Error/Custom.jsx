@@ -2,7 +2,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Link,Head } from '@inertiajs/react';
 import React from 'react';
 
-export default function Custom({auth,message,top_page,isLocal}) {
+export default function Custom({auth,message,backPage,isLocal}) {
 
     const [htmlMessage,setHtmlMessage]=React.useState("予期せぬエラーです")
 
@@ -47,7 +47,7 @@ export default function Custom({auth,message,top_page,isLocal}) {
               <p>{htmlMessage}</p>
            </div>
            <p className='base_link_p'>
-               <Link className="base_link" href={top_page}>戻る</Link>
+               <Link className="base_link" href={backPage}>戻る</Link>
            </p>
         </AuthenticatedLayout>
     );

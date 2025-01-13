@@ -15,6 +15,7 @@ use Inertia\Response;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\StaticValueController;
+use App\Models\User;
 
 class AuthenticatedSessionController extends Controller
 {
@@ -24,7 +25,7 @@ class AuthenticatedSessionController extends Controller
     // ログイン時(get)
     public function create(): Response
     {
-;
+
         // もしログインしていたら、ログアウト
         if(Auth::check()){
             return Inertia::render("Auth/AutoLogout",[
@@ -33,7 +34,6 @@ class AuthenticatedSessionController extends Controller
         }
 
         return Inertia::render('Auth/Login', [
-            // 'status' => session('status'),
             // 年度の設定
             "year"=>empty(session("year")) ? date("y",time()) : session("year"),
             "noLoginPass"=>env("COMMON_USER_PASS"),
@@ -49,21 +49,21 @@ class AuthenticatedSessionController extends Controller
     public function store(LoginRequest $request)
     {
 
-        // ユーザーネームとパスワードが正しいか？
+        // ユーザーネームとパスワードが正しいか？=正しければAuthを付与
         $request->authenticate();
 
         // セッションIDを再生成(LoginRequestの親クラスのメソッド)
         $request->session()->regenerate();
 
 
-        if($request?->fromURL==="autoLogin"){
+        // // autologinから来たときは問答無用でトップへ
             // ページ表示
-            return redirect()->route('topPage');
-        }
+            return redirect()->route('topPage',[
+                "remember"=>$request->remember,
+            ]);
 
+        // rememberTokenの変更は、いろいろな処理を統合させるため、BeforeGameControllerに統合
 
-        // redirect()->intended()はユーザーが元々アクセスしようとしていたページに戻すためのもの（途中でログインしていないから戻らされた時)。そうではなくログイン画面に直接アクセスして来た場合、RouteServiceProvider::HOMEにアクセスする（この場合はtopPage.jsx）。
-        return redirect()->intended(RouteServiceProvider::HOME);
     }
 
     // 共通ユーザー用リクエスト（ユーザー名とパスワードが合っているか確認）
@@ -91,20 +91,25 @@ class AuthenticatedSessionController extends Controller
     public function destroy(Request $request)
     {
 
+
         // ユーザーのセッション破棄。クッキー情報もクリア。
         // Auth::user() は空（null）に
+        // remember_tokenもここで変更される
         Auth::guard('web')->logout();
 
-        // リクエストページのsessionは自動的に管理されている
+        // リクエストのsessionは自動的に管理されている
+
+        // 現在のセッションIDを破棄。セッションデータ（保存されていた情報）もすべてクリア。
         $request->session()->invalidate();
+        // csrfTokenの再生成
         $request->session()->regenerateToken();
 
-        // 自動ログインの際
+        // ログインページに手動で入ったとき
         if($request->has("fromURL") && $request->fromURL==="AutoLogout"){
             return response()->json(["isOK"=>true]);
         }
 
-        return redirect('/');
+        return redirect('/login');
     }
 
 }

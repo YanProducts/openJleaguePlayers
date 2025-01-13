@@ -22,7 +22,6 @@ class GameController extends Controller
         // 2重投稿フラグ配列の存在チェック(存在さえなければエラー)
             if(!SessionController::session_exists(["quiz_unique_token"]) || !SessionController::session_isNotNull(["used_quiz_unique_tokens"])){
                 // 非同期の中なのでエラーページには移動せずログ保存
-                Log::info("クイズのsessionがセットされていません");
                 return response()->json([
                     "sessionSettingError"=>"不正な処理です"
                 ]);

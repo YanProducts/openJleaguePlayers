@@ -11,7 +11,7 @@ export default function Sign({ auth,message}) {
             <Head title="お知らせ" />
            <div>
               <p className="text-center pt-10 font-bold text-lg">{!message ? "お知らせはありません" : message}</p>
-              <p className="text-center mt-5"><a className="underline text-blue-400=" href={route("topPage")}>トップページへ</a></p>
+              <p className="text-center mt-5"><a className="underline text-blue-400=" href={route("/welcome")}>トップページへ</a></p>
            </div>
         </AuthenticatedLayout>
     );

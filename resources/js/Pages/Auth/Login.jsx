@@ -7,8 +7,6 @@ import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { Inertia } from '@inertiajs/inertia';
-import PasswordStoreToStorage from './Part/PasswordStoreToStorage';
-import PasswordRetrive from './Part/PasswordRetrieveFromStorage.jsx';
 import BaseNameAndPasswordForm from './Part/BaseNameAndPasswordForm.jsx';
 
 
@@ -24,24 +22,20 @@ export default function Login({ year,noLoginPass,isLocal }) {
         // 初回のみ(前回のデータがあれば記入)
         useEffect(()=>{
             async function fetchDefaultData(){
+
+            // sqlのrememberはAuthのログアウトで変更済みのためlocalStorageも削除
+            localStorage.setItem("previousRememberToken","");
+
             //前回の値をセット
-            if (localStorage.getItem("previousLoginName") && localStorage.getItem("previousEncryptedPassword") &&
-            localStorage.getItem("previousEncryptionKey")
-            ) {
-                // パスワードの取り出す
-                const realPass=await PasswordRetrive();
+            // previousRememberがある場合のみ
+            if (localStorage.getItem("previousLoginName") && localStorage.getItem("previousRemember")==="yes"
+            ){
                 setData(prevState=>({
                     ...prevState,
                     'name': localStorage.getItem("previousLoginName"),
-                    'password':realPass
-                }));
-            } else {
-                setData(prevState=>({
-                    ...prevState,
-                    'name': "",
-                    'password':""
                 }));
             }
+            localStorage.setItem("previousRemember","no");
             }
           fetchDefaultData();
     },[])
@@ -51,28 +45,10 @@ export default function Login({ year,noLoginPass,isLocal }) {
     const submit = (e) => {
 
         e.preventDefault();
-
-        // rememberがついている時や、前回までのremember値がない時は、ローカルストレージに保存して、次回以降のtopPageではその人のページを反映
-        if(data.remember || !localStorage.getItem("previousRemember")){
-            // パスワードの暗号化
-            // ここで暗号化されたキーとパスワードに必要な一式はローカルストレージに保存
-            PasswordStoreToStorage(data.password);
-            // ユーザーの名前&共通ユーザーではないという履歴
-            localStorage.setItem(
-                "previousLoginName",data.name,
-            );
-            if(data.remember){
-                // rememberに追加
-                localStorage.setItem(
-                    "previousRemember",true,
-                );
-            }
-        }
-
-        // rememberがついておらず、別ユーザーですでに登録されている場合は、自動ログインをfalseにする
+        // rememberがついておらず、自他関わらずユーザーですでに登録されている場合は、自動ログインをfalseにする
         if(!data.remember && localStorage.getItem("previousRemember")){
             localStorage.setItem(
-                "previousRemember",false,
+                "previousRemember","no",
             );
         }
 
@@ -113,7 +89,7 @@ export default function Login({ year,noLoginPass,isLocal }) {
         }).then((json)=>{
             if(json?.commonUserLogin){
                 // ログイン
-                Inertia.visit("topPage");
+                Inertia.visit(`topPage/false`);
             }else{
                 throw new Error(json?.validationError ?? "バリデーションエラーです");
             }

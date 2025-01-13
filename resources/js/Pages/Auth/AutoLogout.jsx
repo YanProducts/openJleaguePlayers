@@ -13,7 +13,7 @@ export default function AutoLogout({isLocal}){
         const headers={
             "Content-type":"application/json",
             // 自動送信されているが、念のため行う
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+           'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content || "missingToken"
         };
 
         fetch("/logout",{
@@ -25,14 +25,14 @@ export default function AutoLogout({isLocal}){
         }).then((response)=>{
             if(!response.ok){
                 return response.json().then((json)=>{
-                    console.log(json)
                     throw new Error(JSON.stringify(json));
                 });
             }
             return response.json();
         }).then((json)=>{
+            // ログアウト準備完了
             if(json?.isOK){
-                // ログアウト成功時はログイン
+                // ログアウト成功時はログインページへ
                 Inertia.visit("/login");
                 return null;
             }else{

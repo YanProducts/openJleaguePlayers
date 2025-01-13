@@ -5,7 +5,7 @@ export default async function TopPage_fetch(pattern)
     const headers=new Headers({
         'Content-Type': 'application/x-www-form-urlencoded',
         // 自動送信されているが、念のため行う
-        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content || "missingToken"
     });
 
     // プロミスではなくawaitで行う

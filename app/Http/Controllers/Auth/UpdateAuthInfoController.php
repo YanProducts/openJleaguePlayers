@@ -10,6 +10,11 @@ use App\Http\Controllers\SessionController;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\auth\UpdateNewInfoRequest;
 use App\Rules\OriginalPasswordRule;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 
 //パスワードとユーザーネームの変更
 class UpdateAuthInfoController extends Controller
@@ -64,6 +69,11 @@ class UpdateAuthInfoController extends Controller
     {
         // 以前のユーザー名とパスワードが正しいか
         $request->current_pass_authenticate();
+
+        // 一度のtransactionで以下を行う
+        // resultとuser_archiveの訂正
+        // login情報の訂正
+
         // 実際の変更処理
 
     }
@@ -75,35 +85,33 @@ class UpdateAuthInfoController extends Controller
         // 以前のユーザー名とパスワードが正しいか
         $request->current_pass_authenticate();
 
+        // 該当ユーザーのパスワードを再設定
+        try{
+            DB::Transaction(function()use($request){
+                $user=User::where("name","=",$request->name)->first();
+                // バリデーション通過後にユーザーが変更や削除した場合を考慮
+                if(!$user){
+                    throw ValidationException::withMessages(["name"=>"ユーザーが存在しません"]);
+                }
+                $user->password=Hash::make($request->password);
+                $user->save();
+            });
+        }catch(\Throwable $e){
+            // エラーの場合はエラールートへ
+            Log::info($e->getMessage());
+            return redirect()->route("error_view");
+        }
+        SessionController::create_onetime_sessions(["message"=>"変更完了しました"]);
+        return redirect()->route("view_sign_page");
 
-        // 次に今回の情報のバリデーション
-        $request->validate([
-            'token' => 'required',
-            'nwePassword' => ['required', 'confirmed', new OriginalPasswordRule],
-        ]);
-
-
-        $status = Password::reset(
-            $request->only('password', 'password_confirmation', 'token'),
-            function ($user) use ($request) {
-                $user->forceFill([
-                    'password' => Hash::make($request->password),
-                    'remember_token' => Str::random(60),
-                ])->save();
-
-                event(new PasswordReset($user));
-            }
-        );
-
-        // // If the password was successfully reset, we will redirect the user back to
-        // // the application's home authenticated view. If there is an error we can
-        // // redirect them back to where they came from with their error message.
-        // if ($status == Password::PASSWORD_RESET) {
-        //     return redirect()->route('login')->with('status', __($status));
+        // これは何？？？ChatGPTより
+        // if (Hash::needsRehash($user->password)) {
+        //     $user->password = Hash::make($request->password);
         // }
+        // hashの形は？
+        // Modelのhiddenとcastに対応した形か？
 
-        // throw ValidationException::withMessages([
-        // ]);
+
     }
 
 }

@@ -16,7 +16,7 @@ export default function AuthenticatedLayout({ user, header, pageName, children }
     // トップページ用のリンク
    const ToTopPageComponents=()=>
         pageName!=="TopPage" ? (
-            <p className="base_link_p bottom-4 right-0 left-0 mx-auto" ref={fixedBottom}><Link className='base_link' href="/topPage">トップへ</Link></p>
+            <p className="base_link_p bottom-4 right-0 left-0 mx-auto" ref={fixedBottom}><Link className='base_link' href="/">トップへ</Link></p>
         ):(
             null
         )

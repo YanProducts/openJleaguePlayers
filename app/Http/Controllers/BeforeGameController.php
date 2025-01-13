@@ -6,6 +6,7 @@ use App\Exceptions\CustomException;
 use App\Http\Requests\GamePatternRequest;
 use App\Models\Player;
 use App\Models\Team;
+use App\Models\User;
 use GuzzleHttp\Cookie\SessionCookieJar;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -17,7 +18,31 @@ use Illuminate\Support\Facades\Cookie;
 
 class BeforeGameController extends Controller
 {
-    public function show_top_page(){
+
+    // topPageの表示
+    // ログイン状態である場合のみ表示（ログインできていない場合は速攻で返す）
+    // 引数のrememberは「ログインから来て、かつ保持の印があったとき」のみ記載(previosuRememberをyesに変更)
+    public function show_top_page($remember){
+
+        // ログインできていない場合は返す
+        if (!Auth::check() || !isset(Auth::user()->name)) {
+            // nameプロパティが存在しない場合の処理
+            return redirect()->route("error_view",["message"=>"ログインできていません"]);
+        }
+
+        // ログイン時は値をセット
+        $user=Auth::check() ? Auth::user()->name : null;
+
+        $user_data=User::where("name","=",$user)->first();
+        // userが存在しない時は戻す
+        if(!$user_data){
+            return redirect()->route("error_view",["message"=>"登録データがありません"]);
+        }
+
+        // 新しいremember_tokenの設定
+        $new_remember_token=bin2hex(random_bytes(32));
+        $user_data->remember_token=$new_remember_token;
+        $user_data->save();
 
         // session削除
         SessionController::delete_sessions(([
@@ -40,7 +65,11 @@ class BeforeGameController extends Controller
             "quizSets"=>json_encode(StaticValueController::$QuizSets),
             "nameSets"=>json_encode(StaticValueController::$NameSets),
             // ユーザー名
-            "user"=>Auth::check() ? Auth::user() : null
+            "user"=>$user,
+            "newToken"=>$new_remember_token,
+            "remember"=>$remember,
+            // 開発か否か
+            "isLocal"=>env("APP_ENV")
         ]);
     }
 

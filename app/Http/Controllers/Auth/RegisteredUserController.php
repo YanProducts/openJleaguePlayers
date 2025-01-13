@@ -31,18 +31,23 @@ class RegisteredUserController extends Controller
      *
      * @throws \Illuminate\Validation\ValidationException
      */
+    // ユーザーの登録完了
     public function store(StoreUserRequest $request): RedirectResponse
     {
 
         $user = User::create([
             'name' => $request->name,
             'password' => Hash::make($request->password),
+            "remember_token"=>bin2hex(random_bytes(32))
         ]);
 
-        event(new Registered($user));
+        // メール送信の部分、今回は必要なし
+        // event(new Registered($user));
 
+        // ログイン
         Auth::login($user);
 
+        // ホームページへ移動(HOMEはapp/Providers/RouteServiceProvider.phpで定義)
         return redirect(RouteServiceProvider::HOME);
     }
 

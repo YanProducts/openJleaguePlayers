@@ -7,10 +7,17 @@ use Illuminate\Http\Request;
 // 複数個のsessionそ操作したい時に使用
 class SessionController extends Controller
 {
-    // sessionまとめて作成(key=>valueの入れ子配列を渡す)
+    // sessionまとめて永続版で作成(key=>valueの入れ子配列を渡す)
     public static function create_sessions($session_lists){
         foreach($session_lists as $key=>$value){
             session([$key=>$value]);
+        }
+    }
+
+    // sessionまとめて次回のリダイレクトまで版で作成(key=>valueの入れ子配列を渡す)
+    public static function create_onetime_sessions($session_lists){
+        foreach($session_lists as $key=>$value){
+            session()->flash($key,$value);
         }
     }
 

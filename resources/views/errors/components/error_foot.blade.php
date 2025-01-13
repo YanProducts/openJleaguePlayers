@@ -1,3 +1,3 @@
 </body>
-<p><a href="{{route('topPage')}}"></a></p>
+<p><a href="{{route('welcome')}}"></a></p>
 </html>

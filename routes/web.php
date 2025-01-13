@@ -10,6 +10,7 @@ use App\Http\Controllers\ShowResultController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\StaticValueController;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -23,15 +24,17 @@ use Illuminate\Support\Facades\Log;
 
 // Route::middleware(['web', 'auth'])->group(function () {
 Route::middleware(['web'])->group(function () {
-    // ここにルート定義
+    // Homeルート(ログインによって変更)
     Route::get('/', function () {
-        return Inertia::render('Welcome');
-    });
+        return Inertia::render('Welcome',[
+            "auth"=>Auth::user() ? Auth::user() : (object) [],
+            "isLocal"=>env("APP_ENV")
+        ]);
+    })->name("welcome");
 
 
     // トップページ
-    Route::get('/topPage', [BeforeGameController::class,"show_top_page"])
-    // auth.user()が設定されていない時は、localStorageから参照
+    Route::get('/topPage/{remember}', [BeforeGameController::class,"show_top_page"])
     ->name('topPage');
 
     // マイページへ
@@ -85,7 +88,7 @@ Route::middleware(['web'])->group(function () {
         // // ビューの表示
             return Inertia::render('Error/Custom',[
                 "message"=>$message ?? "unExpected",
-                "top_page"=>route("topPage"),
+                "backPage"=>route("welcome"),
                 "isLocal"=>env("APP_ENV")
             ])->toResponse(request())->setStatusCode(500);
     })->name("error_view");
