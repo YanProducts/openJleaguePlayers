@@ -60,7 +60,7 @@ export default function UpdatePasswordForm({ className = '' }) {
                         autoComplete="current-password"
                     />
 
-                    <InputError message={errors.current_password} className="mt-2" />
+                    <InputError message={errors.current_password}/>
                 </div>
 
                 <div>
@@ -76,7 +76,7 @@ export default function UpdatePasswordForm({ className = '' }) {
                         autoComplete="new-password"
                     />
 
-                    <InputError message={errors.password} className="mt-2" />
+                    <InputError message={errors.password} />
                 </div>
 
                 <div>
@@ -91,7 +91,7 @@ export default function UpdatePasswordForm({ className = '' }) {
                         autoComplete="new-password"
                     />
 
-                    <InputError message={errors.password_confirmation} className="mt-2" />
+                    <InputError message={errors.password_confirmation}/>
                 </div>
 
                 <div className="flex items-center gap-4">

@@ -9,9 +9,9 @@ export default function Sign({ auth,message}) {
             pageName="Sign"
         >
             <Head title="お知らせ" />
+           <div>　</div>
            <div>
-              <p className="text-center pt-10 font-bold text-lg">{!message ? "お知らせはありません" : message}</p>
-              <p className="text-center mt-5"><a className="underline text-blue-400=" href={route("/welcome")}>トップページへ</a></p>
+              <p className="text-center font-bold text-xl base_backColor base_frame py-3 my-5">{!message ? "お知らせはありません" : message}</p>
            </div>
         </AuthenticatedLayout>
     );

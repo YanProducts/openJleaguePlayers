@@ -49,7 +49,7 @@ class LoginRequest extends FormRequest
 
     public function messages(){
         return[
-            "name.min"=>"ユーザー名は3字以上にしてください",
+            "name.required"=>"ログインネームは必ず入力してください",
             "password.required"=>"パスワードは必ず入力してください",
         ];
     }

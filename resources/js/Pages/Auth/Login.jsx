@@ -1,13 +1,11 @@
 import { useEffect,useState } from 'react';
 import Checkbox from '@/Components/Checkbox';
 import GuestLayout from '@/Layouts/GuestLayout';
-import InputError from '@/Components/InputError';
-import InputLabel from '@/Components/InputLabel';
 import PrimaryButton from '@/Components/PrimaryButton';
-import TextInput from '@/Components/TextInput';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { Inertia } from '@inertiajs/inertia';
 import BaseNameAndPasswordForm from './Part/BaseNameAndPasswordForm.jsx';
+import BaseFooterLinks from '../Components/BaseFooterLinks.jsx';
 
 
 export default function Login({ year,noLoginPass,isLocal }) {
@@ -45,8 +43,8 @@ export default function Login({ year,noLoginPass,isLocal }) {
     const submit = (e) => {
 
         e.preventDefault();
-        // rememberがついておらず、自他関わらずユーザーですでに登録されている場合は、自動ログインをfalseにする
-        if(!data.remember && localStorage.getItem("previousRemember")){
+        // rememberがついていないときは自動ログインをnoにする
+        if(!data.remember){
             localStorage.setItem(
                 "previousRemember","no",
             );
@@ -89,7 +87,7 @@ export default function Login({ year,noLoginPass,isLocal }) {
         }).then((json)=>{
             if(json?.commonUserLogin){
                 // ログイン
-                Inertia.visit(`topPage/false`);
+                Inertia.visit(`topPage/0`);
             }else{
                 throw new Error(json?.validationError ?? "バリデーションエラーです");
             }
@@ -136,16 +134,9 @@ export default function Login({ year,noLoginPass,isLocal }) {
                 </div>
             </form>
             <p className="base_link_p my-5"><span className="base_link" onClick={onNoLoginClick}>ログインせずに遊ぶ</span></p>
-            <p className="base_link_p">
-            新規登録は<Link href={route('register')} className="base_link">
-                    こちら
-                </Link>から
-            </p>
-            <p className="base_link_p">
-            登録内容変更は<Link href={route("viewUpdateAuthInfo")} className="base_link">
-                    こちら
-                </Link>から
-            </p>
+
+            <BaseFooterLinks partNames={["register","changeData"]}/>
+
         </GuestLayout>
     );
 }

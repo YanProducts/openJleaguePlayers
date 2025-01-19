@@ -39,7 +39,7 @@
     @apply  bg-pink-50 text-red-600 font-bold text-center border-y-2 border-black my-0 overflow-hidden
   }
   .base_link_p{
-    @apply text-center my-2 bg-white bg-opacity-80 base_frame w-1/5  p-0.5
+    @apply text-center my-2 bg-white bg-opacity-80 base_frame w-1/5  p-0.5 font-bold
   }
   .base_link{
     @apply  font-semibold  cursor-pointer text-blue-600 border-b-2 border-blue-600  inline-block text-shadow-outline

@@ -3,6 +3,7 @@ import React from "react";
 import { Link, Head } from '@inertiajs/react';
 import backgroundImage from '../../../img/back.jpg';
 import { Inertia } from '@inertiajs/inertia';
+import BaseFooterLinks from '../Components/BaseFooterLinks';
 
 
 const CountComponent=({countSets,userWhich,colorTail})=>{
@@ -71,9 +72,7 @@ export default function clearGames(props){
         </div>
 
 
-        <div>
-            <p className='base_link_p'><Link className='base_link' href="/game.play">再チャレンジ</Link></p>
-        </div>
+        <BaseFooterLinks partNames={["challengeAgain"]} />
         </div>
       </AuthenticatedLayout>
     )

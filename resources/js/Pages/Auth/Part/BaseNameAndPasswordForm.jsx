@@ -4,11 +4,11 @@ import TextInput from '@/Components/TextInput';
 
 
 // ログイン時のユーザー名とパスワードのjsx
-export default function BaseNameAndPasswordForm({data,setData,errors}){
+export default function BaseNameAndPasswordForm({data,setData,errors,fromPage=null}){
     return(
         <>
           <div>
-                <InputLabel htmlFor="loginName" value="ユーザーネーム" />
+                <InputLabel htmlFor="loginName" value={`${fromPage==="change" ? "現在の" : "" }ユーザーネーム${fromPage==="register" ? "span(2~100文字)" : ""}`} />
 
                 <TextInput
                     id="loginName"
@@ -22,11 +22,11 @@ export default function BaseNameAndPasswordForm({data,setData,errors}){
                     onChange={(e) => setData('name', e.target.value)}
                 />
 
-                <InputError message={errors.name} className="mt-2" />
+                <InputError message={errors.name} />
             </div>
 
             <div className="mt-4">
-                <InputLabel htmlFor="password" value="パスワード"/>
+                <InputLabel htmlFor="password" value={`${fromPage==="change" ? "現在の" : "" }パスワード${fromPage==="register" ? "span(大文字小文字数字を含む8字以上)" : ""}`}/>
 
                 <TextInput
                     id="password"
@@ -39,7 +39,7 @@ export default function BaseNameAndPasswordForm({data,setData,errors}){
                     onChange={(e) => setData('password', e.target.value)}
                 />
 
-                <InputError message={errors.password} className="mt-2" />
+                <InputError message={errors.password} />
             </div>
         </>
     );

@@ -12,6 +12,7 @@ export default function Custom({auth,message,backPage,isLocal}) {
         if(isLocal===null || isLocal===undefined || message===null || message===undefined){
             setHtmlMessage("予期せぬエラーです");
         }
+        console.log(isLocal)
         //本番環境下なら、エラーの種類を絞り、ないものであれば「unExpected」
         if(isLocal!=="local"){
             switch(message){
@@ -20,6 +21,9 @@ export default function Custom({auth,message,backPage,isLocal}) {
                 break;
                 case "autoLogOutJsonOkError":
                     setHtmlMessage("ログアウトできません");
+                break;
+                case "unExpectedRoute":
+                    setHtmlMessage("ルートがおかしいです");
                 break;
                 default:
                     setHtmlMessage("予期せぬエラーです");
@@ -43,6 +47,7 @@ export default function Custom({auth,message,backPage,isLocal}) {
         >
             <Head title="エラーのお知らせ" />
             <div>　</div>
+            <h1 className="base_h text-lg py-2"  id="toph1">エラーのお知らせ</h1>
            <div className='base_frame bg-pink-300 text-lg text-red-600  font-bold my-5 py-1 text-center'>
               <p>{htmlMessage}</p>
            </div>

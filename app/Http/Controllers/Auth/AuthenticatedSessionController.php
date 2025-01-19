@@ -57,9 +57,10 @@ class AuthenticatedSessionController extends Controller
 
 
         // // autologinから来たときは問答無用でトップへ
+
             // ページ表示
             return redirect()->route('topPage',[
-                "remember"=>$request->remember,
+                "remember"=>$request->remember ? "yes" : "no",
             ]);
 
         // rememberTokenの変更は、いろいろな処理を統合させるため、BeforeGameControllerに統合

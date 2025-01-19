@@ -43,7 +43,7 @@ export default function UpdateProfileInformation({ status, className = '' }) {
                         autoComplete="name"
                     />
 
-                    <InputError className="mt-2" message={errors.name} />
+                    <InputError message={errors.name} />
                 </div>
 
 
@@ -66,7 +66,7 @@ export default function UpdateProfileInformation({ status, className = '' }) {
                             </div>
                         )}
                     </div>
-                
+
 
                 <div className="flex items-center gap-4">
                     <PrimaryButton disabled={processing}>Save</PrimaryButton>

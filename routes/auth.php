@@ -37,7 +37,7 @@ Route::middleware(['web'])->group(function () {
     Route::post("getPassFromNameAndToken",[RememberController::class,"get_pass_from_token"]);
 
     // 登録内容変更のビュー
-    Route::get('auth/change-data', [UpdateAuthInfoRequest::class,"viewUpdateAuthInfoTop"])
+    Route::get('auth/change-data', [UpdateAuthInfoController::class,"viewUpdateAuthInfoTop"])
     ->name("viewUpdateAuthInfo");
 
     // 登録内容変更決定
@@ -45,12 +45,16 @@ Route::middleware(['web'])->group(function () {
     ->name("updateAuthInfoDecide");
 
     // ユーザー名変更ページ
-    Route::get('reset-userName/{tokenForRouting}', [UpdateAuthInfoController::class, 'viewUpdateUserNamePage'])
+    Route::get('reset-userName/', [UpdateAuthInfoController::class, 'viewUpdateUserNamePage'])
     ->name('username_reset');
 
     // パスワード変更ページ
-    Route::get('reset-password/{tokenForRouting}', [UpdateAuthInfoController::class, 'viewUpdatePassWordPage'])
+    Route::get('reset-password', [UpdateAuthInfoController::class, 'viewUpdatePassWordPage'])
     ->name('password_reset');
+
+    // ユーザーネーム/パスワードのルーティングチェック
+    Route::post("routeCheckForDataChange",[UpdateAuthInfoController::class,"routeCheck"])
+    ->name("routeCheck_route");
 
     // ユーザーネーム変更投稿
     Route::post('reset-username', [UpdateAuthInfoController::class, 'storeUpdateUserName'])

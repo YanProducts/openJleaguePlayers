@@ -22,7 +22,7 @@ export default function TopPage(props) {
         // props.rememberがtrueの場合は、ストレージの値を変更
         // データ引き渡しの際に文字列に変更されていた場合も考慮
         // 手動でtopPage/1と行われても、結局は照合される必要あるから大きな差はない
-        if (props.remember === 1 || props.remember === "1" || props.remember === true) {
+        if (props.remember === "yes") {
             localStorage.setItem("previousRemember", "yes");
         }
     },[props.remember])
@@ -108,11 +108,16 @@ export default function TopPage(props) {
                 </div>
                 </form>
 
-                <div className='base_link_p mt-7 mb-2'>
-                    <Link
-                    className='base_link' href="/logout" method="post" as="button">
-                        {user && props.auth.user.name === "commonUser" ? "ログインして遊ぶ":"ログアウト"}
-                    </Link>
+                <div className='mt-7 mb-2'>
+                    <p className='base_link_p'>
+                        <Link
+                        className='base_link' href="/logout" method= {user&& props.auth.user.name === "commonUser" ? "get" : "post"} as="button">
+                            {user && props.auth.user.name === "commonUser" ? "ログインして遊ぶ":"ログアウト"}
+                        </Link>
+                     </p>
+
+                    {user && props.auth.user.name !== "commonUser" ?
+                      <p className="base_link_p"><Link className='base_link' href="/myPage" as="button">マイページへ</Link></p> : null}
                 </div>
 
             </div>
