@@ -30,6 +30,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // breeze初期設定はDepricatedを削除したままで自分のコードでは Deprecated を表示
+        error_reporting(E_ALL);
+
     }
 }

@@ -28,6 +28,9 @@ class AuthenticatedSessionController extends Controller
 
         // もしログインしていたら、ログアウト
         if(Auth::check()){
+
+            Log::info(Auth::user());
+
             return Inertia::render("Auth/AutoLogout",[
                 "isLocal"=>env("APP_ENV")
             ]);
@@ -49,12 +52,12 @@ class AuthenticatedSessionController extends Controller
     public function store(LoginRequest $request)
     {
 
+
         // ユーザーネームとパスワードが正しいか？=正しければAuthを付与
         $request->authenticate();
 
         // セッションIDを再生成(LoginRequestの親クラスのメソッド)
         $request->session()->regenerate();
-
 
         // // autologinから来たときは問答無用でトップへ
 
@@ -69,6 +72,7 @@ class AuthenticatedSessionController extends Controller
 
     // 共通ユーザー用リクエスト（ユーザー名とパスワードが合っているか確認）
     public function login_for_common(LoginRequest $request): JsonResponse{
+
 
         // ユーザーネームとパスワードが正しいか？(commonUserもsqlで登録されている)
         $request->authenticate();
@@ -92,6 +96,7 @@ class AuthenticatedSessionController extends Controller
     public function destroy(Request $request)
     {
 
+        Log::info("ログアウトのボタンが押されました");
 
         // ユーザーのセッション破棄。クッキー情報もクリア。
         // Auth::user() は空（null）に
@@ -99,9 +104,9 @@ class AuthenticatedSessionController extends Controller
         Auth::guard('web')->logout();
 
         // リクエストのsessionは自動的に管理されている
-
         // 現在のセッションIDを破棄。セッションデータ（保存されていた情報）もすべてクリア。
         $request->session()->invalidate();
+
         // csrfTokenの再生成
         $request->session()->regenerateToken();
 
@@ -110,7 +115,8 @@ class AuthenticatedSessionController extends Controller
             return response()->json(["isOK"=>true]);
         }
 
-        return redirect('/login');
+        // ブルリロード
+        return Inertia::location('/login');
     }
 
 }

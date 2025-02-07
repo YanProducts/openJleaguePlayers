@@ -7,20 +7,19 @@ import { Inertia } from '@inertiajs/inertia';
 import BaseNameAndPasswordForm from './Part/BaseNameAndPasswordForm.jsx';
 import BaseFooterLinks from '../Components/BaseFooterLinks.jsx';
 
-
 export default function Login({ year,noLoginPass,isLocal }) {
+
 
         const { data, setData, post, processing, errors, reset } = useForm({
             name: '',
             password: '',
             remember: false,
-            noLoginFlug:false
+            noLoginFlug:false,
         });
 
         // 初回のみ(前回のデータがあれば記入)
         useEffect(()=>{
             async function fetchDefaultData(){
-
             // sqlのrememberはAuthのログアウトで変更済みのためlocalStorageも削除
             localStorage.setItem("previousRememberToken","");
 
@@ -49,22 +48,23 @@ export default function Login({ year,noLoginPass,isLocal }) {
                 "previousRemember","no",
             );
         }
-
         // ログイン
-        post(route('login_post_route'));
+        post(route('login_post_route'),{
+            headers:{
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+            }
+        });
     };
-
 
     // ログインしないで遊ぶをクリックしたら、commonUserでdataを格納
     const onNoLoginClick=()=>{
-        // tokenはcookieにセットされているのでheadersに加える必要ない
         const headers={
             "Content-Type":"application/json",
-            // 自動送信されているが、念のため行う
+            // ヘッダーで自動送信されているが、念のため行う
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
         }
         fetch(
-            "login_for_common",{
+            "/login_for_common",{
                 method:"POST",
                 headers:headers,
                 body:JSON.stringify({
@@ -135,7 +135,7 @@ export default function Login({ year,noLoginPass,isLocal }) {
             </form>
             <p className="base_link_p my-5"><span className="base_link" onClick={onNoLoginClick}>ログインせずに遊ぶ</span></p>
 
-            <BaseFooterLinks partNames={["register","changeData"]}/>
+            <BaseFooterLinks partNames={["register"]}/>
 
         </GuestLayout>
     );

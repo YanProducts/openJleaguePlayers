@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\Log;
 
 class VerifyCsrfToken extends Middleware
 {
+
+
     /**
      * The URIs that should be excluded from CSRF verification.
      *
@@ -30,7 +32,11 @@ class VerifyCsrfToken extends Middleware
      */
     protected function getTokenFromRequest($request)
     {
-        return $request->cookie('XSRF-TOKEN') ?: parent::getTokenFromRequest($request);
+
+        return $request->header('X-CSRF-TOKEN') //ヘッダー
+        // ?: $request->input('_token')       // フォームリクエスト
+        // ?: $request->cookie('XSRF-TOKEN')  // クッキー
+        ?: parent::getTokenFromRequest($request);
     }
 
 

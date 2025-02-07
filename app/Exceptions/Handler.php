@@ -39,7 +39,7 @@ class Handler extends ExceptionHandler
             // // ビューの表示
             return Inertia::render('Error/Custom',[
                 "message"=>$exception->getMessage(),
-                "top_page"=>route("/")
+                "top_page"=>route("welcome")
             ],500);
         }
         return parent::render($request,$exception);

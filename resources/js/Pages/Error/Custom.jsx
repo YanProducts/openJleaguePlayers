@@ -1,8 +1,9 @@
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import GuestLayout from '@/Layouts/GuestLayout';
+import BaseFooterLinks from '../Components/BaseFooterLinks';
 import { Link,Head } from '@inertiajs/react';
 import React from 'react';
 
-export default function Custom({auth,message,backPage,isLocal}) {
+export default function Custom({message,isLocal}) {
 
     const [htmlMessage,setHtmlMessage]=React.useState("予期せぬエラーです")
 
@@ -12,7 +13,6 @@ export default function Custom({auth,message,backPage,isLocal}) {
         if(isLocal===null || isLocal===undefined || message===null || message===undefined){
             setHtmlMessage("予期せぬエラーです");
         }
-        console.log(isLocal)
         //本番環境下なら、エラーの種類を絞り、ないものであれば「unExpected」
         if(isLocal!=="local"){
             switch(message){
@@ -24,6 +24,9 @@ export default function Custom({auth,message,backPage,isLocal}) {
                 break;
                 case "unExpectedRoute":
                     setHtmlMessage("ルートがおかしいです");
+                break;
+                case "mustLogout":
+                    setHtmlMessage("ログアウトが必要です");
                 break;
                 default:
                     setHtmlMessage("予期せぬエラーです");
@@ -40,20 +43,14 @@ export default function Custom({auth,message,backPage,isLocal}) {
 
 
     return (
-        <AuthenticatedLayout
-            user={auth.user ?? {} }
-            header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">トップページ</h2>}
-            pageName="CustomError"
-        >
+        <GuestLayout>
             <Head title="エラーのお知らせ" />
             <div>　</div>
             <h1 className="base_h text-lg py-2"  id="toph1">エラーのお知らせ</h1>
            <div className='base_frame bg-pink-300 text-lg text-red-600  font-bold my-5 py-1 text-center'>
               <p>{htmlMessage}</p>
            </div>
-           <p className='base_link_p'>
-               <Link className="base_link" href={backPage}>戻る</Link>
-           </p>
-        </AuthenticatedLayout>
+           <BaseFooterLinks partNames={["topPage"]}/>
+        </GuestLayout>
     );
 }

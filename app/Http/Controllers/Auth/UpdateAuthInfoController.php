@@ -89,39 +89,26 @@ class UpdateAuthInfoController extends Controller
         $oldUserName=$request->name;
         $newUserName=$request->newUserName;
 
-
         try{
             // 一度のtransactionで以下を行う
             DB::transaction(function()use($oldUserName,$newUserName){
-                // archivesとresultsとuser_archiveの訂正
-                $results=Result::where("challenger","=",$oldUserName)->get();
-                $user_archives=User_archive::where("user","=",$oldUserName)->get();
-                $archive=Archive::where("challenger","=",$oldUserName)->get();
-
-                $results->challenger=$newUserName;
-                $user_archives->user=$newUserName;
-                $archive->challenger=$newUserName;
-
-                $results->save();
-                $user_archives->save();
-                $archive->save();
-
-                // Userテーブルの変更
-                $user=User::where("name","=",$oldUserName)->get();
-                $user->name=$newUserName;
-                $user->save();
-
+                // archivesとresultsとuser_archiveの更新
+                Result::where("challenger",$oldUserName)->update(["challenger"=>$newUserName]);
+                User_archive::where("user",$oldUserName)->update(["user"=>$newUserName]);
+                Archive::where("challenger",$oldUserName)->update(["challenger"=>$newUserName]);
+                User::where("name",$oldUserName)->update(["name"=>$newUserName]);
             });
         }catch(\Throwable $e){
             // エラーの場合はエラールートへ
             return redirect()->route("error_view",["message"=>$e->getMessage()]);
         }
 
-
-
-
         // login情報(Auth)の訂正
+        $new_user_model=User::where("name","=",$newUserName)->first();
+        Auth::login($new_user_model);
 
+        SessionController::create_onetime_sessions(["message"=>"変更完了しました"]);
+        return redirect()->route("view_sign_page");
 
     }
 
@@ -129,10 +116,8 @@ class UpdateAuthInfoController extends Controller
     // 実際の変更処理(パスワード)
     public function storeUpdatePassWord(UpdateNewInfoRequest $request)
     {
-        Log::info(Auth::check());
-        // 以前のユーザー名とパスワードが正しいか
+        // 以前のユーザー名とパスワードが正しいか(ここでログインすることになる)
         $request->current_pass_authenticate();
-        Log::info(Auth::check());
 
         // 該当ユーザーのパスワードを再設定
         try{

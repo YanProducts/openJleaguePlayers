@@ -7,9 +7,6 @@ use App\Http\Controllers\ConfigController;
 use App\Http\Controllers\GameController;
 use App\Http\Controllers\BeforeGameController;
 use App\Http\Controllers\ShowResultController;
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\StaticValueController;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 /*
 |--------------------------------------------------------------------------
@@ -22,8 +19,15 @@ use Illuminate\Support\Facades\Auth;
 |
 */
 
+
+
 // Route::middleware(['web', 'auth'])->group(function () {
 Route::middleware(['web'])->group(function () {
+    Route::get('/test-cookie', function () {
+        return response('Cookie set')->cookie('test_cookie', '12345', 60);
+    });
+
+
     // Homeルート(ログインによって変更)
     Route::get('/', function () {
         return Inertia::render('Welcome',[
@@ -35,6 +39,7 @@ Route::middleware(['web'])->group(function () {
 
     // トップページ
     Route::get('/topPage/{remember}', [BeforeGameController::class,"show_top_page"])
+    ->middleware(["auth"])
     ->name('topPage');
 
     // マイページへ
@@ -66,7 +71,8 @@ Route::middleware(['web'])->group(function () {
         return Inertia::render('Sign',[
             "message"=>session("message")
         ]);
-    })->middleware(['auth'])->name('view_sign_page');
+    })
+    ->name('view_sign_page');
 
     // ゲームクリアのルート
     Route::get("/game.clear",[GameController::class,"game_clear"])
@@ -88,7 +94,6 @@ Route::middleware(['web'])->group(function () {
         // // ビューの表示
             return Inertia::render('Error/Custom',[
                 "message"=>$message ?? "unExpected",
-                "backPage"=>route("welcome"),
                 "isLocal"=>env("APP_ENV")
             ])->toResponse(request())->setStatusCode(500);
     })->name("error_view");

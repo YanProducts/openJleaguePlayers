@@ -19,10 +19,17 @@ use Inertia\Response;
 class RegisteredUserController extends Controller
 {
     /**
-     * Display the registration view.
+     * 登録
      */
-    public function create(): Response
+    public function create()
     {
+
+        // ログインしていた場合
+        if(Auth::check()){
+            return redirect()->route("error_view",["message"=>"mustLogout"]);
+        }
+
+
         return Inertia::render('Auth/Register');
     }
 
@@ -35,20 +42,15 @@ class RegisteredUserController extends Controller
     public function store(StoreUserRequest $request): RedirectResponse
     {
 
-        $user = User::create([
+        // $user=
+        User::create([
             'name' => $request->name,
             'password' => Hash::make($request->password),
             "remember_token"=>bin2hex(random_bytes(32))
         ]);
 
-        // メール送信の部分、今回は必要なし
-        // event(new Registered($user));
-
-        // ログイン
-        Auth::login($user);
-
-        // ホームページへ移動(HOMEはapp/Providers/RouteServiceProvider.phpで定義)
-        return redirect(RouteServiceProvider::HOME);
+        // 登録完了ページへ
+        return redirect()->route("view_sign_page")->with("message","登録完了しました");
     }
 
     // 共通のユーザーの作成

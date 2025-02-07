@@ -1,9 +1,10 @@
-import { Link } from '@inertiajs/react';
 import React from 'react';
 import backgroundImage from '../../img/back.jpg';
 import heightCheck from './ResizeWhenHeightChange';
+import BaseFooterLinks from '../Pages/Components/BaseFooterLinks';
 
-export default function AuthenticatedLayout({ user, header, pageName, children }) {
+// すでにログインしているユーザー用のレイアウト
+export default function AuthenticatedLayout({ user,pageName, children }) {
     // innerHighによってリンクを固定にする
     const fixedBottom=React.useRef(null);
     React.useEffect(()=>{
@@ -13,29 +14,35 @@ export default function AuthenticatedLayout({ user, header, pageName, children }
         heightCheck(fixedBottom,pageName)
     },)
 
-    // トップページ用のリンク
+    // もう一度挑戦(クリア画面)
+    const ChallengeAgainComponents=()=>
+        (pageName==="Clear") ?
+        (<BaseFooterLinks partNames={["challengeAgain"]}/>):(null)
+
+
+    // トップページに向かうリンク(マイページ以外)
    const ToTopPageComponents=()=>
-        pageName!=="TopPage" ? (
-            <p className="base_link_p bottom-4 right-0 left-0 mx-auto" ref={fixedBottom}><Link className='base_link' href="/">トップへ</Link></p>
-        ):(
-            null
-        )
+        !["TopPage","MyPage"].includes(pageName) ? (
+            <BaseFooterLinks partNames={["topPage"]} />):(null)
 
 
-    // マイページ用のリンク
+    // マイページに向かうリンク
     const ToMyPageComponents=()=>
-        (pageName!=="MyPage" && user?.name && user.name!=="commonUser" )? (
-            <p className="base_link_p mt-3"><Link className='base_link' href="/myPage">マイページへ</Link></p>
-        ):(
-            null
-    );
+        (pageName!=="MyPage" && user?.name && user.name!=="commonUser" ) ? (<BaseFooterLinks partNames={["myPage"]}/>):(null);
+
+    // マイページ専用リンク(登録内容変更含む)
+    const InMyPageCoponents=()=>
+    (pageName==="MyPage") ?  (<BaseFooterLinks partNames={["inMyPage"]} fixedBottom={fixedBottom}/>):(null);
+
 
     return (
         <div className="min-h-screen">
         <main className="min-h-screen pt-30" style={{ backgroundImage: `url(${backgroundImage})`, backgroundSize:"contain"}}>
                 {children}
+                <ChallengeAgainComponents/>
                 <ToMyPageComponents/>
                 <ToTopPageComponents/>
+                <InMyPageCoponents/>
                 <div>　</div>
             </main>
         </div>

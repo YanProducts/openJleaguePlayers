@@ -24,8 +24,6 @@ const CountComponent=({countSets,userWhich,colorTail})=>{
 // ゲームクリアの画面
 export default function clearGames(props){
 
-  console.log(props.userName);
-
   // そのユーザーにおける過去の正解数
   const [userNumberSets,setUserNumberSets]=React.useState({});
   React.useEffect(()=>{
@@ -71,8 +69,6 @@ export default function clearGames(props){
 
         </div>
 
-
-        <BaseFooterLinks partNames={["challengeAgain"]} />
         </div>
       </AuthenticatedLayout>
     )

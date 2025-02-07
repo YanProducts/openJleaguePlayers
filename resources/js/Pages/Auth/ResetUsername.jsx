@@ -5,11 +5,11 @@ import InputLabel from '@/Components/InputLabel';
 import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
 import { Head, useForm } from '@inertiajs/react';
-import {Link} from '@inertiajs/react';
+import RouteCheck from './Part/RouteCheck';
 import BaseNameAndPasswordForm from './Part/BaseNameAndPasswordForm';
 import BaseFooterLinks from '../Components/BaseFooterLinks';
 
-export default function ResetPassword({ token}) {
+export default function ResetUserName({ tokenForRouting}) {
     const { data, setData, post, processing, errors, reset } = useForm({
         // 現在の照合
         name:"",
@@ -19,11 +19,10 @@ export default function ResetPassword({ token}) {
         newUserName:""
     });
 
-    useEffect(() => {
-        return () => {
-            reset('password', 'password_confirmation');
-        };
-    }, []);
+        // ルーティングの検証(ちゃんと前のページを通ってるか？)
+        useEffect(() => {
+            RouteCheck(tokenForRouting)
+        }, [tokenForRouting]);
 
     const submit = (e) => {
         e.preventDefault();
@@ -49,20 +48,20 @@ export default function ResetPassword({ token}) {
                     />
 
                 <div className="mt-4">
-                    <InputLabel htmlFor="loginName" value="新しいユーザーネームspan(2~100文字)" />
+                    <InputLabel htmlFor="newLoginName" value="新しいユーザーネームspan(2~100文字)" />
 
                     <TextInput
-                        id="loginName"
+                        id="newLoginName"
                         type="text"
                         name="newUserName"
                         value={data.newUserName  || ""}
                         className="mt-1 block w-full"
-                        autoComplete="new-name"
+                        autoComplete="newUserName"
                         isFocused={true}
                         onChange={(e) => setData('newUserName', e.target.value)}
                     />
 
-                    <InputError message={errors.password}/>
+                    <InputError message={errors.newUserName}/>
                 </div>
 
                 <div className="flex items-center justify-end mt-4">

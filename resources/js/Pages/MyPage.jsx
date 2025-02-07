@@ -5,6 +5,7 @@ import CustomPatternDefinition from "./Components/CustomPatternDefinition";
 import MyPageCustomDefinition from "./Components/MyPageCustomDefinition";
 import MyPageTrComponents from "./Components/MyPageTrComponents";
 
+
 // マイページの表示
 export default function MyPage({cateSets,quizSets,nameSets,user}){
 
@@ -21,7 +22,6 @@ export default function MyPage({cateSets,quizSets,nameSets,user}){
     return(
         <AuthenticatedLayout
         user={user.name}
-        header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">トップページ</h2>}
         pageName="MyPage"
         >
          <div>
@@ -92,8 +92,6 @@ export default function MyPage({cateSets,quizSets,nameSets,user}){
             </tbody>
           </table>
         </div>
-
-
          </div>
         </AuthenticatedLayout>
     )

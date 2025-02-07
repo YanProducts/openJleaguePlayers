@@ -82,7 +82,7 @@ export default function UpdateInfo({year}){
             </div>
         </form>
 
-        <BaseFooterLinks partNames={["backToLogin"]}/>
+        <BaseFooterLinks partNames={["topPage"]}/>
     </GuestLayout>
     )
 }

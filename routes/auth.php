@@ -24,20 +24,21 @@ Route::middleware(['web'])->group(function () {
     Route::post('register', [RegisteredUserController::class, 'store']);
 
     // ログインページ表示のルート(念の為ログイン時にはログアウトへリダイレクト)
-    Route::get('login', [AuthenticatedSessionController::class, 'create'])
+    Route::get('/login', [AuthenticatedSessionController::class, 'create'])
     ->name('login');
 
     // // 実際のログイン(共有ユーザー以外)
-    Route::post('login', [AuthenticatedSessionController::class, 'store'])->name('login_post_route');
+    Route::post('/login', [AuthenticatedSessionController::class, 'store'])->name('login_post_route');
 
     // 共有ユーザー用のログイン
-    Route::post('login_for_common', [AuthenticatedSessionController::class, 'login_for_common'])->name('login_post_route_for_common');
+    Route::post('/login_for_common', [AuthenticatedSessionController::class, 'login_for_common'])->name('login_post_route_for_common');
 
     // nameとrememberからパスワードを返す
     Route::post("getPassFromNameAndToken",[RememberController::class,"get_pass_from_token"]);
 
     // 登録内容変更のビュー
     Route::get('auth/change-data', [UpdateAuthInfoController::class,"viewUpdateAuthInfoTop"])
+    ->middleware(["auth"])
     ->name("viewUpdateAuthInfo");
 
     // 登録内容変更決定
@@ -46,10 +47,12 @@ Route::middleware(['web'])->group(function () {
 
     // ユーザー名変更ページ
     Route::get('reset-userName/', [UpdateAuthInfoController::class, 'viewUpdateUserNamePage'])
+    ->middleware(["auth"])
     ->name('username_reset');
 
     // パスワード変更ページ
     Route::get('reset-password', [UpdateAuthInfoController::class, 'viewUpdatePassWordPage'])
+    ->middleware(["auth"])
     ->name('password_reset');
 
     // ユーザーネーム/パスワードのルーティングチェック
@@ -63,14 +66,6 @@ Route::middleware(['web'])->group(function () {
     // パスワード変更投稿
     Route::post('reset-password', [UpdateAuthInfoController::class, 'storeUpdatePassWord'])
     ->name('password_update_store');
-
-
-    Route::get('confirm-password', [ConfirmablePasswordController::class, 'show'])
-    ->name('password.confirm');
-
-    Route::post('confirm-password', [ConfirmablePasswordController::class, 'store']);
-
-    Route::put('password', [PasswordController::class, 'update'])->name('password.update');
 
     // ログアウト
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])

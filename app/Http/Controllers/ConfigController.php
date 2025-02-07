@@ -81,7 +81,7 @@ class ConfigController extends Controller
             });
         }catch(\Throwable $e){
           // カスタム例外スロー
-          throw new CustomException(env("APP_ENV")==="local" ? $e->getMessage():          "選手登録時のエラーです");
+          throw new CustomException(env("APP_ENV")==="local" ? $e->getMessage():"選手登録時のエラーです");
         }
     }
 
@@ -102,7 +102,7 @@ class ConfigController extends Controller
 
         // 正規表現
         $ptn_num="/(?:[0-9])+/u";
-        $ptn_name="/(?:[ぁ-ん]|[ァ-ヴー]|[一-龠﨑々（）]|　)+/u";
+        $ptn_name="/(?:[ぁ-ん]|[ァ-ヴー]|[一-㟢龠﨑々（）]|　)+/u";
         $teamnamelists=[];
 
         // id番号

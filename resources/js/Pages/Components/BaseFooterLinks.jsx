@@ -1,7 +1,7 @@
 import { Link } from "@inertiajs/react";
 
 // フッターのリンク集(複雑な処理を伴わないもの)
-export default function BaseFooterLinks({partNames}){
+export default function BaseFooterLinks({partNames,fixedBottom=null}){
     let footerArray=[]
 
     // ログインページへ
@@ -38,18 +38,36 @@ export default function BaseFooterLinks({partNames}){
     }
 
     // 登録内容変更
-    if(partNames.includes("changeData")){
+    if(partNames.includes("inMyPage")){
         footerArray.push(
-            <p  key={3} className="base_link_p">
-                登録内容変更は<Link href={route("viewUpdateAuthInfo")} className="base_link">こちら</Link>から
-            </p>
+            <div key={3} ref={fixedBottom} className="bottom-4 right-0 left-0">
+                    <p className="base_link_p mx-auto" ref={fixedBottom}><Link className='base_link' href="/">トップへ</Link></p>
+                <p className="base_link_p mx-auto">
+                    登録内容変更は<Link href={route("viewUpdateAuthInfo")} className="base_link">こちら</Link>から
+                </p>
+            </div>
         )
     }
 
-    // ゲーム再チャレンジ(クリア画面から)
+    // トップページへ
+    if(partNames.includes("topPage")){
+        footerArray.push(
+        <p key={4} className="base_link_p mt-3"><Link className='base_link' href="/">トップへ</Link></p>
+        )
+    }
+
+    // マイページへ
+    if(partNames.includes("myPage")){
+        footerArray.push(
+        <p key={5} className="base_link_p mt-3"><Link className='base_link' href="/myPage">マイページへ</Link></p>
+        )
+    }
+
+
+    // ゲーム再チャレンジ
     if(partNames.includes("challengeAgain")){
         footerArray.push(
-            <p key={4} className='base_link_p'><Link className='base_link' href="/game.play">再チャレンジ</Link></p>
+            <p key={6} className='base_link_p'><Link className='base_link' href="/game.play">再チャレンジ</Link></p>
         )
     }
 

@@ -1,7 +1,6 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import React from "react";
-import { Link, Head} from '@inertiajs/react';
-import backgroundImage from '../../../img/back.jpg';
+import {Head} from '@inertiajs/react';
 import gameplay_fetch from '../fetchAPI/GamePlay_fetch';
 import { AfterAnswerComponent } from './Part/AfterAnswerByTeam';
 import AnswerByTeam from "./Part/ResultView/AnswerByTeam";

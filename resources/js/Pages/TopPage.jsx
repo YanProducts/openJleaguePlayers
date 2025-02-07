@@ -73,7 +73,6 @@ export default function TopPage(props) {
     return (
         <AuthenticatedLayout
             user={user}
-            header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">トップページ</h2>}
             pageName="TopPage"
         >
         <Head title="トップページ" />
@@ -86,9 +85,9 @@ export default function TopPage(props) {
                 <p className='base_error animate-whenerror mb-5'>不明なエラーです</p>
                 }
 
-                <p className='base_frame base_backColor text-right font-bold my-3 px-3 py-1'>挑戦者：{user ? user : (props.auth.user.name === "commonUser" ? "ゲスト": "")}さん</p>
+                <p className='base_frame base_backColor text-right font-bold my-3 px-3 py-1'>挑戦者：{user ?  (user === "commonUser" ? "ゲスト":user) : ""}さん</p>
 
-                <form method="post" action="game.decide_pattern" className='base_frame font-bold'>
+                <form method="post" action="/game.decide_pattern" className='base_frame font-bold'>
 
                 {/* パターンの選択 */}
                 <PatternChoicesSets
@@ -111,7 +110,7 @@ export default function TopPage(props) {
                 <div className='mt-7 mb-2'>
                     <p className='base_link_p'>
                         <Link
-                        className='base_link' href="/logout" method= {user&& props.auth.user.name === "commonUser" ? "get" : "post"} as="button">
+                        className='base_link' href="/logout" method= "post" as="button">
                             {user && props.auth.user.name === "commonUser" ? "ログインして遊ぶ":"ログアウト"}
                         </Link>
                      </p>

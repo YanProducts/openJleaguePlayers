@@ -3,12 +3,12 @@
 namespace App\Http\Requests\auth;
 
 use App\Http\Requests\Auth\LoginRequest;
+use App\Rules\isAuthUserRule;
 use App\Rules\noCommonUserRule;
 use App\Rules\noGuestRule;
 use App\Rules\OriginalPasswordRule;
-use App\Rules\userIsExistsRule;
+use App\Rules\newUserUniqueRule;
 use Illuminate\Foundation\Http\FormRequest;
-use App\Models\User;
 
 // ユーザーネームもしくはパスワードの変更に際するリクエスト
 class UpdateNewInfoRequest extends FormRequest
@@ -28,7 +28,7 @@ class UpdateNewInfoRequest extends FormRequest
     {
         // 共通(以前の名前とパス)
         $rule=[
-            'name' => ['required', new userIsExistsRule],
+            'name' => ['required', new isAuthUserRule],
             'password' => ['required', 'string'],
         ];
 
@@ -38,7 +38,7 @@ class UpdateNewInfoRequest extends FormRequest
         // それぞれのルートごとの条件
         $specific_rule=match($route_name){
            "username_update_store"=>[
-            'newName' => ['required','string','max:100',"min:2",'unique:'.User::class,
+                'newUserName' => ['required','string','max:100',"min:2",new newUserUniqueRule,
             new noCommonUserRule,new noGuestRule],
            ],
            "password_update_store"=>[
@@ -55,11 +55,10 @@ class UpdateNewInfoRequest extends FormRequest
         return [
             "name.required"=>"現在のユーザー名が入力されていません",
             "password.required"=>"現在のパスワードが入力されていません",
-            "newName.required"=>"ユーザー名は必ず記入してください",
-            "newName.unique"=>"そのユーザー名は既に使用されています",
-            "newName.string"=>"ユーザー名は文字で記入してください",
-            "newName.min"=>"ユーザー名は2字以上にしてください",
-            "newName.max"=>"ユーザー名は100字以内にしてください",
+            "newUserName.required"=>"ユーザー名は必ず記入してください",
+            "newUserName.string"=>"ユーザー名は文字で記入してください",
+            "newUserName.min"=>"ユーザー名は2字以上にしてください",
+            "newUserName.max"=>"ユーザー名は100字以内にしてください",
             "newPassword.required"=>"パスワードは必ず入力してください",
             "newPassword.confirmed"=>"パスワードが一致しません"
         ];

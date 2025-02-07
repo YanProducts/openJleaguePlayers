@@ -6,8 +6,6 @@ import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
 import { Head, useForm } from '@inertiajs/react';
 import RouteCheck from './Part/RouteCheck';
-import { Inertia } from '@inertiajs/inertia';
-import {Link} from '@inertiajs/react';
 import BaseNameAndPasswordForm from './Part/BaseNameAndPasswordForm';
 import BaseFooterLinks from '../Components/BaseFooterLinks';
 
