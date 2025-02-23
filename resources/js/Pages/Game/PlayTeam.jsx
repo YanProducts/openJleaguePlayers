@@ -25,7 +25,6 @@ export default function PlayTeam(props) {
             answered: answered,
             setAnswered: setAnswered,
             inputSets:inputSets,
-            player_lists: props.player_lists,
             name_type: props.name_type,
             quiz_type: props.quiz_type,
             requiredAnswer:requiredAnswer,

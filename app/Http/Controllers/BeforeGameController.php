@@ -4,17 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Exceptions\CustomException;
 use App\Http\Requests\GamePatternRequest;
-use App\Models\Player;
 use App\Models\Team;
 use App\Models\User;
-use GuzzleHttp\Cookie\SessionCookieJar;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Cookie;
 
 class BeforeGameController extends Controller
 {
@@ -47,7 +43,7 @@ class BeforeGameController extends Controller
         // session削除
         SessionController::delete_sessions(([
             "cate","quiz_type","name_type",
-            "player_lists","selected_teams",
+            "selected_teams",
             "used_quiz_uniwue_tokens",
             "quiz_unique_token",
             "used_game_tokens",
@@ -78,28 +74,20 @@ class BeforeGameController extends Controller
     public function decide_game_pattern(GamePatternRequest $request){
 
         // 前段階のsession削除
-        SessionController::delete_sessions(["cate","quiz_type","name_type","player_lists","selected_teams"]);
+        SessionController::delete_sessions(["cate","quiz_type","name_type","selected_teams"]);
 
         // ゲームパターン
         $cate=$request->cate;
         $quiz_type=$request->quizType;
         $name_type=$request->nameType;
 
-        // 該当選手リスト(コレクションで定義)
-        $player_lists=collect();
-
         // 後でも使うため宣言
         $selected_teams=collect();
 
         try{
-            DB::transaction(function()use($cate,&$player_lists, &$selected_teams){
+            DB::transaction(function()use($cate, &$selected_teams){
                 // チーム一覧の取得
                 $cate==="all" ? $selected_teams=Team::all():$selected_teams=Team::where("cate","=",$cate)->get();
-
-                // そのカテの選手データを追加
-                foreach($selected_teams as $team){
-                    $player_lists=$player_lists->merge($team->players);
-                }
             });
         }catch(\Throwable $e){
             // fetchAPIからの投稿をjsonで返す
@@ -110,7 +98,8 @@ class BeforeGameController extends Controller
 
         // session作成
         SessionController::create_sessions(([
-            "cate"=>$cate,"quiz_type"=>$quiz_type,"name_type"=>$name_type,"player_lists"=>$player_lists, "selected_teams"=>$selected_teams
+            "cate"=>$cate,"quiz_type"=>$quiz_type,"name_type"=>$name_type,
+            "selected_teams"=>$selected_teams
         ]));
 
         // fetchAPIからの投稿をjsonで返す
@@ -126,7 +115,7 @@ class BeforeGameController extends Controller
     public function to_game_page_view(){
 
         // sessionがあるか？
-        if(!SessionController::confirm_session_value(["cate","quiz_type","name_type","player_lists","selected_teams"])){
+        if(!SessionController::confirm_session_value(["cate","quiz_type","name_type","selected_teams"])){
             throw new CustomException("ゲームの種類を選択してください");
         }
 
@@ -152,7 +141,6 @@ class BeforeGameController extends Controller
 
             // ユーザー名
             "user"=>Auth::user(),
-            "player_lists"=>json_encode(session("player_lists")),
             "name_type"=>session("name_type")=== "part" ? "名前の一部" : "登録名",
             "quiz_type"=>session("quiz_type"),
             "cate"=>session("cate"),

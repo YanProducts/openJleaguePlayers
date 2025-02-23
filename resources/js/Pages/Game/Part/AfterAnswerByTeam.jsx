@@ -4,6 +4,10 @@
 
     // それぞれの回答済選手の要素
     const EachNowAlreadyComponents=({nowAlreadyPlayers})=>{
+
+console.log(nowAlreadyPlayers);
+
+
         return(
             nowAlreadyPlayers.map((n,index)=>{
                 return(<li key={index} className="text-center font-bold">{`(${n.team}...${n.nowAlreadyPlayers.join("、")})`}</li>)

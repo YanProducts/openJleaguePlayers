@@ -1,7 +1,6 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import React from "react";
 import { Link, Head} from '@inertiajs/react';
-import backgroundImage from '../../../img/back.jpg';
 import gameplay_fetch from '../fetchAPI/GamePlay_fetch';
 import { InputComponentOnRandom } from './Part/InputComponenOnRandom';
 import { AfterAnswerComponent } from './Part/AfterAnswerRandom';
@@ -36,7 +35,6 @@ export default function PlayRand(props) {
             answered: answered,
             setAnswered: setAnswered,
             inputVal: inputRef.current.value,
-            player_lists: props.player_lists,
             name_type: props.name_type,
             quiz_type: props.quiz_type,
             answerTeam:answerTeamRef.current.value,

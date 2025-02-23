@@ -8,10 +8,7 @@ use Illuminate\Support\Facades\Log;
 use App\Http\Requests\GamePatternRequest;
 use App\Models\Team;
 use App\Models\Player;
-use App\models\Result;
-use Illuminate\Http\Request;
 use Inertia\Inertia;
-use Illuminate\Support\Str;
 
 // ゲーム中の操作
 class GameController extends Controller
@@ -69,6 +66,7 @@ class GameController extends Controller
                 break;
             }
         }else if(strpos($request->quizType,"team")===0){
+
             // 必要な回答数
             $required_answer=$request->requiredAnswer;
 
@@ -76,7 +74,7 @@ class GameController extends Controller
             $answerLists=json_decode($request->answer);
             $teamLists=json_decode($request->team);
 
-            // 回答済リストの形式をrandに合わせる
+            // 回答済リストの形式をteamに合わせる
             $old_already_answered_lists=json_decode($request->answered,true);
             $already_answered_lists=[];
             foreach($old_already_answered_lists as $already_team=>$already_players){
@@ -95,6 +93,7 @@ class GameController extends Controller
             // 回答済の選手リスト
             $returned_nowAnswer_alreadyLists=[];
 
+            // それぞれの選手を回していき、正解なら正解リスト、回答済みなら回答済みリストへ入れる。
             foreach($answerLists as $key=>$answer):
 
                 // keyを3で割った商からチームを決定
@@ -121,15 +120,10 @@ class GameController extends Controller
 
                 //responseが正解のときは
                 if($response["isRight"]==="right"){
-                    foreach($response["playerLists"] as $right_player){
-                        // 回答済リストに選手を入力
-                        $already_answered_lists[]=[
-                            "team"=>$answer_team,
-                            "player"=>$right_player
-                        ];
-                        // 正解数をたす
-                        $right_counts++;
-                    }
+
+                    // 正解数を加える
+                    $right_counts+=count($response["playerLists"]);
+
                     // 正解リストに加える
                     $returned_lists[]=$response;
                 // 回答済の時
@@ -138,6 +132,7 @@ class GameController extends Controller
                     $returned_nowAnswer_alreadyLists[]=$response;
                 }
             endforeach;
+
 
             // 正解者リストを「チーム」ごとにまとめる
             $new_returned_lists=[];
@@ -166,7 +161,7 @@ class GameController extends Controller
     }
 
     // 名前の１部での回答チェック
-    public function checkAnswer_whenPart($user,$cate,$quizType,$already_answered_lists,$answer_team,$answer){
+    public function checkAnswer_whenPart($user,$cate,$quizType,&$already_answered_lists,$answer_team,$answer){
 
         // そのチームの全選手リスト取得
         $player_data_in_team=Player::where("team",$answer_team)->get();
@@ -174,22 +169,31 @@ class GameController extends Controller
         $nowAlready_players_lists=[];
         $isRight="wrong";
 
+
         // 該当選手がいたらリスト追加（同姓などを考慮してリストにする）
         foreach($player_data_in_team as $eachplayer){
+
+            //１：部分一致
             $part_array=explode(",",$eachplayer->part);
             foreach($part_array as $part_each){
+
                 // partと回答があっていたとき
                 if(trim($part_each)===trim($answer)){
-                    //回答済か否かあったとき
-                    if(!$this->check_existed_answer($already_answered_lists,$eachplayer)){
-                        $isRight="right";
-                        array_push($player_name_lists,$eachplayer->full);
-                    }else if($isRight==="wrong"){
-                        $isRight="already";
-                        array_push($nowAlready_players_lists,$eachplayer->full);
-                    }
+
+                    //回答済かどうか
+                    $this->check_existed_answer_process($player_name_lists,$already_answered_lists,$eachplayer,$isRight,$nowAlready_players_lists);
+
                 }
             }
+            // ２：fullnameの場合と同様のチェックで正解ならば正解 またジエゴとジエゴ ソウザがいた場、ジエゴでジエゴ１人しか正解にならないのを防ぐため、先に名前の1部からチェックする)
+            if($this->fullname_change($answer,$eachplayer)){
+
+                //回答済か否どうか
+                $this->check_existed_answer_process($player_name_lists,$already_answered_lists,$eachplayer,$isRight,$nowAlready_players_lists);
+                // 回答済であっても、正解の場合は部分一致パターンを実行せず次処理へ
+                continue;
+            }
+
         };
 
         // チーム名の日本語と色を取得
@@ -218,7 +222,7 @@ class GameController extends Controller
     }
 
     // フルネームでの回答チェック
-    public function checkAnswer_whenFull($user,$cate,$quizType,$already_answered_lists,$answer_team,$answer){
+    public function checkAnswer_whenFull($user,$cate,$quizType,&$already_answered_lists,$answer_team,$answer){
 
         // そのチームの全選手リスト取得
         $player_data_in_team=Player::where("team",$answer_team)->get();
@@ -233,13 +237,7 @@ class GameController extends Controller
             // 正解の場合
             if($this->fullname_change($answer,$eachplayer)){
             //回答済か否か
-                if(!$this->check_existed_answer($already_answered_lists,$eachplayer)){
-                    $isRight="right";
-                    array_push($player_name_lists,$eachplayer->full);
-                }else if($isRight==="wrong"){
-                    $isRight="already";
-                    array_push($nowAlready_players_lists,$eachplayer->full);
-                }
+            $this->check_existed_answer_process($player_name_lists,$already_answered_lists,$eachplayer,$isRight,$nowAlready_players_lists);
             }
         }
 
@@ -269,9 +267,37 @@ class GameController extends Controller
     }
 
     // 重複チェック
+    public function check_existed_answer_process(&$player_name_lists,&$already_answered_lists,$eachplayer,&$isRight,&$nowAlready_players_lists){
+
+
+        // partと回答があっていたとき
+            //回答済か否かあったとき
+            if(!$this->check_existed_answer($already_answered_lists,$eachplayer)){
+                $isRight="right";
+                array_push($player_name_lists,$eachplayer->full);
+
+                // 回答済リストに選手を入力
+                $already_answered_lists[]=[
+                    "team"=>Team::where("eng_name","=",$eachplayer->team)->pluck("jpn_name")->first(),
+                    "player"=>$eachplayer->full
+                ];
+
+                // 名前の1部の場合、名前のパートを順々にチェックする場合があるため、この条件を入れておかないと、今回回答された選手が回答済になってしまう
+            }else if($isRight==="wrong" || $isRight==="already"){
+                $isRight="already";
+                // foreachで選手ループを抜けた時に時に$returned_nowAnswer_alreadyListsに格納される
+                // 名前で正解後、同じ試技で同姓の選手の苗字で成功した場合は、後者だと結果が「正解」で返されるので、前もって答えていた選手は重複で反映されない
+                array_push($nowAlready_players_lists,$eachplayer->full);
+
+            }
+    }
+
+
+    // 重複チェック
     // each_playerはteamとfullのセット
     // already_answered_listsはteamとfullのセットの配列
     public function check_existed_answer($already_answered_lists,$eachplayer){
+
         if(empty($already_answered_lists)){
             return false;
         }
@@ -280,7 +306,9 @@ class GameController extends Controller
 
         //その選手とそのチームが回答済なら、必ず回答済
         foreach($already_answered_lists as $already_answer){
+
             $eng_team=Team::where("jpn_name",$already_answer["team"])->pluck("eng_name")->first();
+
             if($eng_team===$eachplayer->team &&
             $already_answer["player"] ===$eachplayer->full){
                 $is_already=true;

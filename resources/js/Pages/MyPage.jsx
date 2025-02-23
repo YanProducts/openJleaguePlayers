@@ -55,8 +55,8 @@ export default function MyPage({cateSets,quizSets,nameSets,user}){
             </thead>
             <tbody>
                 <tr className="base_tableInner">
-                <td className="base_tableInner">{eachAnswerTotalCounts}</td>
                 <td className="base_tableInner">{clearCountData}</td>
+                <td className="base_tableInner">{eachAnswerTotalCounts}</td>
                 </tr>
             </tbody>
           </table>
