@@ -47,6 +47,11 @@ Route::middleware(['web'])->group(function () {
     ->middleware(['auth'])
     ->name('myPage');
 
+    // 自分の結果のフル表示(player/team)
+    Route::get("myFullResult/{what}",[ShowResultController::class,"show_fullResults_page"])
+    ->middleware(["auth"])
+    ->name("myFullResult");
+
     // マイページのデータの取得
     Route::post("/fetchMyData",[ShowResultController::class,"fetch_my_data"])
     ->middleware(['auth'])

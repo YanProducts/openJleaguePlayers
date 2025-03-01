@@ -1,18 +1,26 @@
 import React from 'react';
 import backgroundImage from '../../img/back.jpg';
-import heightCheck from './ResizeWhenHeightChange';
 import BaseFooterLinks from '../Pages/Components/BaseFooterLinks';
+import MypageHeightChange from '../Pages/Utils/MyPageHeightChange';
 
 // すでにログインしているユーザー用のレイアウト
-export default function AuthenticatedLayout({ user,pageName, children }) {
-    // innerHighによってリンクを固定にする
-    const fixedBottom=React.useRef(null);
+export default function AuthenticatedLayout({ user,pageName, myPageFetchDone=false,children }) {
+
+    // フッターの場所(MyPageの場合のみ)
+    const [myPageBottomPoint,setMyPageBottomPoint]=React.useState("bottom-4");
+
+    // innerHighによってリンクを固定にする(他の場所からもインポートするために関数定義)
     React.useEffect(()=>{
-        window.addEventListener("resize",()=>{
-            heightCheck(fixedBottom,pageName);
-        })
-        heightCheck(fixedBottom,pageName)
-    },)
+        const DOMChange_function=()=>{
+            MypageHeightChange(myPageFetchDone,setMyPageBottomPoint)
+        };
+
+        DOMChange_function();
+        window.addEventListener("resize",DOMChange_function)
+        return()=>{
+            window.removeEventListener("resize",DOMChange_function)
+        }
+    },[myPageFetchDone])
 
     // もう一度挑戦(クリア画面)
     const ChallengeAgainComponents=()=>
@@ -22,18 +30,17 @@ export default function AuthenticatedLayout({ user,pageName, children }) {
 
     // トップページに向かうリンク(マイページ以外)
    const ToTopPageComponents=()=>
-        !["TopPage","MyPage"].includes(pageName) ? (
+        !["TopPage","MyPage","MyPageFullView"].includes(pageName) ? (
             <BaseFooterLinks partNames={["topPage"]} />):(null)
 
 
     // マイページに向かうリンク
     const ToMyPageComponents=()=>
-        (pageName!=="MyPage" && user?.name && user.name!=="commonUser" ) ? (<BaseFooterLinks partNames={["myPage"]}/>):(null);
+        (!["Mypage","MyPageFullView"].includes(pageName) && user?.name && user.name!=="commonUser" ) ? (<BaseFooterLinks partNames={["myPage"]}/>):(null);
 
     // マイページ専用リンク(登録内容変更含む)
     const InMyPageCoponents=()=>
-    (pageName==="MyPage") ?  (<BaseFooterLinks partNames={["inMyPage"]} fixedBottom={fixedBottom}/>):(null);
-
+    (pageName==="MyPage") ?  (<BaseFooterLinks partNames={["inMyPage"]} myPageBottomPoint={myPageBottomPoint}/>):(null);
 
     return (
         <div className="min-h-screen">

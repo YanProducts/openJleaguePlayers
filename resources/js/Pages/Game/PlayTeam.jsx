@@ -1,10 +1,10 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import React from "react";
 import {Head} from '@inertiajs/react';
-import gameplay_fetch from '../fetchAPI/GamePlay_fetch';
+import gameplay_fetch from '../../API/FetchAPI/GamePlayFetch';
 import { AfterAnswerComponent } from './Part/AfterAnswerByTeam';
 import AnswerByTeam from "./Part/ResultView/AnswerByTeam";
-import PlayTeamCustomDefinition from '../Components/PlayTeamCustomDefinition';
+import PlayTeamCustomDefinition from '../Definitions/PlayTeamCustomDefinition';
 
 export default function PlayTeam(props) {
 

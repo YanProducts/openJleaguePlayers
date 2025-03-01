@@ -1,7 +1,8 @@
 import { Link } from "@inertiajs/react";
 
 // フッターのリンク集(複雑な処理を伴わないもの)
-export default function BaseFooterLinks({partNames,fixedBottom=null}){
+export default function BaseFooterLinks({partNames,myPageBottomPoint}){
+
     let footerArray=[]
 
     // ログインページへ
@@ -40,8 +41,8 @@ export default function BaseFooterLinks({partNames,fixedBottom=null}){
     // 登録内容変更
     if(partNames.includes("inMyPage")){
         footerArray.push(
-            <div key={3} ref={fixedBottom} className="bottom-4 right-0 left-0">
-                    <p className="base_link_p mx-auto" ref={fixedBottom}><Link className='base_link' href="/">トップへ</Link></p>
+            <div key={3} className={`${myPageBottomPoint} right-0 left-0 fixed`}>
+                    <p className="base_link_p mx-auto"><Link className='base_link' href="/">トップへ</Link></p>
                 <p className="base_link_p mx-auto">
                     登録内容変更は<Link href={route("viewUpdateAuthInfo")} className="base_link">こちら</Link>から
                 </p>

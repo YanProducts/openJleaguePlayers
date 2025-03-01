@@ -1,5 +1,9 @@
+import React from "react";
+
 // マイページのoptionが変化するたびにランキングを変化させる
-export default function MyPageFetch(pattern,setError,setEachAnswerTotalCounts,setEachAnswerDataByTeam,setEachAnswerDataByPlayer,setClearCountData){
+export default function MyPageFetch(pattern,setError,setEachAnswerTotalCounts,setEachAnswerDataByTeam,setEachAnswerDataByPlayer,setClearCountData,setViewAllAnsweredPlayers,setViewAllAnsweredTeams,setMyPageFetchDone){
+
+
         const headers={
             "Content-Type":"application/json",
             // 自動送信されているが、念のため行う
@@ -37,10 +41,14 @@ export default function MyPageFetch(pattern,setError,setEachAnswerTotalCounts,se
                 throw new Error("undefinedColumn");
             }
             setEachAnswerTotalCounts(json.eachAnswerTotalCounts)
+            setClearCountData(json.clearCountData)
             setEachAnswerDataByTeam(json.eachAnswerDataByTeam)
             setEachAnswerDataByPlayer(json.eachAnswerDataByPlayer)
-            setClearCountData(json.clearCountData)
+            setViewAllAnsweredPlayers(json.eachAnswerDataByPlayer.length >30)
+            setViewAllAnsweredTeams(json.eachAnswerDataByTeam.length >10)
 
+            // fetch反映
+            setMyPageFetchDone(true)
         }).catch(e=>{
         console.log(e)
         });

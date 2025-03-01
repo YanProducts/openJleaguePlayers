@@ -3,8 +3,8 @@ import { Inertia } from '@inertiajs/inertia';
 import React from "react";
 import { Head, Link} from '@inertiajs/react';
 import PatternChoicesSets from './Components/PatternChoicesSets';
-import TopPageCustomDefinition from './Components/TopPageCustomDefinition';
-import TopPage_fetch from "./fetchAPI/TopPage_fetch";
+import TopPageCustomDefinition from './Definitions/TopPageCustomDefinition';
+import TopPage_fetch from "../API/FetchAPI/TopPageFetch";
 
 
 export default function TopPage(props) {

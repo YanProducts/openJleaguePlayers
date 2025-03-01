@@ -26,6 +26,29 @@ class ShowResultController extends Controller
             ]);
         }
 
+        // 結果のフル表示
+        public function show_fullResults_page($which){
+
+
+            // whichの値によってはエラービューへ？？？
+
+
+
+            
+            return Inertia::render('MyPageFullView', [
+                // 各オプション
+                "cateSets"=>json_encode(StaticValueController::$CateSets),
+                "quizSets"=>json_encode(StaticValueController::$QuizSets),
+                "nameSets"=>json_encode(StaticValueController::$NameSets),
+                // ユーザー名
+                "user"=>Auth::user(),
+                // 選手とチームのどちらか
+                "which"=>$which
+            ]);
+        }
+
+
+
         // 検索に従ったデータを返す
         public function fetch_my_data(GamePatternRequest $request){
             $user_name=$request->user;
@@ -116,7 +139,6 @@ class ShowResultController extends Controller
             }
             return $new_data;
         }
-
 
 }
 

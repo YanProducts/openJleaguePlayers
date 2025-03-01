@@ -1,11 +1,11 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import React from "react";
 import { Link, Head} from '@inertiajs/react';
-import gameplay_fetch from '../fetchAPI/GamePlay_fetch';
+import gameplay_fetch from '../../API/FetchAPI/GamePlayFetch';
 import { InputComponentOnRandom } from './Part/InputComponenOnRandom';
 import { AfterAnswerComponent } from './Part/AfterAnswerRandom';
 import AnswerRandom from "./Part/ResultView/AnswerRandom";
-import PlayRandCustomDefinition from '../Components/PlayRandCustomDefinition';
+import PlayRandCustomDefinition from '../Definitions/PlayRandCustomDefinition';
 
 export default function PlayRand(props) {
 
