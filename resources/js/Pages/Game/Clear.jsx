@@ -27,7 +27,7 @@ export default function clearGames(props){
   // そのユーザーにおける過去の正解数
   const [userNumberSets,setUserNumberSets]=React.useState({});
   React.useEffect(()=>{
-    if(props.userName!=="commonUser"){
+    if(props.userName!==import.meta.env.VITE_COMMON_USER_NAME){
       setUserNumberSets(props.userNumberSets);
     }
   },[props.userNumberSets]);

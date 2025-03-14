@@ -4,7 +4,7 @@ import BaseFooterLinks from '../Pages/Components/BaseFooterLinks';
 import MypageHeightChange from '../Pages/Utils/MyPageHeightChange';
 
 // すでにログインしているユーザー用のレイアウト
-export default function AuthenticatedLayout({ user,pageName, myPageFetchDone=false,children }) {
+export default function AuthenticatedLayout({ user,noLoginUserName="",pageName, myPageFetchDone=false,children }) {
 
     // フッターの場所(MyPageの場合のみ)
     const [myPageBottomPoint,setMyPageBottomPoint]=React.useState("bottom-4");
@@ -36,7 +36,7 @@ export default function AuthenticatedLayout({ user,pageName, myPageFetchDone=fal
 
     // マイページに向かうリンク
     const ToMyPageComponents=()=>
-        (!["Mypage","MyPageFullView"].includes(pageName) && user?.name && user.name!=="commonUser" ) ? (<BaseFooterLinks partNames={["myPage"]}/>):(null);
+        (!["Mypage","MyPageFullView"].includes(pageName) && user?.name && user.name!==import.meta.env.VITE_COMMON_USER_NAME ) ? (<BaseFooterLinks partNames={["myPage"]}/>):(null);
 
     // マイページ専用リンク(登録内容変更含む)
     const InMyPageCoponents=()=>

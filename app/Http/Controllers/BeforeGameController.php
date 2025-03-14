@@ -18,12 +18,12 @@ class BeforeGameController extends Controller
     // topPageの表示
     // ログイン状態である場合のみ表示（ログインできていない場合は速攻で返す）
     // 引数のrememberは「ログインから来て、かつ保持の印があったとき」のみ記載(previosuRememberをyesに変更)
-    public function show_top_page($remember){
+    public function show_top_page(){
 
-        // ログインできていない場合は返す
+
+        // ログインできていない場合はオートログインを試す(rememberとremember_tokenとnameが正しいか否か)
         if (!Auth::check() || !isset(Auth::user()->name)) {
-            // nameプロパティが存在しない場合の処理
-            return redirect()->route("error_view",["message"=>"ログインできていません"]);
+            return Inertia::render("Auth/AutoLogin");
         }
 
         // ログイン時は値をセット
@@ -40,6 +40,9 @@ class BeforeGameController extends Controller
         $user_data->remember_token=$new_remember_token;
         $user_data->save();
 
+        // rememberの登録
+        $remember=session("remember_which");
+
         // session削除
         SessionController::delete_sessions(([
             "cate","quiz_type","name_type",
@@ -48,7 +51,8 @@ class BeforeGameController extends Controller
             "quiz_unique_token",
             "used_game_tokens",
             "game_token",
-            "isGradeInserted"
+            "isGradeInserted",
+            "remember_which"
         ]));
 
         // ページ表示
@@ -64,6 +68,7 @@ class BeforeGameController extends Controller
             "user"=>$user,
             "newToken"=>$new_remember_token,
             "remember"=>$remember,
+
             // 開発か否か
             "isLocal"=>env("APP_ENV")
         ]);

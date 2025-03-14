@@ -16,19 +16,22 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('results', function (Blueprint $table) {
+
+            // 毎日1万件データが増えても2兆年大丈夫なので対策はしない(年毎にresultテーブルは保存)
             $table->id();
+
             $table->timestamps();
             $table->string("team");
             // 結果データなので、名前はfullのみでOK
             $table->string("full");
-            
+
             // allも含むので Enumでは宣言しない
             $table->string("cateType");
-            
+
             // 以下はEnumで
             $table->enum("quizType",QuizTypeEnum::getDescriptions());
             $table->enum("nameType",NameTypeEnum::getDescriptions());
-            
+
             // 以下は変更あり
             $table->string("challenger");
 

@@ -17,5 +17,5 @@ export const MyPageTeamComponents=({fullOrNormal="normal",teamTbodyRef,teamTrCom
           </table>
           {hiddenTeamsCounts !==0 && fullOrNormal==="normal" ? <div className="base_frame  base_backColor text-center mt-1 mb-1 border-2 border-black"><p className="font-bold"> {lastTeamVisbleRank}位あと{hiddenTeamsCounts}チーム</p></div> : null}
 
-          {viewAllAnsweredTeams && fullOrNormal==="normal" ? <div className="base_frame  base_backColor text-center mt-1  border-2 border-black"><p className="text-blue-600 cursor-pointer font-bold" onClick={handleViewAllTeams}>10位以下はこちら</p></div> : null}
+          {viewAllAnsweredTeams && fullOrNormal==="normal" ? <div className="base_frame  base_backColor text-center mt-1  border-2 border-black"><p className="font-bold" onClick={handleViewAllTeams}>10位以下は<span className="text-blue-600 cursor-pointer">こちら</span></p></div> : null}
         </div>

@@ -38,8 +38,8 @@ Route::middleware(['web'])->group(function () {
 
 
     // トップページ
-    Route::get('/topPage/{remember}', [BeforeGameController::class,"show_top_page"])
-    ->middleware(["auth"])
+    Route::get('/topPage', [BeforeGameController::class,"show_top_page"])
+    // ->middleware(["auth"])
     ->name('topPage');
 
     // マイページへ
@@ -48,7 +48,7 @@ Route::middleware(['web'])->group(function () {
     ->name('myPage');
 
     // 自分の結果のフル表示(player/team)
-    Route::get("myFullResult/{what}",[ShowResultController::class,"show_fullResults_page"])
+    Route::get("myFullResult/{which}",[ShowResultController::class,"show_fullResults_page"])
     ->middleware(["auth"])
     ->name("myFullResult");
 
@@ -74,6 +74,7 @@ Route::middleware(['web'])->group(function () {
     //お知らせ
     Route::get('/sign', function () {
         return Inertia::render('Sign',[
+            ""=>env(""),
             "message"=>session("message")
         ]);
     })
@@ -84,11 +85,6 @@ Route::middleware(['web'])->group(function () {
     ->middleware(['auth'])
     ->name("gameClear");
 
-
-    // 以下config用
-    // 選手名とチーム名の登録(年度変更)
-    Route::get("/update_data",[ConfigController::class,"update_newYear_data"])
-    ->name("dataChange_newYear");
 
     // エラーがあった時のビュー
     Route::get("/error_view",function(){
@@ -102,6 +98,13 @@ Route::middleware(['web'])->group(function () {
                 "isLocal"=>env("APP_ENV")
             ])->toResponse(request())->setStatusCode(500);
     })->name("error_view");
+
+
+
+    // 以下config用
+    // 選手名とチーム名の登録(年度変更)
+    // Route::get("/update_data",[ConfigController::class,"update_newYear_data"])
+    // ->name("dataChange_newYear");
 
 
     // ログイン操作

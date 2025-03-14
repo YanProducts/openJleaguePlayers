@@ -14,7 +14,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
-use App\Http\Controllers\StaticValueController;
+use App\Http\Requests\Auth\AutoLoginRequest;
 use App\Models\User;
 
 class AuthenticatedSessionController extends Controller
@@ -39,7 +39,6 @@ class AuthenticatedSessionController extends Controller
         return Inertia::render('Auth/Login', [
             // 年度の設定
             "year"=>empty(session("year")) ? date("y",time()) : session("year"),
-            "noLoginPass"=>env("COMMON_USER_PASS"),
             "isLocal"=>env("APP_ENV")
         ]);
     }
@@ -59,19 +58,26 @@ class AuthenticatedSessionController extends Controller
         // セッションIDを再生成(LoginRequestの親クラスのメソッド)
         $request->session()->regenerate();
 
-        // // autologinから来たときは問答無用でトップへ
+        // rememberをどうするかのsession
+        SessionController::create_sessions(["remember_which"=>$request->remember ? "yes" : "no"]);
 
-            // ページ表示
-            return redirect()->route('topPage',[
-                "remember"=>$request->remember ? "yes" : "no",
-            ]);
+        // ページ表示
+         return redirect()->route('topPage');
+        //  return redirect()->route('topPage',[
+        //         "remember"=>$request->remember ? "yes" : "no",
+        //     ]);
 
         // rememberTokenの変更は、いろいろな処理を統合させるため、BeforeGameControllerに統合
 
     }
 
-    // 共通ユーザー用リクエスト（ユーザー名とパスワードが合っているか確認）
+    // 共通ユーザー用リクエスト（ユーザー名が合っているか確認）
     public function login_for_common(LoginRequest $request): JsonResponse{
+
+        // パスワードを追加
+        $request->merge([
+            "password"=>env("COMMON_USER_PASS")
+        ]);
 
 
         // ユーザーネームとパスワードが正しいか？(commonUserもsqlで登録されている)
@@ -84,10 +90,36 @@ class AuthenticatedSessionController extends Controller
             "commonUserLogin"=>true
         ]);
 
-
-        // redirect()->intended()はユーザーが元々アクセスしようとしていたページに戻すためのもの（途中でログインしていないから戻らされた時)。そうではなくログイン画面に直接アクセスして来た場合、RouteServiceProvider::HOMEにアクセスする（この場合はtopPage.jsx）。
-        return redirect()->intended(RouteServiceProvider::HOME);
     }
+
+    // オートログイン
+    public function autoLogin(AutoLoginRequest $request){
+        // ログイン名/トークンが見つからなければ
+        // パスワードを探す
+        $remember_token=$request->rememberToken;
+        $name=$request->name;
+        $user=User::where([
+            ["name","=",$name],
+            ["remember_token","=",$remember_token]
+        ])->first();
+
+        if(empty($user)){
+            $route_name=env("APP_ENV")==="production" ? route("login") : route("error_view",["message"=>"ログイン名とログイントークンに合致するユーザーが見つかりません"]);
+            return redirect($route_name);
+        }
+
+        // ログイン
+        Auth::login($user);
+
+        // セッションIDを再生成(LoginRequestの親クラスのメソッド)
+        $request->session()->regenerate();
+
+        return redirect("/topPage");
+
+    }
+
+
+
 
 
 

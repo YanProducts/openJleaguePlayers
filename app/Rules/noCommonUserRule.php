@@ -16,7 +16,7 @@ class noCommonUserRule implements ValidationRule
     {
         //ユーザー名を「CommonUser」にしない
         if(preg_match("/^(commonUser)$/",$value)){
-            $fail("ユーザー名をcommonUserにはしないでください");
+            $fail("そのユーザー名は使用できません");
         }
     }
 }

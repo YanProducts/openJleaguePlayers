@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 
+// CSRF処理はwebミドルウェアに含まれる
 Route::middleware(['web'])->group(function () {
 
     // auth.loginがなされているかいないかで処理を変更する
@@ -32,9 +33,6 @@ Route::middleware(['web'])->group(function () {
 
     // 共有ユーザー用のログイン
     Route::post('/login_for_common', [AuthenticatedSessionController::class, 'login_for_common'])->name('login_post_route_for_common');
-
-    // nameとrememberからパスワードを返す
-    Route::post("getPassFromNameAndToken",[RememberController::class,"get_pass_from_token"]);
 
     // 登録内容変更のビュー
     Route::get('auth/change-data', [UpdateAuthInfoController::class,"viewUpdateAuthInfoTop"])
@@ -67,13 +65,18 @@ Route::middleware(['web'])->group(function () {
     Route::post('reset-password', [UpdateAuthInfoController::class, 'storeUpdatePassWord'])
     ->name('password_update_store');
 
+    // オートログインのチェック
+    Route::post("/autoLogin",[AuthenticatedSessionController::class,"autoLogin"])
+    ->name("autoLogin");
+
+
     // ログアウト
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
     ->name('logout');
 
     // 共通のユーザーの作成(作成時のみ必要)
-    Route::get("create/commonUser",[RegisteredUserController::class,"createCommonUser"])
-    ->name("createCommonUser");
+    // Route::get("create/commonUser",[RegisteredUserController::class,"createCommonUser"])
+    // ->name("createCommonUser");
 
 });
 

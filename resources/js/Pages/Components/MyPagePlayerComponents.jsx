@@ -17,6 +17,6 @@ export const MyPagePlayerComponents=({fullOrNormal="normal",playerTbodyRef,playe
 </table>
 {hiddenPlayersCounts !==0 && fullOrNormal==="normal" ? <div className="base_frame  base_backColor text-center mt-1 mb-1 border-2 border-black"><p className="font-bold"> {lastPlayerVisbleRank}位あと{hiddenPlayersCounts}人</p></div> : null}
 
-{viewAllAnsweredPlayers && fullOrNormal==="normal"  ? <div className="base_frame  base_backColor text-center mt-0 mb-5 border-2 border-black"><p className="text-blue-700 cursor-pointer font-bold" onClick={handleViewAllPlayers}>30位以下はこちら</p></div> :null}
+{viewAllAnsweredPlayers && fullOrNormal==="normal"  ? <div className="base_frame  base_backColor text-center mt-0 mb-5 border-2 border-black"><p className="font-bold" onClick={handleViewAllPlayers}>30位以下は<span className="text-blue-600 cursor-pointer">こちら</span></p></div> :null}
 
 </div>

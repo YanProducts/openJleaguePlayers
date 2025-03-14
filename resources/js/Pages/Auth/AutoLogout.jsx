@@ -4,12 +4,6 @@ import React from "react";
 export default function AutoLogout({isLocal}){
     React.useEffect(()=>{
 
-        if (isLocal === undefined || isLocal === null){
-            const message="defaultSetting";
-            // エラーページへリダイレクト
-            Inertia.visit(`/error_view/?message=${encodeURIComponent(message)}`)
-            return null;
-        }
         const headers={
             "Content-type":"application/json",
             // 自動送信されているが、念のため行う

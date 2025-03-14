@@ -1,6 +1,8 @@
 <?php
 
 namespace App\Http\Controllers;
+
+use App\Http\Requests\FullResultsRequest;
 use Illuminate\Http\Request;
 use App\Http\Requests\GamePatternRequest;
 use Illuminate\Support\Facades\Auth;
@@ -27,15 +29,9 @@ class ShowResultController extends Controller
         }
 
         // 結果のフル表示
-        public function show_fullResults_page($which){
+        public function show_fullResults_page(FullResultsRequest $request){
 
-
-            // whichの値によってはエラービューへ？？？
-
-
-
-            
-            return Inertia::render('MyPageFullView', [
+        return Inertia::render('MyPageFullView', [
                 // 各オプション
                 "cateSets"=>json_encode(StaticValueController::$CateSets),
                 "quizSets"=>json_encode(StaticValueController::$QuizSets),
@@ -43,7 +39,7 @@ class ShowResultController extends Controller
                 // ユーザー名
                 "user"=>Auth::user(),
                 // 選手とチームのどちらか
-                "which"=>$which
+                "which"=>$request->which
             ]);
         }
 

@@ -21,7 +21,7 @@ class Kernel extends HttpKernel
         \Illuminate\Foundation\Http\Middleware\ValidatePostSize::class,
         \App\Http\Middleware\TrimStrings::class,
         \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
-        \App\Http\Middleware\NoCachedMiddleware::class
+        \App\Http\Middleware\NoCachedMiddleware::class,
     ];
 
     /**
@@ -39,7 +39,10 @@ class Kernel extends HttpKernel
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
             \App\Http\Middleware\HandleInertiaRequests::class,
             \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,
-            \App\Http\Middleware\LogHeadersMiddleware::class, // ここに追加
+            \App\Http\Middleware\LogHeadersMiddleware::class,
+
+            // IP制限
+            \App\Http\Middleware\RestrictedIPMiddleware::class,
         ],
 
         'api' => [

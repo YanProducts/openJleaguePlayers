@@ -7,42 +7,43 @@ import TopPageCustomDefinition from './Definitions/TopPageCustomDefinition';
 import TopPage_fetch from "../API/FetchAPI/TopPageFetch";
 
 
+
+
 export default function TopPage(props) {
 
     // ユーザー名
     const [user,setUser]=React.useState(props?.user || "");
+    // const [user,setUser]=React.useState("");
     // ログイントークン
     const [rememberToken,setRememberToken]=React.useState("");
     // 保持orNot
     const [remember,setRemember]=React.useState(props?.remember || localStorage.getItem("remember") || "no");
 
+    const noLoginUserName=import.meta.env.VITE_COMMON_USER_NAME;
 
     // ログインページから来て、新たに「保持か否か」が変更になった場合
     React.useEffect(()=>{
-        // props.rememberがtrueの場合は、ストレージの値を変更
-        // データ引き渡しの際に文字列に変更されていた場合も考慮
-        // 手動でtopPage/1と行われても、結局は照合される必要あるから大きな差はない
-        if (props.remember === "yes") {
-            localStorage.setItem("previousRemember", "yes");
-        }
-    },[props.remember])
 
-
-    // 1:ログインされていない場合はWelcomeへ(そこでオートログインも作動)
-    // ログインされら場合はtokenの再設定(rememberに関わらず)
-    React.useEffect(()=>{
-        // user初期値が既に存在している場合(ログイン済)は返す(undefined=設定前)でも返される
+        // user初期値が存在しない場合はログインページへ(constで設定されているのでundefinedにはならない)
         if (user === "") {
-            Intertia.visit("/");
+            Inertia.visit("/login");
             return;
         }
-
-        // userがcommonUserではない場合、と新しいトークンと新しい名前のローカルストレージへのセット(rememberに関わらず行う)
-        if(user!=="commonUser"){
-            // ここまで来ているということは、必ずnewTokenは存在する
+        
+        // userが共通ユーザーではなく、rememberがyesの時は、新しいトークンと新しい名前のローカルストレージへのセット
+        if(user!==noLoginUserName){
+            if (props.remember === "yes") {
+                localStorage.setItem("previousLoginName",user);
+                // ユーザーをセット
+                localStorage.setItem("previousRemember", "yes");
+            }
+            // newTokenは共通ユーザーではない場合、いずれの場合もセット(毎回更新され、かつtopPageに自動的に入った場合を考慮)
             localStorage.setItem("previousRememberToken",props?.newToken || null)
         }
-    },[user]);
+    },[props.remember,user])
+
+
+
 
 
     // stateのセット
@@ -85,7 +86,7 @@ export default function TopPage(props) {
                 <p className='base_error animate-whenerror mb-5'>不明なエラーです</p>
                 }
 
-                <p className='base_frame base_backColor text-right font-bold my-3 px-3 py-1'>挑戦者：{user ?  (user === "commonUser" ? "ゲスト":user) : ""}さん</p>
+                <p className='base_frame base_backColor text-right font-bold my-3 px-3 py-1'>挑戦者：{user ?  (user === noLoginUserName ? "ゲスト":user) : ""}さん</p>
 
                 <form method="post" action="/game.decide_pattern" className='base_frame font-bold'>
 
@@ -111,11 +112,11 @@ export default function TopPage(props) {
                     <p className='base_link_p'>
                         <Link
                         className='base_link' href="/logout" method= "post" as="button">
-                            {user && props.auth.user.name === "commonUser" ? "ログインして遊ぶ":"ログアウト"}
+
+                            {user && props.auth.user.name === import.meta.env.VITE_COMMON_USER_NAME ? "ログインして遊ぶ":"ログアウト"}
                         </Link>
                      </p>
-
-                    {user && props.auth.user.name !== "commonUser" ?
+                    {user && props.auth.user.name !== noLoginUserName ?
                       <p className="base_link_p"><Link className='base_link' href="/myPage" as="button">マイページへ</Link></p> : null}
                 </div>
 

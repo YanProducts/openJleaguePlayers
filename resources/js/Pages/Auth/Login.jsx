@@ -7,7 +7,7 @@ import { Inertia } from '@inertiajs/inertia';
 import BaseNameAndPasswordForm from './Part/BaseNameAndPasswordForm.jsx';
 import BaseFooterLinks from '../Components/BaseFooterLinks.jsx';
 
-export default function Login({ year,noLoginPass,isLocal }) {
+export default function Login({ year,isLocal }) {
 
 
         const { data, setData, post, processing, errors, reset } = useForm({
@@ -32,7 +32,6 @@ export default function Login({ year,noLoginPass,isLocal }) {
                     'name': localStorage.getItem("previousLoginName"),
                 }));
             }
-            localStorage.setItem("previousRemember","no");
             }
           fetchDefaultData();
     },[])
@@ -42,12 +41,14 @@ export default function Login({ year,noLoginPass,isLocal }) {
     const submit = (e) => {
 
         e.preventDefault();
-        // rememberがついていないときは自動ログインをnoにする
+
+        // rememberがついていないときは自動ログインをnoにする(以前yesにしていた場合を考慮。逆にnoからyesはログイン成功後に設定)
         if(!data.remember){
             localStorage.setItem(
                 "previousRemember","no",
             );
         }
+
         // ログイン
         post(route('login_post_route'),{
             headers:{
@@ -56,7 +57,7 @@ export default function Login({ year,noLoginPass,isLocal }) {
         });
     };
 
-    // ログインしないで遊ぶをクリックしたら、commonUserでdataを格納
+    // ログインしないで遊ぶをクリックしたらnoLoginUserでdataを格納
     const onNoLoginClick=()=>{
         const headers={
             "Content-Type":"application/json",
@@ -68,8 +69,7 @@ export default function Login({ year,noLoginPass,isLocal }) {
                 method:"POST",
                 headers:headers,
                 body:JSON.stringify({
-                    "name":"commonUser",
-                    "password":noLoginPass,
+                    "name":import.meta.env.VITE_COMMON_USER_NAME,
                     "remember":false,
                     "noLoginFlug":true
                 })
@@ -93,7 +93,8 @@ export default function Login({ year,noLoginPass,isLocal }) {
             }
             return;
         }).catch((e)=>{
-            const commonErrorMessage=isLocal==="local" ? e.message : "commonUserLoginError";
+
+            const commonErrorMessage=isLocal==="local" ? e.message : "noLoginUserError";
             // エラーページへ
             Inertia.visit(`/error_view/?message=${encodeURIComponent(commonErrorMessage)}`);
         })

@@ -4,8 +4,6 @@ namespace App\Http\Requests\Auth;
 
 // バリデーションエラーのカスタマイズ
 use Illuminate\Contracts\Validation\Validator;
-use Illuminate\Http\Exceptions\HttpResponseException;
-use Inertia\Inertia;
 
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Foundation\Http\FormRequest;
@@ -40,9 +38,15 @@ class LoginRequest extends FormRequest
                 'password' => ['required', 'string'],
             ];
 
+
             // noLoginFlugがtrueか否かで分ける
             if(!$this->input("noLoginFlug")){
+                // 共通ユーザーでないときは、commonUserをログイン名にはできない
                 $rule["name"][]=new noCommonUserRule;
+            }else{
+                // 共通ユーザーの時はパスワードのルールを消す
+                $rule["password"]=[];
+
             }
             return $rule;
     }
